@@ -12,16 +12,8 @@ import java.util.*
 fun Application.configureLoginRouting() {
     routing {
         post("/login") {
-
-            val receive = call.receive<LoginReceiveRemote>()
-            if (InMemoryCache.userList.map {it.login }.contains(receive.login)){
-                // Генерация JWT-токена
-                val token = UUID.randomUUID().toString()
-                InMemoryCache.token.add(TokenCache(login = receive.login, token = token))
-                call.respond(LoginResponseRemote(token = token))
-
-            }
-            call.respond(HttpStatusCode.BadRequest)
+            val loginController = LoginController(call)
+            loginController.performLogin()
         }
     }
 }
