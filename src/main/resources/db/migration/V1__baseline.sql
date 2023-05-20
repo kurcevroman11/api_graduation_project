@@ -2,8 +2,8 @@ CREATE TABLE public.usser (
 	id serial NOT NULL,
 	login varchar NOT NULL,
 	password varchar NOT NULL,
-	token_short varchar NOT NULL,
-	token_long varchar NOT NULL,
+	token_short TEXT NOT NULL,
+	token_long TEXT NOT NULL,
 	personID integer,
 	CONSTRAINT Users_pk PRIMARY KEY (id)
 ) WITH (
@@ -14,11 +14,11 @@ CREATE TABLE public.usser (
 
 CREATE TABLE public.task (
 	id serial NOT NULL,
-	Name varchar NOT NULL,
-	Status integer NOT NULL,
-	Start_data DATE NOT NULL,
+	Name varchar,
+	Status integer,
+	Start_data DATE,
 	Score TIME,
-	DescriptionID integer NOT NULL,
+	DescriptionID integer,
 	Parent integer,
 	Generation integer,
 	CommentsID integer,
@@ -41,7 +41,7 @@ CREATE TABLE public.status (
 
 CREATE TABLE public.role (
 	id serial NOT NULL,
-	Name varchar NOT NULL,
+	Name varchar,
 	CONSTRAINT Role_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -51,9 +51,9 @@ CREATE TABLE public.role (
 
 CREATE TABLE public.usersRoleProject (
 	id serial NOT NULL,
-	UserID integer NOT NULL,
-	RoleID integer NOT NULL,
-	ProjectID integer NOT NULL,
+	UserID integer,
+	RoleID integer,
+	ProjectID integer,
 	CONSTRAINT UsersRoleProject_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -75,8 +75,8 @@ CREATE TABLE public.description (
 
 CREATE TABLE public.comments (
 	id serial NOT NULL,
-	Usser integer NOT NULL,
-	Comments TEXT NOT NULL,
+	Usser integer,
+	Comments TEXT,
 	CONSTRAINT Comments_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -85,7 +85,7 @@ CREATE TABLE public.comments (
 
 CREATE TABLE public.type_of_activity (
 	id serial NOT NULL,
-	Name varchar NOT NULL,
+	Name varchar,
 	CONSTRAINT Type_of_activity_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -95,10 +95,10 @@ CREATE TABLE public.type_of_activity (
 
 CREATE TABLE public.team (
 	id serial NOT NULL,
-	Ussers integer NOT NULL,
-	Task integer NOT NULL,
-	Evaluation TIME NOT NULL,
-	Times TIME NOT NULL,
+	Ussers integer,
+	Task integer,
+	Evaluation TIME,
+	Times TIME,
 	CONSTRAINT Team_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -111,7 +111,7 @@ CREATE TABLE public.person (
 	surname varchar NOT NULL,
 	name varchar NOT NULL,
 	patronymic varchar,
-	type_of_activity integer NOT NULL,
+	type_of_activity integer,
 	CONSTRAINT person_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
