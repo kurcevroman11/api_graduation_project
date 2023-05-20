@@ -7,3 +7,4 @@ class UsersDTO (
     val token_long: String,
     val personId: Int? = null
 )
+

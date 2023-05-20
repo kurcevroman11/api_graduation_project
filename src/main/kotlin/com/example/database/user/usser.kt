@@ -9,22 +9,22 @@ object usser: Table("usser") {
     val id = usser.integer("id")
     val login =  usser.varchar("login", 50)
     val password =  usser.varchar("password", 50)
-    val token_short =  usser.varchar("token_short", 50)
-    val token_long =  usser.varchar("token_long", 50)
-    val personId = usser.integer("personid")
+    val token_short =  usser.text("token_short")
+    val token_long =  usser.text("token_long")
+    val personId = usser.integer("personid").nullable()
 
-   fun  insert (usersDTO: UsersDTO){
-       transaction {
-           usser.insert {
-               it[login] = usersDTO.login
-               it[password] = usersDTO.password
-               it[token_short] = usersDTO.token_short
-               it[token_long] = usersDTO.token_long
-           }
-       }
-   }
+    fun  insert (usersDTO: UsersDTO){
+        transaction {
+            usser.insert {
+                it[login] = usersDTO.login
+                it[password] = usersDTO.password
+                it[token_short] = usersDTO.token_short
+                it[token_long] = usersDTO.token_long
+            }
+        }
+    }
 
-    // Извлекаем user
+    // user
     fun fetchUser(login: String): UsersDTO? {
         return try {
             transaction {
