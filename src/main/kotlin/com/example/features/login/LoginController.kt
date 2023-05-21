@@ -1,6 +1,7 @@
 package com.example.features.login
 
 import com.example.database.user.usser
+import com.example.database.user.UsersDTO
 import com.example.features.register.RegisterResponseRemote
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
@@ -15,14 +16,15 @@ import org.jetbrains.exposed.sql.update
 import java.util.*
 
 class LoginController(private val call: ApplicationCall) {
-    suspend fun performLogin() {
+    suspend fun performLogin(){
         val receive = call.receive<LoginReceiveRemote>()
         val userDTO = usser.fetchUser(receive.login)
+        println(userDTO)
 
-        if (userDTO == null) {
+        if(userDTO == null){
             call.respond(HttpStatusCode.BadRequest, "User not found")
         } else {
-            if (userDTO.password == receive.password) {
+            if(userDTO.password == receive.password){
                 val tokenShort = generateTokenShort(receive.login)
                 val tokenLong = generateTokenLong(receive.login)
                 transaction {
@@ -34,13 +36,11 @@ class LoginController(private val call: ApplicationCall) {
                     }
                 }
                 call.respond(
-                    RegisterResponseRemote(
-                        tokenShort = tokenShort,
-                        tokenLong = tokenLong
-                    )
+                    RegisterResponseRemote(tokenShort = tokenShort,
+                        tokenLong = tokenLong )
                 )
-            } else {
-                call.respond(HttpStatusCode.BadRequest, "Invalid password or login")
+            } else{
+                call.respond(HttpStatusCode.BadRequest, "Invalid password")
             }
         }
     }
