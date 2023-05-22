@@ -1,5 +1,6 @@
 package com.example.db.Task
 
+
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.selectAll
@@ -15,13 +16,19 @@ import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 fun Application.TaskContriller() {
     routing {
         route("/task") {
             get {
-                val tastDTO = getTaskAll()
-                call.respond(tastDTO)
+                val taskDTO = getTaskAll()
+                val gson = Gson()
+
+                val task = gson.toJson(taskDTO)
+
+                call.respond(task)
             }
 
             get("/{id}") {
