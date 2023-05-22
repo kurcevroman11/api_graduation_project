@@ -1,7 +1,7 @@
 package com.example.db.person
 
 import com.example.db.Task.TaskDTO
-import com.example.db.Task.TaskModel
+
 import com.example.db.Team.TeamModel.autoIncrement
 import com.example.db.Team.TeamModel.primaryKey
 import org.jetbrains.exposed.sql.*

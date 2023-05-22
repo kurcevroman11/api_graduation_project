@@ -1,27 +1,29 @@
 package com.example.db.Task
 
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
-import com.example.db.Task.TaskModel
-import com.example.db.Task.TaskModel.deletTask
-import com.example.db.Task.TaskModel.getTask
-import com.example.db.Task.TaskModel.getTaskAll
-import com.example.db.Task.TaskModel.insert
-import com.example.db.Task.TaskModel.updateTask
-import com.example.plugins.User
+
+import TaskModel.deletTask
+import TaskModel.getTask
+import TaskModel.getTaskAll
+import TaskModel.insert
+import TaskModel.updateTask
+
 import com.google.gson.Gson
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
 
 fun Application.TaskContriller() {
     routing {
         route("/task") {
             get {
-                val tastDTO = getTaskAll()
-                call.respond(tastDTO)
+                val taskDTO = getTaskAll()
+                val gson = Gson()
+
+                val task = gson.toJson(taskDTO)
+
+                call.respond(task)
             }
 
             get("/{id}") {

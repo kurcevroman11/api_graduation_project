@@ -1,5 +1,7 @@
 package com.example
 
+import CommentContriller
+import com.example.db.Description.DescriptionContriller
 import com.example.db.Task.TaskContriller
 import com.example.db.dataDb.password
 import com.example.db.dataDb.url
@@ -47,4 +49,6 @@ fun Application.module() {
     filetext()
     photo()
     configureRegisterRouting()
+    DescriptionContriller()
+    CommentContriller()
 }
