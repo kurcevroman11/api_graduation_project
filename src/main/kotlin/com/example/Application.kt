@@ -1,5 +1,6 @@
 package com.example
 
+import com.example.database.user.UserContriller
 import com.example.db.Task.TaskContriller
 import com.example.db.Task.TaskDTO
 import com.example.features.login.configureLoginRouting
@@ -56,4 +57,5 @@ fun Application.module() {
     configureRouting()
     login()
     TaskContriller()
+    UserContriller()
 }
