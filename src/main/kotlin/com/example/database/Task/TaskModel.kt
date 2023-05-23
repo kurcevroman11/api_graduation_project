@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.jodatime.date
 import org.jetbrains.exposed.sql.jodatime.datetime
-
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
@@ -61,10 +60,8 @@ object TaskModel : Table("task"){
             }
         }catch (e: Exception) {
             ArrayList<TaskDTO>()
-        }!!
+        }
     }
-
-
 
     fun getTask(id:Int): TaskDTO? {
         return try{

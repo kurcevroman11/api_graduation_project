@@ -1,6 +1,5 @@
 package com.example.db.Description
 
-
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 object DescriptionModel: Table("descriptions") {

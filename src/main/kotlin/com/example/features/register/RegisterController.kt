@@ -3,8 +3,9 @@ package com.example.features.register
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import  com.example.database.user.usser
+import  com.example.database.user.UsserModel
 import com.example.database.user.UsersDTO
+import com.example.db.Description.DescriptionModel.autoIncrement
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
 import io.ktor.server.request.*
@@ -21,7 +22,7 @@ class RegisterController(val call: ApplicationCall) {
         var tokenShort : String = ""
         var tokenLong : String = ""
 
-        val userDTO = usser.fetchUser(registerReciveRemote.login)
+        val userDTO = UsserModel.fetchUser(registerReciveRemote.login)
         if(userDTO != null){
             call.respond(HttpStatusCode.Conflict, "User already exists")
         }
@@ -31,8 +32,9 @@ class RegisterController(val call: ApplicationCall) {
             transaction {
                 addLogger(StdOutSqlLogger)
 
-                usser.insert(
+                UsserModel.insert(
                     UsersDTO(
+                        id = null,
                         login = registerReciveRemote.login,
                         password = registerReciveRemote.password,
                         token_short = tokenShort,
