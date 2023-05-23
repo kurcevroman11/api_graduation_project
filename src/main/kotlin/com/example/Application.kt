@@ -1,6 +1,8 @@
 package com.example
 
+import CommentContriller
 import com.example.database.user.UserContriller
+import com.example.db.Description.DescriptionContriller
 import com.example.db.Task.TaskContriller
 import com.example.db.Task.TaskDTO
 import com.example.features.login.configureLoginRouting
@@ -32,21 +34,6 @@ fun main() {
     )
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
-
-//    val task: TaskDTO = fetchTask(2)
-//    println(task.name)
-//    val date = task.start_date!!.toDate()
-//    println(date)
-//    val date2 = task.start_date.toLocalDateTime()
-//    println(date2)
-//
-//    val data2_1 =  task.start_date.toLocalDateTime().toString()
-//    println(data2_1)
-//
-//    val date3 = date2.hourOfDay
-//    println(date3)
-
-
 }
 
 fun Application.module() {
@@ -58,4 +45,6 @@ fun Application.module() {
     login()
     TaskContriller()
     UserContriller()
+    CommentContriller()
+    DescriptionContriller()
 }
