@@ -17,14 +17,14 @@ fun Application.SumNambers(){
         routing {
             post("/sum") {
                 val json = call.receive<String>()
-                val h = call.request.headers
+
                 val gson = Gson()
 
                 val numbers = gson.fromJson(json,Numbers::class.java)
 
                 var sum = numbers.a + numbers.b
 
-                call.respond("${numbers.a} + ${numbers.b} = $sum")
+                call.respondText("${numbers.a} + ${numbers.b} = $sum")
 
             }
         }
