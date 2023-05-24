@@ -31,7 +31,7 @@ CREATE TABLE public.task (
 
 CREATE TABLE public.status (
 	id serial NOT NULL,
-	Name integer,
+	Name text,
 	CONSTRAINT Status_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE
@@ -105,7 +105,6 @@ CREATE TABLE public.team (
 );
 
 
-
 CREATE TABLE public.person (
 	id serial NOT NULL,
 	surname varchar NOT NULL,
@@ -125,14 +124,11 @@ ALTER TABLE task ADD CONSTRAINT Task_fk0 FOREIGN KEY (Status) REFERENCES status(
 ALTER TABLE task ADD CONSTRAINT Task_fk1 FOREIGN KEY (DescriptionID) REFERENCES description(id);
 ALTER TABLE task ADD CONSTRAINT Task_fk2 FOREIGN KEY (CommentsID) REFERENCES comments(id);
 
-
 ALTER TABLE usersRoleProject ADD CONSTRAINT UsersRoleProject_fk0 FOREIGN KEY (UserID) REFERENCES usser(id);
 ALTER TABLE usersRoleProject ADD CONSTRAINT UsersRoleProject_fk1 FOREIGN KEY (RoleID) REFERENCES role(id);
 ALTER TABLE usersRoleProject ADD CONSTRAINT UsersRoleProject_fk2 FOREIGN KEY (ProjectID) REFERENCES task(id);
 
-
 ALTER TABLE comments ADD CONSTRAINT Comments_fk0 FOREIGN KEY (Usser) REFERENCES usersRoleProject(id);
-
 
 ALTER TABLE team ADD CONSTRAINT Team_fk0 FOREIGN KEY (Ussers) REFERENCES usersRoleProject(id);
 ALTER TABLE team ADD CONSTRAINT Team_fk1 FOREIGN KEY (Task) REFERENCES task(id);
