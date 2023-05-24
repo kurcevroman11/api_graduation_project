@@ -1,10 +1,10 @@
 package com.example
 
-import CommentContriller
+import com.example.database.Role.RoleContriller
 import com.example.database.user.UserContriller
-import com.example.db.Description.DescriptionContriller
 import com.example.db.Task.TaskContriller
 import com.example.db.Task.TaskDTO
+import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import io.ktor.server.application.*
@@ -45,6 +45,6 @@ fun Application.module() {
     login()
     TaskContriller()
     UserContriller()
-    CommentContriller()
-    DescriptionContriller()
+    RoleContriller()
+    UserRoleProjectController()
 }
