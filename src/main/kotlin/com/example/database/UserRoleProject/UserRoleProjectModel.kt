@@ -4,10 +4,11 @@ import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.Task.TaskModel
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object UserRoleProjectModel: Table("usersroleproject"){
-    private  val id = UserRoleProjectModel.integer("id").autoIncrement().primaryKey()
+    private  val id = UserRoleProjectModel.integer("id").autoIncrement()
     private  val users = UserRoleProjectModel.integer("userid").nullable()
     private  val role = UserRoleProjectModel.integer("roleid").nullable()
     private  val task = UserRoleProjectModel.integer("projectid")

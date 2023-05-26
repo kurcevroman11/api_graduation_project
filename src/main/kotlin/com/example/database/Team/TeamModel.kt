@@ -2,7 +2,7 @@ package com.example.db.Team
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 object TeamModel: Table("team") {
-    private  val id = TeamModel.integer("id").autoIncrement().primaryKey()
+    private  val id = TeamModel.integer("id").autoIncrement()
     private  val users = TeamModel.integer("Users").nullable()
     private  val task = TeamModel.integer("Task")
     private  val evaluation = TeamModel.varchar("Evaluation",64).nullable()
