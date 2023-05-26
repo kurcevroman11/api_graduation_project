@@ -11,7 +11,6 @@ CREATE TABLE public.usser (
 );
 
 
-
 CREATE TABLE public.task (
 	id serial NOT NULL,
 	Name varchar,
@@ -26,7 +25,6 @@ CREATE TABLE public.task (
 ) WITH (
   OIDS=FALSE
 );
-
 
 
 CREATE TABLE public.status (
@@ -59,8 +57,6 @@ CREATE TABLE public.usersRoleProject (
   OIDS=FALSE
 );
 
-
-
 CREATE TABLE public.description (
 	id serial NOT NULL,
 	content TEXT,
@@ -92,7 +88,6 @@ CREATE TABLE public.type_of_activity (
 );
 
 
-
 CREATE TABLE public.team (
 	id serial NOT NULL,
 	Ussers integer,
@@ -115,7 +110,6 @@ CREATE TABLE public.person (
 ) WITH (
   OIDS=FALSE
 );
-
 
 
 ALTER TABLE usser ADD CONSTRAINT Users_fk0 FOREIGN KEY (personID) REFERENCES person(id);
