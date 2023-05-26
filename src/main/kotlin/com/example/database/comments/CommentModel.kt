@@ -1,21 +1,18 @@
 package com.example.db.comments
 
-import com.example.db.Description.DescriptionDTO
-import com.example.db.Description.DescriptionModel
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object CommentModel : Table("comments"){
-    private  val id = CommentModel.integer("id").autoIncrement().primaryKey()
+    private  val id = CommentModel.integer("id").autoIncrement()
     private  val user = CommentModel.integer("usser").nullable()
     private  val comments = CommentModel.varchar("comments", 256)
 
 
     fun  insertComment(сommentDTO: CommentDTO){
         transaction {
-
             addLogger(StdOutSqlLogger)
 
             CommentModel.insert{

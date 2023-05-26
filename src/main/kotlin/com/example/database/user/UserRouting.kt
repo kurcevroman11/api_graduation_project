@@ -1,9 +1,9 @@
 package com.example.database.user
 
-import com.example.database.user.UsserModel.deleteUser
-import com.example.database.user.UsserModel.fetchAllUser
-import com.example.database.user.UsserModel.fetchUserID
-import com.example.database.user.UsserModel.updateUser
+import com.example.database.user.UserModule.deleteUser
+import com.example.database.user.UserModule.fetchAllUser
+import com.example.database.user.UserModule.fetchUserID
+import com.example.database.user.UserModule.updateUser
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import com.google.gson.Gson

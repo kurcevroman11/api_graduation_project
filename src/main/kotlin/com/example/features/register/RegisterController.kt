@@ -1,16 +1,19 @@
 package com.example.features.register
 
+import com.example.database.Person.PersonDTO
+import com.example.database.Person.PersonForUser
+import com.example.database.Person.PersonModule
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import  com.example.database.user.UsserModel
+import  com.example.database.user.UserModule
 import com.example.database.user.UsersDTO
-import com.example.db.Description.DescriptionModel.autoIncrement
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
 import io.ktor.server.request.*
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
 
@@ -22,7 +25,7 @@ class RegisterController(val call: ApplicationCall) {
         var tokenShort : String = ""
         var tokenLong : String = ""
 
-        val userDTO = UsserModel.fetchUser(registerReciveRemote.login)
+        val userDTO = UserModule.fetchUser(registerReciveRemote.login)
         if(userDTO != null){
             call.respond(HttpStatusCode.Conflict, "User already exists")
         }
@@ -32,13 +35,23 @@ class RegisterController(val call: ApplicationCall) {
             transaction {
                 addLogger(StdOutSqlLogger)
 
-                UsserModel.insert(
+                val person = PersonDTO(
+                    id = null,
+                    surname = "",
+                    name = "",
+                    patronymic = ""
+                )
+                val personId: Int? = PersonForUser.insertandGetId(person).toInt()
+
+                UserModule.insert(
                     UsersDTO(
                         id = null,
                         login = registerReciveRemote.login,
                         password = registerReciveRemote.password,
                         token_short = tokenShort,
-                        token_long = tokenLong
+                        token_long = tokenLong,
+                        personId = personId
+
                     )
                 )
             }

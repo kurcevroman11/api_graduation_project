@@ -1,6 +1,6 @@
 package com.example.features.login
 
-import com.example.database.user.UsserModel
+import com.example.database.user.UserModule
 import com.example.features.register.RegisterResponseRemote
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
@@ -16,7 +16,7 @@ import org.jetbrains.exposed.sql.update
 class LoginController(private val call: ApplicationCall) {
     suspend fun performLogin(){
         val receive = call.receive<LoginReceiveRemote>()
-        val userDTO = UsserModel.fetchUser(receive.login)
+        val userDTO = UserModule.fetchUser(receive.login)
 
         if(userDTO == null){
             call.respond(HttpStatusCode.BadRequest, "User not found")
@@ -27,7 +27,7 @@ class LoginController(private val call: ApplicationCall) {
                 transaction {
                     addLogger(StdOutSqlLogger)
 
-                    UsserModel.update({ UsserModel.login eq receive.login }) {
+                    UserModule.update({ UserModule.login eq receive.login }) {
                         it[token_long] = tokenLong
                         it[token_short] = tokenShort
                     }

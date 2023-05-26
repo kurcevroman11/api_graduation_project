@@ -1,9 +1,10 @@
 package com.example
 
+import com.example.database.Person.PersonContriller
 import com.example.database.Role.RoleContriller
+import com.example.database.type_of_activity.Type_of_activityContriller
 import com.example.database.user.UserContriller
 import com.example.db.Task.TaskContriller
-import com.example.db.Task.TaskDTO
 import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
@@ -16,14 +17,14 @@ import org.jetbrains.exposed.sql.Database
 
 fun main() {
 
-// настраиваем Flyway
-    val flyway = Flyway.configure()
-        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
-        .baselineOnMigrate(true)
-        .locations("db/migration") // указываем папку с миграциями
-        .load()
-// запускаем миграции
-    flyway.migrate()
+//// настраиваем Flyway
+//    val flyway = Flyway.configure()
+//        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
+//        .baselineOnMigrate(true)
+//        .locations("db/migration") // указываем папку с миграциями
+//        .load()
+//// запускаем миграции
+//    flyway.migrate()
 
     // Запускаем БД
     Database.connect(
@@ -31,7 +32,9 @@ fun main() {
         driver = "org.postgresql.Driver",
         user = "postgres",
         password = "qwerty"
+
     )
+
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
         .start(wait = true)
 }
@@ -40,11 +43,10 @@ fun Application.module() {
     configureLoginRouting()
     configureRegisterRouting()
     configureSerialization()
-    SumNambers()
-    configureRouting()
-    login()
     TaskContriller()
     UserContriller()
     RoleContriller()
     UserRoleProjectController()
+    PersonContriller()
+    Type_of_activityContriller()
 }

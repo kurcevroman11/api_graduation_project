@@ -1,7 +1,5 @@
 package com.example.db.Description
 
-
-
 import com.example.db.Description.DescriptionModel.deletDescription
 import com.example.db.Description.DescriptionModel.getDescription
 import com.example.db.Description.DescriptionModel.getDescriptionAll
@@ -68,10 +66,7 @@ fun Application.DescriptionContriller() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
-
             }
-
         }
     }
 }
