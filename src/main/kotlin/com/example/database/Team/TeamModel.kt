@@ -1,4 +1,5 @@
 package com.example.db.Team
+
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 object TeamModel: Table("team") {
