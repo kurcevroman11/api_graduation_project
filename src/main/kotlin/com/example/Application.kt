@@ -2,6 +2,7 @@ package com.example
 
 import com.example.database.Person.PersonContriller
 import com.example.database.Role.RoleContriller
+import com.example.database.Status.StatusContriller
 import com.example.database.type_of_activity.Type_of_activityContriller
 import com.example.database.user.UserContriller
 import com.example.db.Task.TaskContriller
@@ -16,7 +17,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
 fun main() {
-
+//
 //// настраиваем Flyway
 //    val flyway = Flyway.configure()
 //        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
@@ -49,4 +50,5 @@ fun Application.module() {
     UserRoleProjectController()
     PersonContriller()
     Type_of_activityContriller()
+    StatusContriller()
 }
