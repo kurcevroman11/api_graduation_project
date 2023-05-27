@@ -17,7 +17,7 @@ import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
 
 fun main() {
-//
+
 //// настраиваем Flyway
 //    val flyway = Flyway.configure()
 //        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
