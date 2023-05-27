@@ -37,6 +37,25 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
+    fun getUserProject(id: Int) : MutableList<UserRoleProjectDTO>?
+    {
+        return transaction {
+            exec(" SELECT * FROM usersroleproject WHERE projectid = $id;") { rs ->
+                val list = mutableListOf<UserRoleProjectDTO>()
+                while (rs.next()) {
+                    list.add(UserRoleProjectDTO(
+                        rs.getInt("id"),
+                        rs.getInt("userid"),
+                        rs.getInt("roleid"),
+                        rs.getInt("projectid"),)
+                    )
+                }
+                return@exec list
+            }
+
+        }
+    }
+
     fun getURP(id:Int): UserRoleProjectDTO? {
         return try{
             transaction {

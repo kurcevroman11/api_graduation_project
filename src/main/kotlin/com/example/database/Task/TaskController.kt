@@ -39,9 +39,24 @@ fun Application.TaskContriller() {
                 }
             }
 
+            post("/{id}") {
+                val task = call.receive<String>()
+                val gson = Gson()
+                val taskId = call.parameters["id"]?.toIntOrNull()
+
+
+                val name = gson.fromJson(task, TaskDTO::class.java)
+
+                name.parent = taskId
+
+                insert(name)
+
+                call.respond(HttpStatusCode.Created)
+            }
             post {
                 val task = call.receive<String>()
                 val gson = Gson()
+
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
                 insert(name)

@@ -16,7 +16,7 @@ class TaskDTO(
     @Contextual
     val scope: DateTime?,
     val description: Int?,
-    val parent: Int?,
+    var parent: Int?,
     val generathon: Int?,
     val comments: Int?)
 {
