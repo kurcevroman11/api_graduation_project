@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import com.example.db.Task.TaskModel
 import com.example.db.Task.TaskModel.deletTask
+import com.example.db.Task.TaskModel.getProjectAll
 import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
 import com.example.db.Task.TaskModel.insert
@@ -22,6 +23,15 @@ fun Application.TaskContriller() {
         route("/task") {
             get {
                 val taskDTO = getTaskAll()
+                val gson = Gson()
+
+                val task = gson.toJson(taskDTO)
+
+                call.respond(task)
+            }
+
+            get("/project"){
+                val taskDTO = getProjectAll()
                 val gson = Gson()
 
                 val task = gson.toJson(taskDTO)
