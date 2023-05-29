@@ -33,7 +33,7 @@ fun main() {
         url = "jdbc:postgresql://localhost:5432/sebbia",
         driver = "org.postgresql.Driver",
         user = "postgres",
-        password = "123321"
+        password = "qwerty"
 
     )
 

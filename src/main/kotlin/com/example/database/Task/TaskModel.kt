@@ -1,5 +1,7 @@
 package com.example.db.Task
 
+import com.example.database.Description.DescriptionForTask
+import com.example.db.Description.DescriptionDTO
 import io.ktor.http.*
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.*
@@ -28,21 +30,26 @@ object TaskModel : Table("task") {
 
             addLogger(StdOutSqlLogger)
 
+            val Descriprion = DescriptionDTO(
+                id = null,
+                content = "",
+                file_resources = null,
+                photo_resources = null,
+                video_resources = null
+            )
+            val descriptionId = DescriptionForTask.insertandGetId(Descriprion).toInt()
+
             TaskModel.insert {
                 it[name] = taskDTO.name
                 it[status] = taskDTO.status
                 it[start_date] = taskDTO.start_date?.toDateTime()
                 it[scope] = taskDTO.scope?.toDateTime()
                 it[description] = taskDTO.description
-                it[parent] = taskDTO.parent
+                it[parent] = descriptionId
                 it[generathon] = taskDTO.generathon
                 it[comments] = taskDTO.comments
             }
-
         }
-
-
-
     }
 
     fun getProjectAll(): List<TaskDTO> {
