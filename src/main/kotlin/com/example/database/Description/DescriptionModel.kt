@@ -2,6 +2,7 @@ package com.example.db.Description
 
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.*
 import java.nio.file.Files
@@ -10,7 +11,7 @@ import javax.imageio.ImageIO
 
 object DescriptionModel: Table("description") {
 
-    private val id = DescriptionModel.integer("id").autoIncrement().primaryKey()
+    private val id = DescriptionModel.integer("id").autoIncrement()
     private val content = DescriptionModel.varchar("content", 64)
     private val file_resources = DescriptionModel.binary("file_resources").nullable()
     private val photo_resources = DescriptionModel.binary("photo_resources").nullable()

@@ -4,30 +4,31 @@ import io.ktor.http.*
 import mu.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
 import org.jetbrains.exposed.sql.jodatime.date
 import org.jetbrains.exposed.sql.jodatime.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.File
 
 
-object TaskModel : Table("task"){
+object TaskModel : Table("task") {
 
-    private  val id = TaskModel.integer("id").autoIncrement()
-    private  val name = TaskModel.varchar("name", 64)
-    private  val status = TaskModel.integer("status").nullable()
-    private  val start_date = TaskModel.datetime("start_data").nullable()
-    private  val scope = TaskModel.datetime("score").nullable()
-    private  val description = TaskModel.integer("descriptionid").nullable()
-    private  val parent = TaskModel.integer("parent").nullable()
-    private  val generathon = TaskModel.integer("generation").nullable()
-    private  val comments = TaskModel.integer("commentsid").nullable()
+    private val id = TaskModel.integer("id").autoIncrement()
+    private val name = TaskModel.varchar("name", 64)
+    private val status = TaskModel.integer("status").nullable()
+    private val start_date = TaskModel.datetime("start_data").nullable()
+    private val scope = TaskModel.datetime("score").nullable()
+    private val description = TaskModel.integer("descriptionid").nullable()
+    private val parent = TaskModel.integer("parent").nullable()
+    private val generathon = TaskModel.integer("generation").nullable()
+    private val comments = TaskModel.integer("commentsid").nullable()
 
-    fun  insert(taskDTO: TaskDTO){
+    fun insert(taskDTO: TaskDTO) {
         transaction {
 
             addLogger(StdOutSqlLogger)
 
-            TaskModel.insert{
+            TaskModel.insert {
                 it[name] = taskDTO.name
                 it[status] = taskDTO.status
                 it[start_date] = taskDTO.start_date?.toDateTime()
@@ -44,6 +45,27 @@ object TaskModel : Table("task"){
 
     }
 
+    fun getProjectAll(): List<TaskDTO> {
+        return try {
+            transaction {
+                TaskModel.select { TaskModel.parent.isNull() }.map {
+                    TaskDTO(
+                        it[TaskModel.id],
+                        it[name],
+                        it[status],
+                        it[start_date]?.toDateTime(),
+                        it[scope]?.toDateTime(),
+                        it[description],
+                        it[parent],
+                        it[generathon],
+                        it[comments]
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            ArrayList<TaskDTO>()
+        }
+    }
 
 
     fun getTaskAll(): List<TaskDTO> {
@@ -63,13 +85,13 @@ object TaskModel : Table("task"){
                     )
                 }
             }
-        }catch (e: Exception) {
+        } catch (e: Exception) {
             ArrayList<TaskDTO>()
         }
     }
 
-    fun getTask(id:Int): TaskDTO? {
-        return try{
+    fun getTask(id: Int): TaskDTO? {
+        return try {
             transaction {
                 val taskModle = TaskModel.select { TaskModel.id.eq(id) }.single()
                 TaskDTO(
@@ -84,8 +106,7 @@ object TaskModel : Table("task"){
                     comments = taskModle[comments]
                 )
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             TaskDTO()
         }
     }
@@ -129,3 +150,4 @@ object TaskModel : Table("task"){
         return HttpStatusCode.OK
     }
 }
+

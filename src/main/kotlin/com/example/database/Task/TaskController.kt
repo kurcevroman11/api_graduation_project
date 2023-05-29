@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import com.example.db.Task.TaskModel
 import com.example.db.Task.TaskModel.deletTask
+import com.example.db.Task.TaskModel.getProjectAll
 import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
 import com.example.db.Task.TaskModel.insert
@@ -23,6 +24,15 @@ fun Application.TaskContriller() {
         route("/task") {
             get {
                 val taskDTO = getTaskAll()
+                val gson = Gson()
+
+                val task = gson.toJson(taskDTO)
+
+                call.respond(task)
+            }
+
+            get("/project"){
+                val taskDTO = getProjectAll()
                 val gson = Gson()
 
                 val task = gson.toJson(taskDTO)
@@ -56,9 +66,24 @@ fun Application.TaskContriller() {
                 call.respond(HttpStatusCode.Created)
             }
 
+            post("/{id}") {
+                val task = call.receive<String>()
+                val gson = Gson()
+                val taskId = call.parameters["id"]?.toIntOrNull()
+
+
+                val name = gson.fromJson(task, TaskDTO::class.java)
+
+                name.parent = taskId
+
+                insert(name)
+
+                call.respond(HttpStatusCode.Created)
+            }
             post {
                 val task = call.receive<String>()
                 val gson = Gson()
+
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
                 createMedia(name.name)
