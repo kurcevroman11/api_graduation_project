@@ -33,9 +33,9 @@ object TaskModel : Table("task") {
             val Descriprion = DescriptionDTO(
                 id = null,
                 content = "",
-                file_resources = null,
-                photo_resources = null,
-                video_resources = null
+                file_resources = "",
+                photo_resources = "",
+                video_resources = ""
             )
             val descriptionId = DescriptionForTask.insertandGetId(Descriprion).toInt()
 

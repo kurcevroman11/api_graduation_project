@@ -61,9 +61,9 @@ CREATE TABLE public.usersRoleProject (
 CREATE TABLE public.description (
 	id serial NOT NULL,
 	content TEXT,
-	File_resources bytea,
-	Photo_resources bytea,
-	Video_resources bytea,
+	File_resources varchar,
+	Photo_resources varchar,
+	Video_resources varchar,
 	CONSTRAINT Descriptions_pk PRIMARY KEY (id)
 ) WITH (
   OIDS=FALSE

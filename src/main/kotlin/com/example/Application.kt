@@ -51,4 +51,5 @@ fun Application.module() {
     PersonContriller()
     Type_of_activityContriller()
     StatusContriller()
+    configureRouting()
 }
