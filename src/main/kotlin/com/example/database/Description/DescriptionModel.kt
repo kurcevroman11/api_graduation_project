@@ -16,7 +16,6 @@ object DescriptionModel: Table("description") {
     private val file_resources = DescriptionModel.binary("file_resources").nullable()
     private val photo_resources = DescriptionModel.binary("photo_resources").nullable()
     private val video_resources = DescriptionModel.binary("video_resources").nullable()
-
     fun insertDescription(descriptionDTO: DescriptionDTO) {
 
         transaction {
