@@ -41,6 +41,8 @@ dependencies {
     implementation("org.postgresql:postgresql:42.2.20")
     implementation("com.google.code.gson:gson:2.8.9")
 
+    implementation("io.github.microutils:kotlin-logging:1.11.0")
+    implementation("io.github.cdimascio:java-dotenv:5.2.2")
 
     implementation("io.ktor:ktor-gson:1.6.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")

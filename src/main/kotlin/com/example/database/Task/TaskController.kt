@@ -10,6 +10,7 @@ import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
 import com.example.db.Task.TaskModel.insert
 import com.example.db.Task.TaskModel.updateTask
+import com.example.plugins.createMedia
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.request.*
@@ -37,6 +38,22 @@ fun Application.TaskContriller() {
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
+
+            }
+            post("/{id}") {
+                val task = call.receive<String>()
+                val gson = Gson()
+                val taskId = call.parameters["id"]?.toIntOrNull()
+
+
+                val name = gson.fromJson(task, TaskDTO::class.java)
+
+                name.parent = taskId
+
+                createMedia(name.name)
+                insert(name)
+
+                call.respond(HttpStatusCode.Created)
             }
 
             post {
@@ -44,8 +61,10 @@ fun Application.TaskContriller() {
                 val gson = Gson()
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
+                createMedia(name.name)
                 insert(name)
                 call.respond(HttpStatusCode.Created)
+
             }
 
             put("/{id}") {
@@ -74,4 +93,6 @@ fun Application.TaskContriller() {
         }
     }
 }
+
+
 
