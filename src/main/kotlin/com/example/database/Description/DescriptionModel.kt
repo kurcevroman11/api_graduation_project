@@ -6,6 +6,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.io.*
 import java.nio.file.Files
+import java.nio.file.Paths
 import javax.imageio.ImageIO
 
 object DescriptionModel: Table("description") {
@@ -15,7 +16,6 @@ object DescriptionModel: Table("description") {
     private val file_resources = DescriptionModel.binary("file_resources").nullable()
     private val photo_resources = DescriptionModel.binary("photo_resources").nullable()
     private val video_resources = DescriptionModel.binary("video_resources").nullable()
-
     fun insertDescription(descriptionDTO: DescriptionDTO) {
 
         transaction {
@@ -33,7 +33,54 @@ object DescriptionModel: Table("description") {
         }
     }
 
-    fun imageToByteArray(imageFile: File): ByteArray {
+    fun readImegeByte()
+    {
+        val dir = "src\\main\\resources\\media\\task1\\photo"
+
+        val imegeList = mutableListOf<String>()
+
+        Files.walk(Paths.get(dir))
+            .filter { Files.isRegularFile(it) }
+            .forEach {
+                imegeList.add(it.toString())
+                println(it)
+            }
+
+        val imegeByte = mutableListOf<ByteArray>()
+
+        for (imege in  imegeList)
+        {
+            imegeByte.add(imageToByteArray(imege))
+        }
+    }
+
+    fun writeImegeByte(imegeByte :  MutableList<ByteArray>)
+    {
+        var folderPath = "src\\main\\resources\\media\\task2\\photo\\"
+
+
+        val folder = File(folderPath)
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) {
+                println("Фаил уже существует создан")
+            }
+            else
+            {
+                println("Фаил создан")
+            }
+        }
+
+        for ((index, image) in imegeByte.withIndex())
+        {
+
+            val imagePath = folderPath + "${index + 1}.jpg"
+
+            byteArrayToImage(image, imagePath)
+        }
+    }
+
+    fun imageToByteArray(imagePath: String): ByteArray {
+        val imageFile = File(imagePath)
         val inputStream: InputStream = imageFile.inputStream()
         return inputStream.readBytes()
     }
