@@ -42,7 +42,6 @@ object DescriptionModel: Table("description") {
             .filter { Files.isRegularFile(it) }
             .forEach {
                 imegeList.add(it.toString())
-                println(it)
             }
 
         val imegeByte = mutableListOf<ByteArray>()

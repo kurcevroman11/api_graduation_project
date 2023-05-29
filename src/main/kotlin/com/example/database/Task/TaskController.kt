@@ -1,5 +1,7 @@
 package com.example.db.Task
 
+import com.example.database.Description.DescriptionForTask.insertandGetId
+import com.example.db.Description.DescriptionDTO
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.selectAll
@@ -25,7 +27,6 @@ fun Application.TaskContriller() {
             get {
                 val taskDTO = getTaskAll()
                 val gson = Gson()
-
                 val task = gson.toJson(taskDTO)
 
                 call.respond(task)
@@ -60,7 +61,9 @@ fun Application.TaskContriller() {
 
                 name.parent = taskId
 
-                createMedia(name.name)
+                name.description = createMedia(name.name).toInt()
+
+
                 insert(name)
 
                 call.respond(HttpStatusCode.Created)
@@ -72,8 +75,10 @@ fun Application.TaskContriller() {
                 val taskId = call.parameters["id"]?.toIntOrNull()
 
 
+
                 val name = gson.fromJson(task, TaskDTO::class.java)
 
+                name.description =  createMedia(name.name).toInt()
                 name.parent = taskId
 
                 insert(name)

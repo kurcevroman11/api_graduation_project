@@ -32,7 +32,9 @@ fun Application.DescriptionContriller() {
 
                 for (description in descriptionDTO)
                 {
-                    descriptionDTOAPI.add(DescriptionDTOAPI(description.id,description.content, readImegeByte(description.photo_resources!!),null,null))
+                    val photoResources = description.photo_resources
+                    val photoBytes = if (photoResources != null) readImegeByte(photoResources) else null
+                    descriptionDTOAPI.add(DescriptionDTOAPI(description.id,description.content, null, photoBytes,null))
                 }
 
                 val description = gson.toJson(descriptionDTOAPI)
@@ -45,8 +47,7 @@ fun Application.DescriptionContriller() {
 
                 if (descriptionId != null) {
                     val description = getDescription(descriptionId)
-                    val  descriptionDTOAPI = DescriptionDTOAPI(description.id,description.content, readImegeByte(description.photo_resources!!),null,null)
-
+                    val  descriptionDTOAPI = DescriptionDTOAPI(description.id,description.content, null , readImegeByte(description.photo_resources!!),null)
                     call.respond(descriptionDTOAPI!!)
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
@@ -58,6 +59,7 @@ fun Application.DescriptionContriller() {
                 val gson = Gson()
 
                 val name = gson.fromJson(description, DescriptionDTO::class.java)
+
                 insertDescription(name)
                 call.respond(HttpStatusCode.Created)
             }
@@ -70,6 +72,8 @@ fun Application.DescriptionContriller() {
                     val gson = Gson()
 
                     val descriptionDTO = getDescription(descriptionId)
+
+                    
 
                     val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
 
