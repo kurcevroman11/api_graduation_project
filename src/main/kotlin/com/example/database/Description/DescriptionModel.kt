@@ -12,10 +12,10 @@ import javax.imageio.ImageIO
 object DescriptionModel: Table("description") {
 
     private val id = DescriptionModel.integer("id").autoIncrement()
-    private val content = DescriptionModel.varchar("content", 64)
-    private val file_resources = DescriptionModel.binary("file_resources").nullable()
-    private val photo_resources = DescriptionModel.binary("photo_resources").nullable()
-    private val video_resources = DescriptionModel.binary("video_resources").nullable()
+    private val content = DescriptionModel.varchar("content", 64).nullable()
+    private val file_resources = DescriptionModel.text("file_resources").nullable()
+    private val photo_resources = DescriptionModel.text("photo_resources").nullable()
+    private val video_resources = DescriptionModel.text("video_resources").nullable()
     fun insertDescription(descriptionDTO: DescriptionDTO) {
 
         transaction {
@@ -33,13 +33,12 @@ object DescriptionModel: Table("description") {
         }
     }
 
-    fun readImegeByte()
-    {
-        val dir = "src\\main\\resources\\media\\task1\\photo"
+    fun readImegeByte(phat : String): MutableList<ByteArray> {
+
 
         val imegeList = mutableListOf<String>()
 
-        Files.walk(Paths.get(dir))
+        Files.walk(Paths.get(phat))
             .filter { Files.isRegularFile(it) }
             .forEach {
                 imegeList.add(it.toString())
@@ -52,14 +51,18 @@ object DescriptionModel: Table("description") {
         {
             imegeByte.add(imageToByteArray(imege))
         }
+        return imegeByte
     }
 
-    fun writeImegeByte(imegeByte :  MutableList<ByteArray>)
+    fun writeImegeByte(imegeByte :  MutableList<ByteArray>, phat : String)
     {
-        var folderPath = "src\\main\\resources\\media\\task2\\photo\\"
 
 
-        val folder = File(folderPath)
+       val imegeByteFile = readImegeByte(phat)
+
+        imegeByteFile.addAll(imegeByte)
+
+        val folder = File(phat)
         if (!folder.exists()) {
             if (!folder.mkdirs()) {
                 println("Фаил уже существует создан")
@@ -70,10 +73,10 @@ object DescriptionModel: Table("description") {
             }
         }
 
-        for ((index, image) in imegeByte.withIndex())
+        for ((index, image) in imegeByteFile.withIndex())
         {
 
-            val imagePath = folderPath + "${index + 1}.jpg"
+            val imagePath = phat + "${index + 1}.jpg"
 
             byteArrayToImage(image, imagePath)
         }
@@ -154,7 +157,6 @@ object DescriptionModel: Table("description") {
                 file_resources = descriptionModel[DescriptionModel.file_resources],
                 photo_resources = descriptionModel[DescriptionModel.photo_resources],
                 video_resources = descriptionModel[DescriptionModel.video_resources],
-
                 )
         }
         return descriptionDTO

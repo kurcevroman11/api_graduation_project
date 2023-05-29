@@ -5,6 +5,7 @@ import com.example.database.Role.RoleContriller
 import com.example.database.Status.StatusContriller
 import com.example.database.type_of_activity.Type_of_activityContriller
 import com.example.database.user.UserContriller
+import com.example.db.Description.DescriptionContriller
 import com.example.db.Task.TaskContriller
 import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
@@ -51,5 +52,5 @@ fun Application.module() {
     PersonContriller()
     Type_of_activityContriller()
     StatusContriller()
-    configureRouting()
+    DescriptionContriller()
 }
