@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 class DescriptionDTO(
     val id:Int?,
-    val content:String,
-    val file_resources: ByteArray?,
-    val photo_resources: ByteArray?,
-    val video_resources: ByteArray?
+    val content:String?,
+    val file_resources: String?,
+    val photo_resources: String?,
+    val video_resources: String?
 ) {
 }
