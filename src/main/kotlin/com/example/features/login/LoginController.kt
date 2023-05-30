@@ -22,19 +22,16 @@ class LoginController(private val call: ApplicationCall) {
             call.respond(HttpStatusCode.BadRequest, "User not found")
         } else {
             if(userDTO.password == receive.password){
-                val tokenShort = generateTokenShort(receive.login)
                 val tokenLong = generateTokenLong(receive.login)
                 transaction {
                     addLogger(StdOutSqlLogger)
 
                     UserModule.update({ UserModule.login eq receive.login }) {
                         it[token_long] = tokenLong
-                        it[token_short] = tokenShort
                     }
                 }
                 call.respond(
-                    RegisterResponseRemote(tokenShort = tokenShort,
-                        tokenLong = tokenLong )
+                    RegisterResponseRemote( tokenLong = tokenLong )
                 )
             } else{
                 call.respond(HttpStatusCode.BadRequest, "Invalid password")

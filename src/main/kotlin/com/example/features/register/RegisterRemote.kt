@@ -9,6 +9,5 @@ data class RegisterReciveRemote(
 
 @Serializable
 data class RegisterResponseRemote(
-    val tokenShort : String,
     val tokenLong  : String
 )

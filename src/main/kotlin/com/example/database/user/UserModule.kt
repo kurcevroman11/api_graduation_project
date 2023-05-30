@@ -9,7 +9,6 @@ object UserModule: Table("usser") {
     val id = UserModule.integer("id").autoIncrement()
     val login =  UserModule.varchar("login", 50)
     val password =  UserModule.varchar("password", 50)
-    val token_short =  UserModule.text("token_short")
     val token_long =  UserModule.text("token_long")
     val personId = UserModule.integer("personid").nullable()
 
@@ -18,7 +17,6 @@ object UserModule: Table("usser") {
             UserModule.insert {
                 it[login] = usersDTO.login
                 it[password] = usersDTO.password
-                it[token_short] = usersDTO.token_short
                 it[token_long] = usersDTO.token_long
                 it[personId] = usersDTO.personId
             }
@@ -34,7 +32,6 @@ object UserModule: Table("usser") {
                     id = user[UserModule.id],
                     login = user[UserModule.login],
                     password = user[password],
-                    token_short = user[token_short],
                     token_long = user[token_long],
                     personId = user[personId]
                 )
@@ -52,7 +49,6 @@ object UserModule: Table("usser") {
                     id = user[UserModule.id],
                     login = user[UserModule.login],
                     password = user[password],
-                    token_short = user[token_short],
                     token_long = user[token_long],
                     personId = user[personId]
                 )
@@ -70,7 +66,6 @@ object UserModule: Table("usser") {
                         it[UserModule.id],
                         it[login],
                         it[password],
-                        it[token_short],
                         it[token_long],
                         it[personId],
                     )
@@ -87,7 +82,6 @@ object UserModule: Table("usser") {
                 it[login] = userDTO.login
                 it[password] = userDTO.password
                 it[token_long] = userDTO.token_long
-                it[token_short] = userDTO.token_short
                 it[personId] = userDTO.personId
             }
             if (user > 0) {
@@ -114,5 +108,4 @@ object UserModule: Table("usser") {
         }
         return HttpStatusCode.OK
     }
-
 }
