@@ -17,7 +17,6 @@ class TaskDTO(
     val scope: DateTime?,
     val description: Int?,
     var parent: Int?,
-    val generathon: Int?,
     val comments: Int?)
 {
     constructor() : this(
@@ -28,7 +27,6 @@ class TaskDTO(
         scope = null,
         description = null,
         parent = null,
-        generathon = null,
         comments = null
     )
 }

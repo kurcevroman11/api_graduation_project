@@ -22,7 +22,6 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.datetime("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
-    private val generathon = TaskModel.integer("generation").nullable()
     private val comments = TaskModel.integer("commentsid").nullable()
 
     fun insert(taskDTO: TaskDTO) {
@@ -46,7 +45,6 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope?.toDateTime()
                 it[description] = taskDTO.description
                 it[parent] = descriptionId
-                it[generathon] = taskDTO.generathon
                 it[comments] = taskDTO.comments
             }
         }
@@ -64,7 +62,6 @@ object TaskModel : Table("task") {
                         it[scope]?.toDateTime(),
                         it[description],
                         it[parent],
-                        it[generathon],
                         it[comments]
                     )
                 }
@@ -87,7 +84,6 @@ object TaskModel : Table("task") {
                         it[scope]?.toDateTime(),
                         it[description],
                         it[parent],
-                        it[generathon],
                         it[comments]
                     )
                 }
@@ -109,7 +105,6 @@ object TaskModel : Table("task") {
                     scope = taskModle[scope]?.toDateTime(),
                     description = taskModle[description],
                     parent = taskModle[parent],
-                    generathon = taskModle[generathon],
                     comments = taskModle[comments]
                 )
             }
@@ -129,7 +124,6 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope?.toDateTime()
                 it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
-                it[generathon] = taskDTO.generathon
                 it[comments] = taskDTO.comments
             }
             if (task > 0) {
