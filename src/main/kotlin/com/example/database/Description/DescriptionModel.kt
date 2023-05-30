@@ -16,6 +16,7 @@ object DescriptionModel: Table("description") {
     private val file_resources = DescriptionModel.text("file_resources").nullable()
     private val photo_resources = DescriptionModel.text("photo_resources").nullable()
     private val video_resources = DescriptionModel.text("video_resources").nullable()
+
     fun insertDescription(descriptionDTO: DescriptionDTO) {
 
         transaction {
@@ -57,7 +58,7 @@ object DescriptionModel: Table("description") {
     {
 
 
-       val imegeByteFile = readImegeByte(phat)
+        val imegeByteFile = readImegeByte(phat)
 
         imegeByteFile.addAll(imegeByte)
 
@@ -80,6 +81,7 @@ object DescriptionModel: Table("description") {
             byteArrayToImage(image, imagePath)
         }
     }
+
 
     fun imageToByteArray(imagePath: String): ByteArray {
         val imageFile = File(imagePath)
@@ -156,6 +158,7 @@ object DescriptionModel: Table("description") {
                 file_resources = descriptionModel[DescriptionModel.file_resources],
                 photo_resources = descriptionModel[DescriptionModel.photo_resources],
                 video_resources = descriptionModel[DescriptionModel.video_resources],
+
                 )
         }
         return descriptionDTO

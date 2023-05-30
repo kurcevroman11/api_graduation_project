@@ -8,6 +8,7 @@ import java.io.File
 
 private val logger = KotlinLogging.logger {}
 fun createMedia(name:String): Long {
+
     var photoPath = "src\\main\\resources\\media\\${name}\\photo\\"
 
 
@@ -55,4 +56,5 @@ fun createMedia(name:String): Long {
 
     return discritionID
 
+    return 7
 }

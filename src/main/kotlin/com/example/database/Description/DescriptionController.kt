@@ -48,6 +48,7 @@ fun Application.DescriptionContriller() {
                 if (descriptionId != null) {
                     val description = getDescription(descriptionId)
                     val  descriptionDTOAPI = DescriptionDTOAPI(description.id,description.content, null , readImegeByte(description.photo_resources!!),null)
+
                     call.respond(descriptionDTOAPI!!)
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")

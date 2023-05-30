@@ -10,14 +10,11 @@ import java.time.LocalTime
 class TaskDTO(
     var id: Int?,
     val name: String,
-    val status: Int?,
-    @Contextual
-    val start_date: DateTime?,
-    @Contextual
-    val scope: DateTime?,
+    var status: Int?,
+    val start_date: String?,
+    val scope: Int?,
     var description: Int?,
     var parent: Int?,
-    val generathon: Int?,
     val comments: Int?)
 {
     constructor() : this(
@@ -28,7 +25,6 @@ class TaskDTO(
         scope = null,
         description = null,
         parent = null,
-        generathon = null,
         comments = null
     )
 }

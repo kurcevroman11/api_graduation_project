@@ -20,7 +20,6 @@ application {
 
 repositories {
     mavenCentral()
-
 }
 
 dependencies {
@@ -29,6 +28,7 @@ dependencies {
     implementation("io.ktor:ktor-serialization:2.2.4")
     implementation("com.auth0:java-jwt:3.18.1")
 
+    implementation("io.github.microutils:kotlin-logging:1.11.0")
     implementation("org.jetbrains.exposed:exposed-core:0.40.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.40.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.40.1")

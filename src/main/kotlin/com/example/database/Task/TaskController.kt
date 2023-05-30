@@ -29,6 +29,8 @@ fun Application.TaskContriller() {
                 val gson = Gson()
                 val task = gson.toJson(taskDTO)
 
+
+
                 call.respond(task)
             }
 
@@ -45,7 +47,9 @@ fun Application.TaskContriller() {
                 val taskId = call.parameters["id"]?.toIntOrNull()
                 if (taskId != null) {
                     val tastDTO = getTask(taskId)
-                    call.respond(tastDTO!!)
+                    val gson = Gson()
+                    val task = gson.toJson(tastDTO)
+                    call.respond(task)
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
@@ -54,44 +58,32 @@ fun Application.TaskContriller() {
             post("/{id}") {
                 val task = call.receive<String>()
                 val gson = Gson()
-                val taskId = call.parameters["id"]?.toIntOrNull()
-
+                val taskId = call.parameters["id"]?.toInt()
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
 
-                name.parent = taskId
 
+                name.parent = taskId
                 name.description = createMedia(name.name).toInt()
-
-
-                insert(name)
-
-                call.respond(HttpStatusCode.Created)
-            }
-
-            post("/{id}") {
-                val task = call.receive<String>()
-                val gson = Gson()
-                val taskId = call.parameters["id"]?.toIntOrNull()
-
-
-
-                val name = gson.fromJson(task, TaskDTO::class.java)
-
-                name.description =  createMedia(name.name).toInt()
-                name.parent = taskId
+                name.status = 2
 
                 insert(name)
 
                 call.respond(HttpStatusCode.Created)
             }
+
+
             post {
                 val task = call.receive<String>()
                 val gson = Gson()
 
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
-                createMedia(name.name)
+
+
+                name.description = createMedia(name.name).toInt()
+                name.status = 2
+
                 insert(name)
                 call.respond(HttpStatusCode.Created)
 
