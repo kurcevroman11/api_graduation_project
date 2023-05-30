@@ -12,10 +12,10 @@ import org.jetbrains.exposed.sql.transactions.transaction
 object DescriptionForTask: IdTable<Long>("description") {
     override val id: Column<EntityID<Long>> = DescriptionForTask.long("id").autoIncrement().entityId()
 
-    private val content = DescriptionForTask.varchar("content", 64).nullable()
-    private val file_resources = DescriptionForTask.text("file_resources").nullable()
-    private val photo_resources = DescriptionForTask.text("photo_resources").nullable()
-    private val video_resources = DescriptionForTask.text("video_resources").nullable()
+    private val content = DescriptionForTask.varchar("content", 200).nullable()
+    private val file_resources = DescriptionForTask.varchar("file_resources", 200).nullable()
+    private val photo_resources = DescriptionForTask.varchar("photo_resources", 200).nullable()
+    private val video_resources = DescriptionForTask.varchar("video_resources", 200).nullable()
 
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 

@@ -16,13 +16,11 @@ import org.jetbrains.exposed.sql.addLogger
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 
-
 class RegisterController(val call: ApplicationCall) {
 
     suspend fun registerNewUser(){
         val registerReciveRemote = call.receive<RegisterReciveRemote>()
 
-        var tokenShort : String = ""
         var tokenLong : String = ""
 
         val userDTO = UserModule.fetchUser(registerReciveRemote.login)
@@ -30,7 +28,6 @@ class RegisterController(val call: ApplicationCall) {
             call.respond(HttpStatusCode.Conflict, "User already exists")
         }
         else {
-            tokenShort = generateTokenShort(registerReciveRemote.login)
             tokenLong = generateTokenLong(registerReciveRemote.login)
             transaction {
                 addLogger(StdOutSqlLogger)
@@ -48,7 +45,6 @@ class RegisterController(val call: ApplicationCall) {
                         id = null,
                         login = registerReciveRemote.login,
                         password = registerReciveRemote.password,
-                        token_short = tokenShort,
                         token_long = tokenLong,
                         personId = personId
 
@@ -56,7 +52,6 @@ class RegisterController(val call: ApplicationCall) {
                 )
             }
         }
-        call.respond(RegisterResponseRemote(tokenShort = tokenShort,
-            tokenLong = tokenLong ))
+        call.respond(RegisterResponseRemote( tokenLong = tokenLong ))
     }
 }

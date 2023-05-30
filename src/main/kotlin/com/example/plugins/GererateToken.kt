@@ -32,7 +32,7 @@ fun generateTokenLong(username: String): String {
         .withIssuer(issuer)
         .withAudience(audience)
         .withSubject(username)
-        .withExpiresAt(Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000))) // Установка срока действия токена (1 час)
+        .withExpiresAt(Date(System.currentTimeMillis() + (24 * 60 * 60 * 1000))) // Установка срока действия токена (1 день)
         .sign(algorithm)
 
     return token
