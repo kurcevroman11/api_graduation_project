@@ -32,7 +32,15 @@ fun Application.DescriptionContriller() {
 
                 for (description in descriptionDTO)
                 {
-                    descriptionDTOAPI.add(DescriptionDTOAPI(description.id,description.content, readImegeByte(description.photo_resources!!),null,null))
+                    descriptionDTOAPI.add(
+                        DescriptionDTOAPI(
+                            description.id,
+                            description.content,
+                            null,
+                            readImegeByte(description.photo_resources!!),
+                            null
+                        )
+                    )
                 }
 
                 val description = gson.toJson(descriptionDTOAPI)
@@ -45,7 +53,12 @@ fun Application.DescriptionContriller() {
 
                 if (descriptionId != null) {
                     val description = getDescription(descriptionId)
-                    val  descriptionDTOAPI = DescriptionDTOAPI(description.id,description.content, readImegeByte(description.photo_resources!!),null,null)
+                    val  descriptionDTOAPI = DescriptionDTOAPI(
+                        description.id,
+                        description.content,
+                        null,
+                        readImegeByte(description.photo_resources!!),
+                        null)
 
                     call.respond(descriptionDTOAPI!!)
                 }else {
@@ -63,7 +76,6 @@ fun Application.DescriptionContriller() {
             }
 
             put("/{id}") {
-
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
                 if (descriptionId != null) {
                     val description = call.receive<String>()
