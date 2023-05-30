@@ -20,7 +20,6 @@ application {
 
 repositories {
     mavenCentral()
-
 }
 
 dependencies {

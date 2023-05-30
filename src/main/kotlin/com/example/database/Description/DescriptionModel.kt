@@ -21,21 +21,16 @@ object DescriptionModel: Table("description") {
         transaction {
             addLogger(StdOutSqlLogger)
 
-
             DescriptionModel.insert {
                 it[content] = descriptionDTO.content
                 it[file_resources] = descriptionDTO.file_resources
                 it[photo_resources] = descriptionDTO.photo_resources
                 it[video_resources] = descriptionDTO.video_resources
             }
-
-
         }
     }
 
     fun readImegeByte(phat : String): MutableList<ByteArray> {
-
-
         val imegeList = mutableListOf<String>()
 
         Files.walk(Paths.get(phat))
@@ -55,9 +50,7 @@ object DescriptionModel: Table("description") {
 
     fun writeImegeByte(imegeByte :  MutableList<ByteArray>, phat : String)
     {
-
-
-       val imegeByteFile = readImegeByte(phat)
+        val imegeByteFile = readImegeByte(phat)
 
         imegeByteFile.addAll(imegeByte)
 
@@ -74,7 +67,6 @@ object DescriptionModel: Table("description") {
 
         for ((index, image) in imegeByteFile.withIndex())
         {
-
             val imagePath = phat + "${index + 1}.jpg"
 
             byteArrayToImage(image, imagePath)
