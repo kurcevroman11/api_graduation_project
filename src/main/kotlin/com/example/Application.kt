@@ -19,14 +19,14 @@ import org.jetbrains.exposed.sql.Database
 
 fun main() {
 
-//// настраиваем Flyway
-//    val flyway = Flyway.configure()
-//        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
-//        .baselineOnMigrate(true)
-//        .locations("db/migration") // указываем папку с миграциями
-//        .load()
-//// запускаем миграции
-//    flyway.migrate()
+// настраиваем Flyway
+    val flyway = Flyway.configure()
+        .dataSource("jdbc:postgresql://localhost:5432/sebbia", "postgres", "qwerty")
+        .baselineOnMigrate(true)
+        .locations("db/migration") // указываем папку с миграциями
+        .load()
+// запускаем миграции
+    flyway.migrate()
 
     // Запускаем БД
     Database.connect(
