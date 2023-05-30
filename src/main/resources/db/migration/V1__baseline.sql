@@ -2,7 +2,6 @@ CREATE TABLE public.usser (
 	id serial NOT NULL,
 	login varchar NOT NULL,
 	password varchar NOT NULL,
-	token_short TEXT NOT NULL,
 	token_long TEXT NOT NULL,
 	personID integer,
 	CONSTRAINT Users_pk PRIMARY KEY (id)
@@ -19,7 +18,6 @@ CREATE TABLE public.task (
 	Score TIME,
 	DescriptionID integer,
 	Parent integer,
-	Generation integer,
 	CommentsID integer,
 	CONSTRAINT Task_pk PRIMARY KEY (id)
 ) WITH (
