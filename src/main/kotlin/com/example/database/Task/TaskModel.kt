@@ -24,7 +24,6 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
-    private val comments = TaskModel.integer("commentsid").nullable()
 
     fun insert(taskDTO: TaskDTO) {
         transaction {
@@ -37,7 +36,6 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[parent] = taskDTO.parent
                 it[description] = taskDTO.description
-                it[comments] = taskDTO.comments
             }
         }
     }
@@ -54,7 +52,6 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
-                        it[comments]
                     )
                 }
             }
@@ -78,7 +75,7 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
-                        it[comments]
+
                     )
                 }
             }
@@ -99,7 +96,6 @@ object TaskModel : Table("task") {
                     scope = taskModle[scope],
                     description = taskModle[description],
                     parent = taskModle[parent],
-                    comments = taskModle[comments]
                 )
             }
         } catch (e: Exception) {
@@ -117,7 +113,6 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
-                it[comments] = taskDTO.comments
             }
             if (task > 0) {
                 return@transaction HttpStatusCode.NoContent

@@ -15,7 +15,7 @@ class TaskDTO(
     val scope: Int?,
     var description: Int?,
     var parent: Int?,
-    val comments: Int?)
+)
 {
     constructor() : this(
         id = null,
@@ -25,6 +25,5 @@ class TaskDTO(
         scope = null,
         description = null,
         parent = null,
-        comments = null
     )
 }

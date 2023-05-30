@@ -9,6 +9,7 @@ import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.configureSerialization
+import com.example.plugins.tokenUser
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -32,6 +33,7 @@ val dbName: String? = dotenv["DB"]
 fun main() {
 
     waitForDatabase()
+
 // настраиваем Flyway
     val flyway = Flyway.configure()
         .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
@@ -66,6 +68,7 @@ fun Application.module() {
     Type_of_activityContriller()
     StatusContriller()
     DescriptionContriller()
+    tokenUser()
 }
 
 fun waitForDatabase() {

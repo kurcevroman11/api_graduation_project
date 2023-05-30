@@ -27,7 +27,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.comments (
     id integer NOT NULL,
     usser integer,
-    comments text
+    comments text,
+    taskid integer
 );
 
 
@@ -91,13 +92,6 @@ ALTER TABLE public.description_id_seq OWNER TO postgres;
 
 ALTER SEQUENCE public.description_id_seq OWNED BY public.description.id;
 
-
---
--- Name: flyway_schema_history; Type: TABLE; Schema: public; Owner: postgres
---
-
-
-ALTER TABLE public.flyway_schema_history OWNER TO postgres;
 
 --
 -- Name: person; Type: TABLE; Schema: public; Owner: postgres
@@ -211,11 +205,10 @@ CREATE TABLE public.task (
     id integer NOT NULL,
     name character varying,
     status integer,
-    start_data date,
-    score time without time zone,
+    start_data timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     descriptionid integer,
     parent integer,
-    commentsid integer
+    score integer
 );
 
 
@@ -419,7 +412,7 @@ ALTER TABLE ONLY public.usser ALTER COLUMN id SET DEFAULT nextval('public.usser_
 -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.comments (id, usser, comments) FROM stdin;
+COPY public.comments (id, usser, comments, taskid) FROM stdin;
 \.
 
 
@@ -428,9 +421,12 @@ COPY public.comments (id, usser, comments) FROM stdin;
 --
 
 COPY public.description (id, content, file_resources, photo_resources, video_resources) FROM stdin;
+4				
+5				
+6				
+16				
+17				
 \.
-
-
 
 
 --
@@ -466,7 +462,7 @@ COPY public.status (id, name) FROM stdin;
 -- Data for Name: task; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.task (id, name, status, start_data, score, descriptionid, parent, commentsid) FROM stdin;
+COPY public.task (id, name, status, start_data, descriptionid, parent, score) FROM stdin;
 \.
 
 
@@ -509,7 +505,7 @@ SELECT pg_catalog.setval('public.comments_id_seq', 1, false);
 -- Name: description_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.description_id_seq', 1, false);
+SELECT pg_catalog.setval('public.description_id_seq', 17, true);
 
 
 --
@@ -537,7 +533,7 @@ SELECT pg_catalog.setval('public.status_id_seq', 1, false);
 -- Name: task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.task_id_seq', 1, false);
+SELECT pg_catalog.setval('public.task_id_seq', 17, true);
 
 
 --
@@ -575,11 +571,6 @@ ALTER TABLE ONLY public.comments
 
 ALTER TABLE ONLY public.description
     ADD CONSTRAINT descriptions_pk PRIMARY KEY (id);
-
-
---
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
---
 
 
 --
@@ -638,13 +629,20 @@ ALTER TABLE ONLY public.usersroleproject
     ADD CONSTRAINT usersroleproject_pk PRIMARY KEY (id);
 
 
-
 --
 -- Name: comments comments_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.comments
     ADD CONSTRAINT comments_fk0 FOREIGN KEY (usser) REFERENCES public.usersroleproject(id);
+
+
+--
+-- Name: comments comments_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comments_fk1 FOREIGN KEY (taskid) REFERENCES public.task(id);
 
 
 --
@@ -661,14 +659,6 @@ ALTER TABLE ONLY public.task
 
 ALTER TABLE ONLY public.task
     ADD CONSTRAINT task_fk1 FOREIGN KEY (descriptionid) REFERENCES public.description(id);
-
-
---
--- Name: task task_fk2; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.task
-    ADD CONSTRAINT task_fk2 FOREIGN KEY (commentsid) REFERENCES public.comments(id);
 
 
 --

@@ -51,10 +51,8 @@ fun createMedia(name:String): Long {
         }
     }
 
-
     val discritionID = DescriptionForTask.insertandGetId(DescriptionDTO(null, null, filePath, photoPath ,videoPath ))
 
     return discritionID
 
-    return 7
 }

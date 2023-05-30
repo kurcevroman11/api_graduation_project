@@ -40,6 +40,22 @@ object UserModule: Table("usser") {
             null
         }
     }
+    fun getUserToLogin(login: String): UsersDTO? {
+        return try {
+            transaction {
+                val user = UserModule.select { UserModule.login.eq(login) }.single()
+                UsersDTO(
+                    id = user[UserModule.id],
+                    login = user[UserModule.login],
+                    password = user[password],
+                    token_long = user[token_long],
+                    personId = user[personId]
+                )
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
 
     fun fetchUserID(id: Int): UsersDTO? {
         return try {
@@ -92,6 +108,7 @@ object UserModule: Table("usser") {
         }
         return HttpStatusCode.OK
     }
+
 
     fun deleteUser(id: Int): HttpStatusCode {
         if (id != null) {
