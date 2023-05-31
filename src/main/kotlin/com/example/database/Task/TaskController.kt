@@ -15,6 +15,7 @@ import com.example.db.Task.TaskModel.getTaskAll
 import com.example.db.Task.TaskModel.insert
 import com.example.db.Task.TaskModel.updateTask
 import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProjectRole
+import com.example.plugins.authorization_user
 import com.example.plugins.createMedia
 import com.example.plugins.decodeJwtToken
 import com.google.gson.Gson
@@ -96,45 +97,17 @@ fun Application.TaskContriller() {
             put("/{id}") {
                 val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
                 val taskId = call.parameters["id"]?.toIntOrNull()
-                if (taskId != null) {
 
-                if (apiToken != null) {
-                    val claimsSet = decodeJwtToken(apiToken)
-                    if (claimsSet != null) {
-                        val currentDate = Date()
-                        val isTokenExpired = claimsSet.expirationTime?.before(currentDate) ?: false
-                        if (!isTokenExpired)
-                        {
-                           val user = getUserToLogin(claimsSet.subject)
-                           val role = getUserProjectRole(taskId!!, user?.id!!)
-                            if(role == 3){
-                                val task = call.receive<String>()
-                                val gson = Gson()
+                val status = authorization_user(apiToken, taskId, 3)
+                if(status.code == HttpStatusCode.OK) {
+                    val task = call.receive<String>()
+                    val gson = Gson()
 
-                                val taskDTO = gson.fromJson(task, TaskDTO::class.java)
-                                call.respond(updateTask(taskId, taskDTO))
-                            }
-                            else{
-                                call.respond("У пользователя нет доступа")
-                            }
-                        }
-                        else{
-                            call.respond("Токена не дышит")
-                        }
-                    }
-                    else
-                    {
-                        call.respond("Токена не дишифрируеться")
-                    }
-
-                } else {
-                    call.respond("Токена нет")
-                }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    val taskDTO = gson.fromJson(task, TaskDTO::class.java)
+                    call.respond(status.code,updateTask(taskId!!, taskDTO))
                 }
 
-
+                call.respond(status.code,status.description)
 
 
             }

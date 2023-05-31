@@ -1,6 +1,8 @@
 package com.example.db.Description
 
+import com.google.gson.Gson
 import io.ktor.http.*
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -9,6 +11,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import javax.imageio.ImageIO
 
+private val logger = KotlinLogging.logger {}
 object DescriptionModel: Table("description") {
 
     private val id = DescriptionModel.integer("id").autoIncrement()
@@ -34,7 +37,7 @@ object DescriptionModel: Table("description") {
         }
     }
 
-    fun readImegeByte(phat : String): MutableList<ByteArray> {
+    fun readImegeByte(phat : String): MutableList<photoClass> {
 
 
         val imegeList = mutableListOf<String>()
@@ -45,16 +48,23 @@ object DescriptionModel: Table("description") {
                 imegeList.add(it.toString())
             }
 
-        val imegeByte = mutableListOf<ByteArray>()
+        val imegeByte = mutableListOf<photoClass>()
 
         for (imege in  imegeList)
         {
-            imegeByte.add(imageToByteArray(imege))
+
+            val fileName = imege.substringAfterLast("\\")
+            val name = fileName.substringBeforeLast(".")
+            val extension = fileName.substringAfterLast(".")
+            logger.info { "Фото: $imege, Name:$name, Type: $extension" }
+
+            imegeByte.add(photoClass(name, extension,imageToByteArray(imege)))
         }
+        logger.info { "Список фото отправлен в обработчик" }
         return imegeByte
     }
 
-    fun writeImegeByte(imegeByte :  MutableList<ByteArray>, phat : String)
+    fun writeImegeByte(imegeByte :  MutableList<photoClass>, phat : String)
     {
 
 
@@ -73,12 +83,12 @@ object DescriptionModel: Table("description") {
             }
         }
 
-        for ((index, image) in imegeByteFile.withIndex())
+        for (image in imegeByteFile)
         {
 
-            val imagePath = phat + "${index + 1}.jpg"
+            val imagePath = phat + "${image.filename}.${image.filetype}"
 
-            byteArrayToImage(image, imagePath)
+            byteArrayToImage(image.photo, imagePath, image.filetype!!)
         }
     }
 
@@ -89,11 +99,11 @@ object DescriptionModel: Table("description") {
         return inputStream.readBytes()
     }
 
-    fun byteArrayToImage(imageBytes: ByteArray, outputFilePath: String) {
+    fun byteArrayToImage(imageBytes: ByteArray, outputFilePath: String, typePhoto : String) {
         val inputStream = ByteArrayInputStream(imageBytes)
         val image = ImageIO.read(inputStream)
         val outputFile = File(outputFilePath)
-        ImageIO.write(image, "jpg", outputFile)
+        ImageIO.write(image, typePhoto, outputFile)
     }
 
     fun fileToByteArray(filePath: String): ByteArray? {

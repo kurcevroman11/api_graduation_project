@@ -33,7 +33,7 @@ fun Application.tokenUser() {
                 }
 
             } else {
-                call.respond("Missing API token")
+                call.respond(HttpStatusCode.BadRequest, "Такая задача не существует")
             }
         }
     }

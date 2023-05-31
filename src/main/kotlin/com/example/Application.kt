@@ -8,7 +8,9 @@ import com.example.db.Task.TaskContriller
 import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
+import com.example.plugins.configureRouting
 import com.example.plugins.configureSerialization
+import com.example.plugins.header
 import com.example.plugins.tokenUser
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
@@ -69,6 +71,8 @@ fun Application.module() {
     StatusContriller()
     DescriptionContriller()
     tokenUser()
+    header()
+    configureRouting()
 }
 
 fun waitForDatabase() {
