@@ -10,6 +10,8 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
 import org.jetbrains.exposed.sql.jodatime.date
 import org.jetbrains.exposed.sql.jodatime.datetime
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 import java.io.File
 
 
@@ -18,34 +20,22 @@ object TaskModel : Table("task") {
     private val id = TaskModel.integer("id").autoIncrement()
     private val name = TaskModel.varchar("name", 64)
     private val status = TaskModel.integer("status").nullable()
-    private val start_date = TaskModel.datetime("start_data").nullable()
-    private val scope = TaskModel.datetime("score").nullable()
+    private val start_date = TaskModel.datetime("start_data").autoIncrement()
+    private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
-    private val comments = TaskModel.integer("commentsid").nullable()
 
     fun insert(taskDTO: TaskDTO) {
         transaction {
 
             addLogger(StdOutSqlLogger)
 
-            val Descriprion = DescriptionDTO(
-                id = null,
-                content = "",
-                file_resources = "",
-                photo_resources = "",
-                video_resources = ""
-            )
-            val descriptionId = DescriptionForTask.insertandGetId(Descriprion).toInt()
-
             TaskModel.insert {
                 it[name] = taskDTO.name
                 it[status] = taskDTO.status
-                it[start_date] = taskDTO.start_date?.toDateTime()
-                it[scope] = taskDTO.scope?.toDateTime()
+                it[scope] = taskDTO.scope
+                it[parent] = taskDTO.parent
                 it[description] = taskDTO.description
-                it[parent] = descriptionId
-                it[comments] = taskDTO.comments
             }
         }
     }
@@ -58,11 +48,10 @@ object TaskModel : Table("task") {
                         it[TaskModel.id],
                         it[name],
                         it[status],
-                        it[start_date]?.toDateTime(),
-                        it[scope]?.toDateTime(),
+                        dateTimeToString(it[start_date]?.toDateTime()!!),
+                        it[scope],
                         it[description],
-                        it[parent],
-                        it[comments]
+                        it[parent]
                     )
                 }
             }
@@ -70,6 +59,8 @@ object TaskModel : Table("task") {
             ArrayList<TaskDTO>()
         }
     }
+
+
 
 
     fun getTaskAll(): List<TaskDTO> {
@@ -80,11 +71,10 @@ object TaskModel : Table("task") {
                         it[TaskModel.id],
                         it[name],
                         it[status],
-                        it[start_date]?.toDateTime(),
-                        it[scope]?.toDateTime(),
+                        dateTimeToString(it[start_date]?.toDateTime()!!),
+                        it[scope],
                         it[description],
-                        it[parent],
-                        it[comments]
+                        it[parent]
                     )
                 }
             }
@@ -101,11 +91,10 @@ object TaskModel : Table("task") {
                     id = taskModle[TaskModel.id],
                     name = taskModle[name],
                     status = taskModle[status],
-                    start_date = taskModle[start_date]?.toDateTime(),
-                    scope = taskModle[scope]?.toDateTime(),
+                    start_date = dateTimeToString(taskModle[start_date]?.toDateTime()!!),
+                    scope = taskModle[scope],
                     description = taskModle[description],
-                    parent = taskModle[parent],
-                    comments = taskModle[comments]
+                    parent = taskModle[parent]
                 )
             }
         } catch (e: Exception) {
@@ -120,11 +109,9 @@ object TaskModel : Table("task") {
             {
                 it[name] = taskDTO.name
                 it[status] = taskDTO.status
-                it[start_date] = taskDTO.start_date?.toDateTime()
-                it[scope] = taskDTO.scope?.toDateTime()
+                it[scope] = taskDTO.scope
                 it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
-                it[comments] = taskDTO.comments
             }
             if (task > 0) {
                 return@transaction HttpStatusCode.NoContent
@@ -151,4 +138,17 @@ object TaskModel : Table("task") {
         return HttpStatusCode.OK
     }
 }
+
+fun dateTimeToString(dateTime: DateTime): String {
+    val pattern = "yyyy-MM-dd HH:mm:ss"
+    val formatter = DateTimeFormat.forPattern(pattern)
+    return formatter.print(dateTime)
+}
+
+fun stringToDateTime(dateString: String): DateTime {
+    val formatter =  DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val dateTime = formatter.parseDateTime(dateString)
+    return dateTime
+}
+
 

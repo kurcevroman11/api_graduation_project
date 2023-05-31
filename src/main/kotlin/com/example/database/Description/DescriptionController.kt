@@ -4,12 +4,14 @@ import com.example.db.Description.DescriptionModel.deletDescription
 import com.example.db.Description.DescriptionModel.getDescription
 import com.example.db.Description.DescriptionModel.getDescriptionAll
 import com.example.db.Description.DescriptionModel.insertDescription
+import com.example.db.Description.DescriptionModel.readFileByte
 import com.example.db.Description.DescriptionModel.readImegeByte
 import com.example.db.Description.DescriptionModel.updateDescription
 import com.example.db.Description.DescriptionModel.writeImegeByte
 import com.example.db.Task.TaskDTO
 import com.google.gson.Gson
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -30,8 +32,7 @@ fun Application.DescriptionContriller() {
                 val descriptionDTO = getDescriptionAll()
                 val gson = Gson()
 
-                for (description in descriptionDTO)
-                {
+                for (description in descriptionDTO) {
                     descriptionDTOAPI.add(
                         DescriptionDTOAPI(
                             description.id,
@@ -42,7 +43,6 @@ fun Application.DescriptionContriller() {
                         )
                     )
                 }
-
                 val description = gson.toJson(descriptionDTOAPI)
 
                 call.respond(description)
@@ -53,15 +53,15 @@ fun Application.DescriptionContriller() {
 
                 if (descriptionId != null) {
                     val description = getDescription(descriptionId)
-                    val  descriptionDTOAPI = DescriptionDTOAPI(
+                    val descriptionDTOAPI = DescriptionDTOAPI(
                         description.id,
                         description.content,
-                        null,
+                        readFileByte(description.file_resources!!),
                         readImegeByte(description.photo_resources!!),
-                        null)
-
+                        null
+                    )
                     call.respond(descriptionDTOAPI!!)
-                }else {
+                } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
             }
@@ -75,7 +75,7 @@ fun Application.DescriptionContriller() {
                 call.respond(HttpStatusCode.Created)
             }
 
-            put("/{id}") {
+            put("photo/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
                 if (descriptionId != null) {
                     val description = call.receive<String>()
@@ -85,14 +85,33 @@ fun Application.DescriptionContriller() {
 
                     val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
 
-                    writeImegeByte(descriptionDTOAPI.photo_resources!!,descriptionDTO.photo_resources!!)
+                    writeImegeByte(descriptionDTOAPI.photo_resources!!, descriptionDTO.photo_resources!!)
 
                     call.respond(HttpStatusCode.OK)
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
             }
+
+            put("video/{id}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+                if (descriptionId != null) {
+                    val description = call.receive<String>()
+                    val gson = Gson()
+
+                    val descriptionDTO = getDescription(descriptionId)
+
+                    val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
+
+
+                    writeImegeByte(descriptionDTOAPI.photo_resources!!, descriptionDTO.photo_resources!!)
+
+                    call.respond(HttpStatusCode.OK)
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
+            }
+
 
             delete("/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()

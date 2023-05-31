@@ -17,7 +17,6 @@ object PersonForUser: IdTable<Long>("person") {
     private val surname = PersonForUser.varchar("surname", 64)
     private val name = PersonForUser.varchar("name", 64)
     private val patronymic = PersonForUser.varchar("patronymic", 64).nullable()
-    private val type_of_activity = PersonForUser.integer("type_of_activity").nullable()
 
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 
@@ -30,7 +29,6 @@ object PersonForUser: IdTable<Long>("person") {
                 it[surname] = personDTO.surname
                 it[name] = personDTO.name
                 it[patronymic] = personDTO.patronymic
-                it[type_of_activity] = personDTO.type_of_activity
             }.value
         }
         return newPersonId

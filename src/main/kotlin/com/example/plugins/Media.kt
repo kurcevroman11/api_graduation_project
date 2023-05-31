@@ -1,12 +1,15 @@
 package com.example.plugins
 
+import com.example.database.Description.DescriptionForTask
+import com.example.db.Description.DescriptionDTO
 import com.example.db.Task.TaskModel
 import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-fun createMedia(name:String)
-{
+
+fun createMedia(name:String): Long {
+
     var photoPath = "src\\main\\resources\\media\\${name}\\photo\\"
 
 
@@ -48,4 +51,9 @@ fun createMedia(name:String)
             logger.info { "Фаил video создан" }
         }
     }
+
+
+    val discritionID = DescriptionForTask.insertandGetId(DescriptionDTO(null, null, filePath, photoPath ,videoPath ))
+
+    return discritionID
 }

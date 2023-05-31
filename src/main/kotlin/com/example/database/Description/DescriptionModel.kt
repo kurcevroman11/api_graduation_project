@@ -49,7 +49,26 @@ object DescriptionModel: Table("description") {
         return imegeByte
     }
 
-    fun writeImegeByte(imegeByte :  MutableList<ByteArray>, phat : String)
+    fun readFileByte(path: String): MutableList<ByteArray> {
+        val FileList = mutableListOf<String>()
+
+        Files.walk(Paths.get(path))
+            .filter { Files.isRegularFile(it) }
+            .forEach {
+                FileList.add(it.toString())
+                println(it)
+            }
+
+        val fileByte = mutableListOf<ByteArray>()
+
+        for (file in  FileList)
+        {
+            fileByte.add(fileToByteArray(file)!!)
+        }
+        return fileByte
+    }
+
+    fun writeImegeByte(imegeByte: MutableList<ByteArray>, phat: String)
     {
         val imegeByteFile = readImegeByte(phat)
 
@@ -148,7 +167,7 @@ object DescriptionModel: Table("description") {
                 content = descriptionModel[DescriptionModel.content],
                 file_resources = descriptionModel[DescriptionModel.file_resources],
                 photo_resources = descriptionModel[DescriptionModel.photo_resources],
-                video_resources = descriptionModel[DescriptionModel.video_resources],
+                video_resources = descriptionModel[DescriptionModel.video_resources]
                 )
         }
         return descriptionDTO

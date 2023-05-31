@@ -84,9 +84,11 @@ fun Application.TaskContriller() {
                 val task = call.receive<String>()
                 val gson = Gson()
 
+                var name = gson.fromJson(task, TaskDTO::class.java)
 
-                val name = gson.fromJson(task, TaskDTO::class.java)
-                createMedia(name.name)
+                name.description = createMedia(name.name).toInt()
+                name.status = 2
+
                 insert(name)
                 call.respond(HttpStatusCode.Created)
 

@@ -17,7 +17,6 @@ fun Application.photo() {
     routing {
         get("/photo") {
 
-
         }
     }
 }
