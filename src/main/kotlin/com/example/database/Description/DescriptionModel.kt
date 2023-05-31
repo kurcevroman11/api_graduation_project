@@ -1,6 +1,8 @@
 package com.example.db.Description
 
+import com.google.gson.Gson
 import io.ktor.http.*
+import mu.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -9,6 +11,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import javax.imageio.ImageIO
 
+private val logger = KotlinLogging.logger {}
 object DescriptionModel: Table("description") {
 
     private val id = DescriptionModel.integer("id").autoIncrement()
@@ -16,10 +19,12 @@ object DescriptionModel: Table("description") {
     private val file_resources = DescriptionModel.text("file_resources").nullable()
     private val photo_resources = DescriptionModel.text("photo_resources").nullable()
     private val video_resources = DescriptionModel.text("video_resources").nullable()
+
     fun insertDescription(descriptionDTO: DescriptionDTO) {
 
         transaction {
             addLogger(StdOutSqlLogger)
+
 
             DescriptionModel.insert {
                 it[content] = descriptionDTO.content
@@ -27,49 +32,42 @@ object DescriptionModel: Table("description") {
                 it[photo_resources] = descriptionDTO.photo_resources
                 it[video_resources] = descriptionDTO.video_resources
             }
+
+
         }
     }
 
-    fun readImegeByte(phat : String): MutableList<ByteArray> {
+    fun readImegeByte(phat : String): MutableList<photoClass> {
+
+
         val imegeList = mutableListOf<String>()
 
         Files.walk(Paths.get(phat))
             .filter { Files.isRegularFile(it) }
             .forEach {
                 imegeList.add(it.toString())
-                println(it)
             }
 
-        val imegeByte = mutableListOf<ByteArray>()
+        val imegeByte = mutableListOf<photoClass>()
 
         for (imege in  imegeList)
         {
-            imegeByte.add(imageToByteArray(imege))
+
+            val fileName = imege.substringAfterLast("\\")
+            val name = fileName.substringBeforeLast(".")
+            val extension = fileName.substringAfterLast(".")
+            logger.info { "Фото: $imege, Name:$name, Type: $extension" }
+
+            imegeByte.add(photoClass(name, extension,imageToByteArray(imege)))
         }
+        logger.info { "Список фото отправлен в обработчик" }
         return imegeByte
     }
 
-    fun readFileByte(path: String): MutableList<ByteArray> {
-        val FileList = mutableListOf<String>()
-
-        Files.walk(Paths.get(path))
-            .filter { Files.isRegularFile(it) }
-            .forEach {
-                FileList.add(it.toString())
-                println(it)
-            }
-
-        val fileByte = mutableListOf<ByteArray>()
-
-        for (file in  FileList)
-        {
-            fileByte.add(fileToByteArray(file)!!)
-        }
-        return fileByte
-    }
-
-    fun writeImegeByte(imegeByte: MutableList<ByteArray>, phat: String)
+    fun writeImegeByte(imegeByte :  MutableList<photoClass>, phat : String)
     {
+
+
         val imegeByteFile = readImegeByte(phat)
 
         imegeByteFile.addAll(imegeByte)
@@ -85,13 +83,15 @@ object DescriptionModel: Table("description") {
             }
         }
 
-        for ((index, image) in imegeByteFile.withIndex())
+        for (image in imegeByteFile)
         {
-            val imagePath = phat + "${index + 1}.jpg"
 
-            byteArrayToImage(image, imagePath)
+            val imagePath = phat + "${image.filename}.${image.filetype}"
+
+            byteArrayToImage(image.photo, imagePath, image.filetype!!)
         }
     }
+
 
     fun imageToByteArray(imagePath: String): ByteArray {
         val imageFile = File(imagePath)
@@ -99,11 +99,11 @@ object DescriptionModel: Table("description") {
         return inputStream.readBytes()
     }
 
-    fun byteArrayToImage(imageBytes: ByteArray, outputFilePath: String) {
+    fun byteArrayToImage(imageBytes: ByteArray, outputFilePath: String, typePhoto : String) {
         val inputStream = ByteArrayInputStream(imageBytes)
         val image = ImageIO.read(inputStream)
         val outputFile = File(outputFilePath)
-        ImageIO.write(image, "jpg", outputFile)
+        ImageIO.write(image, typePhoto, outputFile)
     }
 
     fun fileToByteArray(filePath: String): ByteArray? {
@@ -167,7 +167,8 @@ object DescriptionModel: Table("description") {
                 content = descriptionModel[DescriptionModel.content],
                 file_resources = descriptionModel[DescriptionModel.file_resources],
                 photo_resources = descriptionModel[DescriptionModel.photo_resources],
-                video_resources = descriptionModel[DescriptionModel.video_resources]
+                video_resources = descriptionModel[DescriptionModel.video_resources],
+
                 )
         }
         return descriptionDTO

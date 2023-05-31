@@ -6,8 +6,6 @@ import org.joda.time.DateTime
 import java.time.LocalTime
 
 
-
-
 @Serializable
 class TaskDTO(
     var id: Int?,
@@ -16,7 +14,8 @@ class TaskDTO(
     val start_date: String?,
     val scope: Int?,
     var description: Int?,
-    var parent: Int?)
+    var parent: Int?,
+)
 {
     constructor() : this(
         id = null,

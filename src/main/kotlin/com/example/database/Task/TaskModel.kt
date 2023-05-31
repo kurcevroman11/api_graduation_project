@@ -51,7 +51,7 @@ object TaskModel : Table("task") {
                         dateTimeToString(it[start_date]?.toDateTime()!!),
                         it[scope],
                         it[description],
-                        it[parent]
+                        it[parent],
                     )
                 }
             }
@@ -74,7 +74,8 @@ object TaskModel : Table("task") {
                         dateTimeToString(it[start_date]?.toDateTime()!!),
                         it[scope],
                         it[description],
-                        it[parent]
+                        it[parent],
+
                     )
                 }
             }
@@ -94,7 +95,7 @@ object TaskModel : Table("task") {
                     start_date = dateTimeToString(taskModle[start_date]?.toDateTime()!!),
                     scope = taskModle[scope],
                     description = taskModle[description],
-                    parent = taskModle[parent]
+                    parent = taskModle[parent],
                 )
             }
         } catch (e: Exception) {

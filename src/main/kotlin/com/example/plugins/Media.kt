@@ -7,7 +7,6 @@ import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
-
 fun createMedia(name:String): Long {
 
     var photoPath = "src\\main\\resources\\media\\${name}\\photo\\"
@@ -52,8 +51,8 @@ fun createMedia(name:String): Long {
         }
     }
 
-
     val discritionID = DescriptionForTask.insertandGetId(DescriptionDTO(null, null, filePath, photoPath ,videoPath ))
 
     return discritionID
+
 }

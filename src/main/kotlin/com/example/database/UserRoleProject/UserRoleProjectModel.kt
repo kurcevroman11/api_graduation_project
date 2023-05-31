@@ -43,7 +43,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
-    fun getUserProject(id: Int) : MutableList<UserRoleProjectDTO>?
+    fun getALLUserProject(id: Int) : MutableList<UserRoleProjectDTO>?
     {
         return transaction {
             exec(" SELECT * FROM usersroleproject WHERE projectid = $id;") { rs ->
@@ -60,6 +60,20 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     )
                 }
                 return@exec list
+            }
+
+        }
+    }
+
+    fun getUserProjectRole(idProjekt: Int,idUser: Int ) : Int?
+    {
+        return transaction {
+            exec(" SELECT roleid FROM usersroleproject WHERE projectid = $idProjekt AND userid = $idUser;") { rs ->
+                var role : Int? = null
+                while (rs.next()) {
+                    role = rs.getInt("roleid")
+                }
+                return@exec role!!
             }
 
         }

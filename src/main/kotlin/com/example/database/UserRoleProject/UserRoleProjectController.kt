@@ -2,9 +2,9 @@ package com.example.db.UserRoleProject
 
 import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.UserRoleProject.UserRoleProjectModel.deleteURP
+import com.example.db.UserRoleProject.UserRoleProjectModel.getALLUserProject
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURPAll
-import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProject
 import com.example.db.UserRoleProject.UserRoleProjectModel.insert
 import com.example.db.UserRoleProject.UserRoleProjectModel.updateURP
 import com.google.gson.Gson
@@ -37,7 +37,7 @@ fun Application.UserRoleProjectController() {
                 val id = call.parameters["id"]?.toIntOrNull()
                 val gson = Gson()
                 if (id != null) {
-                    val URPDTO = getUserProject(id)
+                    val URPDTO = getALLUserProject(id)
                     call.respond(gson.toJson(URPDTO))
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")

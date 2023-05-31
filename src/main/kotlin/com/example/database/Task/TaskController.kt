@@ -1,5 +1,8 @@
 package com.example.db.Task
 
+import com.example.database.Description.DescriptionForTask.insertandGetId
+import com.example.database.user.UserModule.getUserToLogin
+import com.example.db.Description.DescriptionDTO
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.sql.selectAll
@@ -11,13 +14,17 @@ import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
 import com.example.db.Task.TaskModel.insert
 import com.example.db.Task.TaskModel.updateTask
+import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProjectRole
+import com.example.plugins.authorization_user
 import com.example.plugins.createMedia
+import com.example.plugins.decodeJwtToken
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.*
 
 fun Application.TaskContriller() {
     routing {
@@ -25,8 +32,9 @@ fun Application.TaskContriller() {
             get {
                 val taskDTO = getTaskAll()
                 val gson = Gson()
-
                 val task = gson.toJson(taskDTO)
+
+
 
                 call.respond(task)
             }
@@ -44,7 +52,9 @@ fun Application.TaskContriller() {
                 val taskId = call.parameters["id"]?.toIntOrNull()
                 if (taskId != null) {
                     val tastDTO = getTask(taskId)
-                    call.respond(tastDTO!!)
+                    val gson = Gson()
+                    val task = gson.toJson(tastDTO)
+                    call.respond(task)
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
@@ -53,38 +63,28 @@ fun Application.TaskContriller() {
             post("/{id}") {
                 val task = call.receive<String>()
                 val gson = Gson()
-                val taskId = call.parameters["id"]?.toIntOrNull()
-
+                val taskId = call.parameters["id"]?.toInt()
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
 
-                name.parent = taskId
 
-                createMedia(name.name)
+                name.parent = taskId
+                name.description = createMedia(name.name).toInt()
+                name.status = 2
+
                 insert(name)
 
                 call.respond(HttpStatusCode.Created)
             }
 
-            post("/{id}") {
-                val task = call.receive<String>()
-                val gson = Gson()
-                val taskId = call.parameters["id"]?.toIntOrNull()
 
-
-                val name = gson.fromJson(task, TaskDTO::class.java)
-
-                name.parent = taskId
-
-                insert(name)
-
-                call.respond(HttpStatusCode.Created)
-            }
             post {
                 val task = call.receive<String>()
                 val gson = Gson()
 
-                var name = gson.fromJson(task, TaskDTO::class.java)
+
+                val name = gson.fromJson(task, TaskDTO::class.java)
+
 
                 name.description = createMedia(name.name).toInt()
                 name.status = 2
@@ -95,17 +95,20 @@ fun Application.TaskContriller() {
             }
 
             put("/{id}") {
-
+                val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
                 val taskId = call.parameters["id"]?.toIntOrNull()
-                if (taskId != null) {
+
+                val status = authorization_user(apiToken, taskId, 3)
+                if(status.code == HttpStatusCode.OK) {
                     val task = call.receive<String>()
                     val gson = Gson()
 
                     val taskDTO = gson.fromJson(task, TaskDTO::class.java)
-                    call.respond(updateTask(taskId, taskDTO))
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    call.respond(status.code,updateTask(taskId!!, taskDTO))
                 }
+
+                call.respond(status.code,status.description)
+
 
             }
 
