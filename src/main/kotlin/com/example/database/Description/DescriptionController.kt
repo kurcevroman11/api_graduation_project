@@ -5,15 +5,18 @@ import com.example.db.Description.DescriptionModel.getDescription
 import com.example.db.Description.DescriptionModel.getDescriptionAll
 import com.example.db.Description.DescriptionModel.insertDescription
 import com.example.db.Description.DescriptionModel.readImegeByte
+import com.example.db.Description.DescriptionModel.readImegeString
 import com.example.db.Description.DescriptionModel.writeImegeByte
 import com.google.gson.Gson
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.io.File
 
 const val MAX_FILE_SIZE = 1048576 * 20 // 20МБ
 
@@ -76,6 +79,43 @@ fun Application.DescriptionContriller() {
                 call.respond(HttpStatusCode.Created)
             }
 
+            var fileDescription = ""
+            var fileName = ""
+
+            post("/upload/{id}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+                val contentLength = call.request.header(HttpHeaders.ContentLength).toString().toInt()
+                if (descriptionId != null) {
+                    val descriptionDTO = getDescription(descriptionId)
+                    if (contentLength!! < MAX_FILE_SIZE) {
+                        val multipartData = call.receiveMultipart()
+
+                        multipartData.forEachPart { part ->
+                            when (part) {
+                                is PartData.FormItem -> {
+                                    fileDescription = part.value
+                                }
+
+                                is PartData.FileItem -> {
+                                    fileName = part.originalFileName as String
+                                    val fileBytes = part.streamProvider().readBytes()
+                                    File(descriptionDTO.photo_resources + fileName).writeBytes(fileBytes)
+                                }
+
+                                else -> {}
+                            }
+                            part.dispose()
+                        }
+                        call.respondText("$fileDescription is uploaded to 'uploads/$fileName'")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Сильно большой файл!")
+                    }
+
+                }else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
+            }
+
             put("/photo/{id}") {
 
 
@@ -110,6 +150,27 @@ fun Application.DescriptionContriller() {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
 
+            }
+
+            get("/download/{id}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+                if (descriptionId != null) {
+                    val descriptionDTO = getDescription(descriptionId)
+                    val imegeString = readImegeString(descriptionDTO.photo_resources!!)
+                    for (imege in imegeString) {
+                        call.response.header(
+                            HttpHeaders.ContentDisposition,
+                            ContentDisposition.Attachment.withParameter(
+                                ContentDisposition.Parameters.FileName,
+                                "${imege.name}"
+                            )
+                                .toString()
+                        )
+                        call.respondFile(imege)
+                    }
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
             }
 
             delete("/{id}") {

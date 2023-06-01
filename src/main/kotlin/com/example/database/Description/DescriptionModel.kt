@@ -37,6 +37,27 @@ object DescriptionModel: Table("description") {
         }
     }
 
+
+    fun readImegeString(phat : String): MutableList<File> {
+
+        val imegeList = mutableListOf<String>()
+
+        Files.walk(Paths.get(phat))
+            .filter { Files.isRegularFile(it) }
+            .forEach {
+                imegeList.add(it.toString())
+            }
+
+        val imegeString = mutableListOf<File>()
+
+        for (imege in  imegeList)
+        {
+            imegeString.add(File(imege))
+        }
+
+        return imegeString
+    }
+
     fun readImegeByte(phat : String): MutableList<photoClass> {
 
 
