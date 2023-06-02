@@ -66,8 +66,6 @@ object DescriptionModel: Table("description") {
 
     fun writeImegeByte(imegeByte :  MutableList<photoClass>, phat : String)
     {
-
-
         val imegeByteFile = readImegeByte(phat)
 
         imegeByteFile.addAll(imegeByte)
@@ -89,6 +87,55 @@ object DescriptionModel: Table("description") {
             val imagePath = phat + "${image.filename}.${image.filetype}"
 
             byteArrayToImage(image.photo, imagePath, image.filetype!!)
+        }
+    }
+
+    fun readFileByte(phat : String): MutableList<fileClass> {
+        val fileList = mutableListOf<String>()
+
+        Files.walk(Paths.get(phat))
+            .filter { Files.isRegularFile(it) }
+            .forEach {
+                fileList.add(it.toString())
+            }
+
+        val fileByte = mutableListOf<fileClass>()
+
+        for (file in  fileList)
+        {
+            val fileName = file.substringAfterLast("\\")
+            val name = fileName.substringBeforeLast(".")
+            val extension = fileName.substringAfterLast(".")
+            logger.info { "Файл: $file, Name:$name, Type: $extension" }
+
+            fileByte.add(fileClass(name, extension,imageToByteArray(file)))
+        }
+        logger.info { "Список файлов отправлен в обработчик" }
+        return fileByte
+    }
+
+    fun writeFileByte(imegeByte :  MutableList<fileClass>, phat : String)
+    {
+        val fileByteFile = readFileByte(phat)
+
+        fileByteFile.addAll(imegeByte)
+
+        val folder = File(phat)
+        if (!folder.exists()) {
+            if (!folder.mkdirs()) {
+                println("Фаил уже существует создан")
+            }
+            else
+            {
+                println("Фаил создан")
+            }
+        }
+
+        for (file in fileByteFile)
+        {
+            val imagePath = phat + "${file.filename}.${file.filetype}"
+
+            byteArrayToImage(file.file, imagePath, file.filetype!!)
         }
     }
 
