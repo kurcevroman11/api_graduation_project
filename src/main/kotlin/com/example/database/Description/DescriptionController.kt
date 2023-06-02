@@ -37,7 +37,7 @@ private val logger = KotlinLogging.logger {}
 fun Application.DescriptionContriller() {
     routing {
         route("/description") {
-            get {
+            get("/all") {
                 val descriptionDTOAPI = mutableListOf<DescriptionDTOAPI>()
                 val descriptionDTO = getDescriptionAll()
                 val gson = Gson()
@@ -53,6 +53,28 @@ fun Application.DescriptionContriller() {
 
                 call.respond(description)
             }
+
+            get("/photoname/{id}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+
+                if (descriptionId != null) {
+                    val description = getDescription(descriptionId)
+                    if (description != null) {
+                        val imegeString = readImegeString(description.photo_resources!!)
+                        val list = mutableListOf<String>()
+                        for (imege in imegeString)
+                        {
+                            list.add(imege.name)
+                        }
+                        call.respond(HttpStatusCode.OK,list)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "нет такого польтователя")
+                    }
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
+            }
+
 
             get("/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
@@ -81,6 +103,28 @@ fun Application.DescriptionContriller() {
 
             var fileDescription = ""
             var fileName = ""
+
+            get("/download/{id}/{filename}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+                val filename = call.parameters["filename"]?.toString()
+                if (descriptionId != null) {
+                    val descriptionDTO = getDescription(descriptionId)
+                    val imege = File(descriptionDTO.photo_resources!! + filename )
+
+                        call.response.header(
+                            HttpHeaders.ContentDisposition,
+                            ContentDisposition.Attachment.withParameter(
+                                ContentDisposition.Parameters.FileName,
+                                "${imege.name}"
+                            )
+                                .toString()
+                        )
+                        call.respondFile(imege)
+
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
+            }
 
             post("/upload/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
@@ -152,26 +196,7 @@ fun Application.DescriptionContriller() {
 
             }
 
-            get("/download/{id}") {
-                val descriptionId = call.parameters["id"]?.toIntOrNull()
-                if (descriptionId != null) {
-                    val descriptionDTO = getDescription(descriptionId)
-                    val imegeString = readImegeString(descriptionDTO.photo_resources!!)
-                    for (imege in imegeString) {
-                        call.response.header(
-                            HttpHeaders.ContentDisposition,
-                            ContentDisposition.Attachment.withParameter(
-                                ContentDisposition.Parameters.FileName,
-                                "${imege.name}"
-                            )
-                                .toString()
-                        )
-                        call.respondFile(imege)
-                    }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
-            }
+
 
             delete("/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()

@@ -18,9 +18,9 @@ fun Application.UserContriller() {
                 val usersDTO = fetchAllUser()
                 val gson = Gson()
 
-                val users = gson.toJson(usersDTO)
+                call.response.header(HttpHeaders.AccessControlAllowOrigin, "http://localhost:3000")
 
-                call.respond(users)
+                call.respond(usersDTO)
             }
 
             get("/{id}") {
