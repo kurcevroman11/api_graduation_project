@@ -20,7 +20,6 @@ application {
 
 repositories {
     mavenCentral()
-
 }
 
 dependencies {
@@ -29,20 +28,25 @@ dependencies {
     implementation("io.ktor:ktor-serialization:2.2.4")
     implementation("com.auth0:java-jwt:3.18.1")
 
-    implementation("org.jetbrains.exposed:exposed-core:0.32.1")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.32.1")
-    implementation("org.jetbrains.exposed:exposed-dao:0.32.1")
-    implementation("org.jetbrains.exposed:exposed-jodatime:0.32.1")
+    implementation("io.github.microutils:kotlin-logging:1.11.0")
+    implementation("org.jetbrains.exposed:exposed-core:0.40.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.40.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.40.1")
+    implementation("org.jetbrains.exposed:exposed-jodatime:0.40.1")
 
-    implementation("com.h2database:h2:1.4.200")
+    implementation("com.h2database:h2:2.1.214")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.10")
 
     implementation("org.flywaydb:flyway-core:7.7.3")
-    implementation("org.postgresql:postgresql:42.2.20")
+    implementation("org.postgresql:postgresql:42.5.4")
     implementation("com.google.code.gson:gson:2.8.9")
 
-
+    implementation("com.nimbusds:nimbus-jose-jwt:9.10")
+    implementation("io.github.microutils:kotlin-logging:1.11.0")
+    implementation("io.github.cdimascio:java-dotenv:5.2.2")
     implementation("io.ktor:ktor-gson:1.6.4")
+    implementation("io.ktor:ktor-server-sessions:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")

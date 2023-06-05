@@ -1,61 +1,57 @@
 package com.example.features.register
 
-
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
+import com.example.database.Person.PersonDTO
+import com.example.database.Person.PersonForUser
+import com.example.database.Person.PersonModule
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
-import java.util.*
-import  com.example.database.user.usser
+import  com.example.database.user.UserModule
 import com.example.database.user.UsersDTO
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
-import com.example.utils.isValidPassword
-
 import io.ktor.server.request.*
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-
 
 class RegisterController(val call: ApplicationCall) {
 
-   suspend fun registerNewUser(){
+    suspend fun registerNewUser(){
+        val registerReciveRemote = call.receive<RegisterReciveRemote>()
 
+        var tokenLong : String = ""
 
-       val registerReciveRemote = call.receive<RegisterReciveRemote>()
-       if(!registerReciveRemote.password.isValidPassword()){
-           call.respond(HttpStatusCode.BadRequest, "Email is not")
-       }
+        val userDTO = UserModule.fetchUser(registerReciveRemote.login)
+        if(userDTO != null){
+            call.respond(HttpStatusCode.Conflict, "User already exists")
+        }
+        else {
+            tokenLong = generateTokenLong(registerReciveRemote.login)
+            transaction {
+                addLogger(StdOutSqlLogger)
 
-       var tokenShort : String = ""
-       var tokenLong : String = ""
+                val person = PersonDTO(
+                    id = null,
+                    surname = "",
+                    name = "",
+                    patronymic = ""
+                )
+                val personId: Int? = PersonForUser.insertandGetId(person).toInt()
 
-       val userDTO = usser.fetchUser(registerReciveRemote.login)
-       if(userDTO != null){
-           call.respond(HttpStatusCode.Conflict, "User already exists")
-       }
-       else {
-           tokenShort = generateTokenShort(registerReciveRemote.login)
-           tokenLong = generateTokenLong(registerReciveRemote.login)
-           transaction {
-               addLogger(StdOutSqlLogger)
+                UserModule.insert(
+                    UsersDTO(
+                        id = null,
+                        login = registerReciveRemote.login,
+                        password = registerReciveRemote.password,
+                        token_long = tokenLong,
+                        personId = personId
 
-               usser.insert(
-                   UsersDTO(
-                       login = registerReciveRemote.login,
-                       password = registerReciveRemote.password,
-                       token_short = tokenShort,
-                       token_long = tokenLong
-                   )
-               )
-           }
-       }
-        call.respond(RegisterResponseRemote(tokenShort = tokenShort,
-                tokenLong = tokenLong ))
+                    )
+                )
+            }
+        }
+        call.respond(RegisterResponseRemote( tokenLong = tokenLong ))
     }
-
-
 }

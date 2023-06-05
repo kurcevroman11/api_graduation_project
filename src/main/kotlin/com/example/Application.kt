@@ -1,54 +1,92 @@
-package com.example
-
-import CommentContriller
+import com.example.database.Person.PersonContriller
+import com.example.database.Role.RoleContriller
+import com.example.database.Status.StatusContriller
+import com.example.database.type_of_activity.Type_of_activityContriller
+import com.example.database.user.UserContriller
 import com.example.db.Description.DescriptionContriller
 import com.example.db.Task.TaskContriller
-import com.example.db.dataDb.password
-import com.example.db.dataDb.url
-import com.example.db.dataDb.user
+import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
+import com.example.plugins.configureRouting
+import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import mu.KotlinLogging
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
+import java.net.Socket
 
+private val logger = KotlinLogging.logger {}
+
+val dotenv: Dotenv = Dotenv.configure().load()
+
+
+val host: String? = dotenv["HOST"]
+val port: String? = dotenv["PORT"]
+val postgresUser: String? = dotenv["POSTGRES_NAME_USER"]
+val postgresPassword: String? = dotenv["POSTGRES_PASSWORD_USER"]
+val dbName: String? = dotenv["DB"]
 
 fun main() {
-    Database.connect(
-        url = "jdbc:postgresql://localhost:5432/Sebbia",
-        driver = "org.postgresql.Driver",
-        user = "postgres",
-        password = "123321"
-    )
 
-   embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
-
+    waitForDatabase()
 
 // настраиваем Flyway
     val flyway = Flyway.configure()
-        .dataSource(url, user, password)
+        .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
         .baselineOnMigrate(true)
         .locations("db/migration") // указываем папку с миграциями
         .load()
-
 // запускаем миграции
     flyway.migrate()
+
+    // Запускаем БД
+    Database.connect(
+        url = "jdbc:postgresql://$host:$port/$dbName",
+        driver = "org.postgresql.Driver",
+        user = "$postgresUser",
+        password = "$postgresPassword"
+
+    )
+
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
+        .start(wait = true)
 }
 
 fun Application.module() {
-    TaskContriller()
     configureLoginRouting()
-    configureSerialization()
-    CreaytUser()
-    SumNambers()
-    configureRouting()
-    filetext()
-    photo()
     configureRegisterRouting()
+    configureSerialization()
+    TaskContriller()
+    UserContriller()
+    RoleContriller()
+    UserRoleProjectController()
+    PersonContriller()
+    Type_of_activityContriller()
+    StatusContriller()
     DescriptionContriller()
-    CommentContriller()
+    tokenUser()
+    header()
+    cookie()
+    configureRouting()
+}
+
+fun waitForDatabase() {
+    val host: String? = dotenv["HOST"]
+    val port = 5432
+
+    while (true) {
+        try {
+            Socket(host, port).use { socket ->
+                logger.info { "Порт базы данных доступен. Запуск приложения." }
+                return
+            }
+        } catch (e: Exception) {
+            logger.info { "Порт базы данных недоступен. Ожидание и повторная попытка через 1 секунду." }
+            Thread.sleep(1000)
+        }
+    }
 }
