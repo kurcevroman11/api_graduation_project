@@ -30,12 +30,10 @@ import java.util.*
 fun Application.TaskContriller() {
     routing {
         route("/task") {
-
             // Обработка запросов с любым источником (CORS)
             intercept(ApplicationCallPipeline.Call) {
                 if (call.request.httpMethod == HttpMethod.Options) {
                     // Обработка предварительных запросов OPTIONS
-
                     call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
                     call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
                     call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
@@ -54,12 +52,11 @@ fun Application.TaskContriller() {
 
             get("/project"){
                 val taskDTO = getProjectAll()
-                val gson = Gson()
-
-                val task = gson.toJson(taskDTO)
 
                 call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
-                call.respond(task)
+                call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
+                call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
+                call.respond(taskDTO)
             }
 
             get("/{id}") {
@@ -72,15 +69,14 @@ fun Application.TaskContriller() {
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
             }
+
             post("/{id}") {
                 val task = call.receive<String>()
                 val gson = Gson()
                 val taskId = call.parameters["id"]?.toInt()
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
-
 
                 name.parent = taskId
                 name.description = createMedia(name.name).toInt()
@@ -90,7 +86,6 @@ fun Application.TaskContriller() {
 
                 call.respond(HttpStatusCode.Created)
             }
-
 
             post {
                 val task = call.receive<String>()
@@ -119,7 +114,7 @@ fun Application.TaskContriller() {
                     call.respond(status.code,updateTask(taskId!!, taskDTO))
                 }
 
-                call.respond(status.code,status.description)
+                call.respond(status.code, status.description)
             }
 
             delete("/{id}") {

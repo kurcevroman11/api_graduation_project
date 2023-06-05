@@ -56,15 +56,10 @@ fun main() {
 }
 
 fun Application.module() {
-
     install(CORS) {
-        anyHost()
-
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.AccessControlAllowOrigin)
-        allowHeader(HttpHeaders.AccessControlAllowHeaders)
+       anyHost()
     }
+
 
     configureLoginRouting()
     configureRegisterRouting()

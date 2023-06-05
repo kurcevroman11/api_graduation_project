@@ -65,7 +65,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
-    fun getUserProjectRole(idProjekt: Int,idUser: Int ) : Int?
+    fun getUserProjectRole(idProjekt: Int, idUser: Int ) : Int?
     {
         return transaction {
             exec(" SELECT roleid FROM usersroleproject WHERE projectid = $idProjekt AND userid = $idUser;") { rs ->
