@@ -11,7 +11,7 @@ import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
-import com.example.plugins.configureRouting
+
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -75,7 +75,7 @@ fun Application.module() {
     tokenUser()
     header()
     cookie()
-    configureRouting()
+    main_3()
 }
 
 fun waitForDatabase() {
