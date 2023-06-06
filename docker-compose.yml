@@ -13,6 +13,6 @@ services:
     environment:
       - POSTGRES_DB=sebbia
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_PASSWORD=123321
     ports:
       - "5432:5432"

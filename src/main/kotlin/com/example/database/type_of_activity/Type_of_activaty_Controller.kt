@@ -9,7 +9,9 @@ import io.ktor.server.routing.*
 
 fun Application.Type_of_activityContriller() {
     routing {
+
         route("/type_of_activity") {
+            //Вывод всех типов деятельности
             get {
                 val type_of_activityDTO = Type_of_activityModel.getType_of_activityAll()
                 val gson = Gson()
@@ -18,7 +20,7 @@ fun Application.Type_of_activityContriller() {
 
                 call.respond(description)
             }
-
+            //Вывод определеный тип деятельности
             get("/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 if (id != null) {

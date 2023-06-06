@@ -1,3 +1,5 @@
+package com.example
+
 import com.example.database.Person.PersonContriller
 import com.example.database.Role.RoleContriller
 import com.example.database.Status.StatusContriller
@@ -40,6 +42,8 @@ fun main() {
         .baselineOnMigrate(true)
         .locations("db/migration") // указываем папку с миграциями
         .load()
+    //Обновление истории схем
+    flyway.repair()
 // запускаем миграции
     flyway.migrate()
 

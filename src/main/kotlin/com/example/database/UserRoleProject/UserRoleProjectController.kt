@@ -17,12 +17,13 @@ import io.ktor.server.routing.*
 fun Application.UserRoleProjectController() {
     routing {
         route("/user_role_project") {
+            //Вывод всех групп
             get {
                 val URPDTO = getURPAll()
                 val gson = Gson()
                 call.respond(gson.toJson(URPDTO))
             }
-
+            //Вывод определеной группы
             get("/{id}") {
                 val URPId = call.parameters["id"]?.toIntOrNull()
                 if (URPId != null) {
@@ -33,6 +34,7 @@ fun Application.UserRoleProjectController() {
                 }
             }
 
+            //Вывод всех учасников определенной задачи
             get("/task/{id}") {
                 val id = call.parameters["id"]?.toIntOrNull()
                 val gson = Gson()
@@ -43,7 +45,7 @@ fun Application.UserRoleProjectController() {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
             }
-
+            //Создание учасников определенной задачи
             post {
                 val urp = call.receive<String>()
                 val gson = Gson()
@@ -52,7 +54,7 @@ fun Application.UserRoleProjectController() {
                 insert(name)
                 call.respond(HttpStatusCode.Created)
             }
-
+            //Обновленние группы
             put("/{id}") {
                 val urpId = call.parameters["id"]?.toIntOrNull()
                 if (urpId != null) {
@@ -65,7 +67,7 @@ fun Application.UserRoleProjectController() {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
             }
-
+            //Удаление группы
             delete("/{id}") {
                 val URPId = call.parameters["id"]?.toIntOrNull()
                 if (URPId != null) {

@@ -9,7 +9,7 @@ object CommentModel : Table("comments"){
     private  val id = CommentModel.integer("id").autoIncrement()
     private  val user = CommentModel.integer("usser").nullable()
     private  val comments = CommentModel.varchar("comments", 256)
-
+    private  val taskid = CommentModel.integer("taskid").nullable()
 
     fun  insertComment(сommentDTO: CommentDTO){
         transaction {
@@ -18,9 +18,12 @@ object CommentModel : Table("comments"){
             CommentModel.insert{
                 it[user] = сommentDTO.user
                 it[comments] = сommentDTO.comments
+                it[taskid]= сommentDTO.taskid
             }
         }
     }
+
+
 
     fun getComment(id:Int):CommentDTO{
 
@@ -31,7 +34,8 @@ object CommentModel : Table("comments"){
             commentDTO = CommentDTO(
                 id = commentModel[CommentModel.id],
                 user = commentModel[CommentModel.user],
-                comments = commentModel[CommentModel.comments]
+                comments = commentModel[CommentModel.comments],
+                taskid = commentModel[taskid]
             )
         }
         return commentDTO
@@ -44,7 +48,8 @@ object CommentModel : Table("comments"){
                 CommentDTO(
                     id = it[CommentModel.id],
                     user = it[CommentModel.user],
-                    comments = it[CommentModel.comments]
+                    comments = it[CommentModel.comments],
+                    taskid = it[taskid]
                 )
             }
         }
@@ -57,6 +62,7 @@ object CommentModel : Table("comments"){
             {
                 it[user] = commentDTO.user
                 it[comments] = commentDTO.comments
+                it[taskid]= commentDTO.taskid
             }
             if (task > 0) {
                 return@transaction HttpStatusCode.NoContent
