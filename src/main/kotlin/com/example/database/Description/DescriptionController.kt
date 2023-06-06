@@ -44,113 +44,6 @@ private val logger = KotlinLogging.logger {}
 fun Application.DescriptionContriller() {
     routing {
         route("/description") {
-            get {
-                val descriptionDTOAPI = mutableListOf<DescriptionDTOAPI>()
-                val descriptionDTO = getDescriptionAll()
-                val gson = Gson()
-
-                for (description in descriptionDTO)
-                {
-                    val photoResources = description.photo_resources
-                    val photoBytes = if (photoResources != null) readImegeByte(photoResources) else null
-
-                    val fileResources = description.file_resources
-                    val fileBytes = if(fileResources != null) readFileByte(fileResources) else null
-
-                    descriptionDTOAPI.add(DescriptionDTOAPI(
-                        description.id,
-                        description.content,
-                        fileBytes,
-                        photoBytes,
-                        null)
-                    )
-                }
-
-                val description = gson.toJson(descriptionDTOAPI)
-
-                call.respond(description)
-            }
-
-            get("/{id}") {
-                val descriptionId = call.parameters["id"]?.toIntOrNull()
-
-                if (descriptionId != null) {
-                    val description = getDescription(descriptionId)
-                    val descriptionDTOAPI = DescriptionDTOAPI(
-                        description.id,
-                        description.content,
-                        readFileByte(description.file_resources!!),
-                        readImegeByte(description.photo_resources!!),
-                        null
-                    )
-
-                    val gson = Gson()
-                    val description_photo = gson.toJson(descriptionDTOAPI)
-                    logger.info { "Фото обработаны в Json" }
-                    call.respond(description_photo)
-                }else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
-            }
-
-            post {
-                val description = call.receive<String>()
-                val gson = Gson()
-
-                val name = gson.fromJson(description, DescriptionDTO::class.java)
-
-                insertDescription(name)
-                call.respond(HttpStatusCode.Created)
-            }
-
-            put("/photo/{id}") {
-
-
-                val descriptionId = call.parameters["id"]?.toIntOrNull()
-                if (descriptionId != null) {
-                    val description = call.receive<String>()
-                    val request = call.request
-                    val contentLength = request.contentLength()
-
-
-
-                    logger.info { "Объем запроса:${(contentLength?.div(1024) )?.div(124)} MB" }
-                    if (contentLength!! < MAX_FILE_SIZE){
-                        val gson = Gson()
-                        val descriptionDTO = getDescription(descriptionId)
-
-                        val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
-
-                        writeImegeByte(descriptionDTOAPI.photo_resources!!, descriptionDTO.photo_resources!!)
-
-
-                        call.respond(HttpStatusCode.OK)
-                    }
-                    else{
-                        call.respond(HttpStatusCode.BadRequest, "Сильно большой объем фото")
-                    }
-
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
-            }
-
-            post("/text") {
-                val text = call.receiveText()
-                call.respondText(text)
-            }
-
-            post("/bytes") {
-                val bytes = call.receive<ByteArray>()
-                call.respond(String(bytes))
-            }
-
-            post("/channel") {
-                val readChannel = call.receiveChannel()
-                val text = readChannel.readRemaining().readText()
-                call.respondText(text)
-            }
-
             get("/download/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
                 if (descriptionId != null) {
@@ -175,7 +68,7 @@ fun Application.DescriptionContriller() {
             var fileDescription = ""
             var fileName = ""
 
-            post("/upload/{id}") {
+            post("/upload/photo/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
                 val contentLength = call.request.header(HttpHeaders.ContentLength).toString().toInt()
                 if (descriptionId != null) {
@@ -209,35 +102,72 @@ fun Application.DescriptionContriller() {
                 }
             }
 
-
-            put("/file/{id}") {
-
+            post("/upload/file/{id}") {
                 val descriptionId = call.parameters["id"]?.toIntOrNull()
+                val contentLength = call.request.header(HttpHeaders.ContentLength).toString().toInt()
                 if (descriptionId != null) {
-                    val description = call.receive<String>()
-                    val request = call.request
-                    val contentLength = request.contentLength()
+                    val descriptionDTO = getDescription(descriptionId)
+                    if (contentLength!! < MAX_FILE_SIZE) {
+                        val multipartData = call.receiveMultipart()
 
-                    logger.info { "Объем запроса:${(contentLength?.div(1024) )?.div(124)} MB" }
-                    if (contentLength!! < MAX_FILE_SIZE){
-                        val gson = Gson()
-                        val descriptionDTO = getDescription(descriptionId)
+                        multipartData.forEachPart { part ->
+                            when (part) {
+                                is PartData.FormItem -> {
+                                    fileDescription = part.value
+                                }
 
+                                is PartData.FileItem -> {
+                                    fileName = part.originalFileName as String
+                                    val fileBytes = part.streamProvider().readBytes()
+                                    File(descriptionDTO.file_resources + fileName).writeBytes(fileBytes)
+                                }
 
-                        val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
-
-                        writeFileByte(descriptionDTOAPI.file_resources!!, descriptionDTO.file_resources!!)
-
-                        call.respond(HttpStatusCode.OK)
+                                else -> {}
+                            }
+                            part.dispose()
+                        }
+                        call.respondText("$fileDescription is uploaded to 'uploads/$fileName'")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Сильно большой файл!")
                     }
-                    else{
-                        call.respond(HttpStatusCode.BadRequest, "Сильно большой объем фото")
-                    }
 
-                } else {
+                }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
+            }
 
+            post("/upload/video/{id}") {
+                val descriptionId = call.parameters["id"]?.toIntOrNull()
+                val contentLength = call.request.header(HttpHeaders.ContentLength).toString().toInt()
+                if (descriptionId != null) {
+                    val descriptionDTO = getDescription(descriptionId)
+                    if (contentLength!! < MAX_FILE_SIZE) {
+                        val multipartData = call.receiveMultipart()
+
+                        multipartData.forEachPart { part ->
+                            when (part) {
+                                is PartData.FormItem -> {
+                                    fileDescription = part.value
+                                }
+
+                                is PartData.FileItem -> {
+                                    fileName = part.originalFileName as String
+                                    val fileBytes = part.streamProvider().readBytes()
+                                    File(descriptionDTO.video_resources + fileName).writeBytes(fileBytes)
+                                }
+
+                                else -> {}
+                            }
+                            part.dispose()
+                        }
+                        call.respondText("$fileDescription is uploaded to 'uploads/$fileName'")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Сильно большой файл!")
+                    }
+
+                }else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
             }
 
             delete("/{id}") {

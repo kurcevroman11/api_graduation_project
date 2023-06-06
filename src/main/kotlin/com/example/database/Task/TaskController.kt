@@ -30,32 +30,30 @@ import java.util.*
 fun Application.TaskContriller() {
     routing {
         route("/task") {
-            // Обработка запросов с любым источником (CORS)
-            intercept(ApplicationCallPipeline.Call) {
-                if (call.request.httpMethod == HttpMethod.Options) {
-                    // Обработка предварительных запросов OPTIONS
-                    call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
-                    call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
-                    call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
-                    call.respond(HttpStatusCode.OK)
-                    finish()
-                }
-            }
+//            intercept(ApplicationCallPipeline.Call) {
+//                if (call.request.httpMethod == HttpMethod.Options) {
+//                    // Обработка предварительных запросов OPTIONS
+//                    call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
+//                    call.response.header(HttpHeaders.AccessControlAllowMethods, "*")
+//                    call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
+//                    call.response.header(HttpHeaders.AccessControlAllowCredentials, "true")
+//                    call.response.header(HttpHeaders.AccessControlMaxAge, "1728000")
+//                    call.respond(HttpStatusCode.OK)
+//                    finish()
+//                }
+//            }
 
             get {
                 val taskDTO = getTaskAll()
                 val gson = Gson()
                 val task = gson.toJson(taskDTO)
-
+                call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
                 call.respond(task)
             }
 
             get("/project"){
                 val taskDTO = getProjectAll()
-
                 call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
-                call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
-                call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
                 call.respond(taskDTO)
             }
 

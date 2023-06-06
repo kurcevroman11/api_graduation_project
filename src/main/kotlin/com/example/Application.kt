@@ -56,11 +56,6 @@ fun main() {
 }
 
 fun Application.module() {
-    install(CORS) {
-       anyHost()
-    }
-
-
     configureLoginRouting()
     configureRegisterRouting()
     configureSerialization()
@@ -73,10 +68,8 @@ fun Application.module() {
     StatusContriller()
     DescriptionContriller()
     tokenUser()
-    header()
+    CommentContriller()
     configureRouting()
-
-    main_3()
 }
 
 //fun waitForDatabase() {

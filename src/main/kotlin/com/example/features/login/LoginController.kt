@@ -49,6 +49,7 @@ class LoginController(private val call: ApplicationCall) {
                     //call.respondText("Mobile client detected")
                 } else {
                     // запрос пришел от браузера
+
                     call.response.cookies.append(cookie)
                     call.respond(HttpStatusCode.OK)
                     //call.respondText("Browser detected")

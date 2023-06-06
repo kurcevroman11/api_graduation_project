@@ -16,11 +16,8 @@ fun Application.UserContriller() {
         route("/User") {
             get {
                 val usersDTO = fetchAllUser()
-                val gson = Gson()
 
-                val users = gson.toJson(usersDTO)
-
-                call.respond(users)
+                call.respond(usersDTO)
             }
 
             get("/{id}") {

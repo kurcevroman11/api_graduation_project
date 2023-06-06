@@ -7,20 +7,11 @@ import io.ktor.http.*
 import io.ktor.server.routing.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*
 
-data class User(val token: String)
 fun Application.configureLoginRouting() {
-    install(Sessions) {
-        val secretSignKey = hex("6819b57a326945c1968f45236589")
-        cookie<RegisterResponseRemote>("user_session", SessionStorageMemory()) {
-            cookie.path = "/"
-            transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
-        }
-    }
-
-
     routing {
         post("/login") {
             val userAgent = call.request.header(HttpHeaders.UserAgent)
