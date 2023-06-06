@@ -12,6 +12,8 @@ object UserRoleProjectModel: Table("usersroleproject"){
     private  val users = UserRoleProjectModel.integer("userid").nullable()
     private  val role = UserRoleProjectModel.integer("roleid").nullable()
     private  val task = UserRoleProjectModel.integer("projectid")
+    private val type_of_activity = UserRoleProjectModel.integer("type_of_activityid").nullable()
+    private val score = UserRoleProjectModel.integer("score").nullable()
 
     fun  insert(userRoleProjectDTO: UserRoleProjectDTO){
         transaction {
@@ -20,6 +22,8 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 it[users] = userRoleProjectDTO.users
                 it[role] = userRoleProjectDTO.role
                 it[task] = userRoleProjectDTO.task
+                it[type_of_activity] = userRoleProjectDTO.type_of_activity
+                it[score] = userRoleProjectDTO.score
             }
         }
     }
@@ -31,7 +35,9 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     it[UserRoleProjectModel.id],
                     it[users],
                     it[role],
-                    it[task]
+                    it[task],
+                    it[type_of_activity],
+                    it[score]
                 )
             }
         }
@@ -47,7 +53,10 @@ object UserRoleProjectModel: Table("usersroleproject"){
                         rs.getInt("id"),
                         rs.getInt("userid"),
                         rs.getInt("roleid"),
-                        rs.getInt("projectid"),)
+                        rs.getInt("projectid"),
+                        rs.getInt("type_of_activityid"),
+                        rs.getInt("score")
+                    )
                     )
                 }
                 return@exec list
@@ -56,7 +65,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
-    fun getUserProjectRole(idProjekt: Int,idUser: Int ) : Int?
+    fun getUserProjectRole(idProjekt: Int, idUser: Int ) : Int?
     {
         return transaction {
             exec(" SELECT roleid FROM usersroleproject WHERE projectid = $idProjekt AND userid = $idUser;") { rs ->
@@ -79,6 +88,8 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     users = UrpModle[users],
                     role = UrpModle[role],
                     task = UrpModle[task],
+                    type_of_activity = UrpModle[type_of_activity],
+                    score = UrpModle[score]
                 )
             }
         }
@@ -95,6 +106,8 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 it[users] = userRoleProjectDTO.users
                 it[role] = userRoleProjectDTO.role
                 it[task] = userRoleProjectDTO.task
+                it[type_of_activity] = userRoleProjectDTO.type_of_activity
+                it[score] = userRoleProjectDTO.score
             }
             if (urp > 0) {
                 return@transaction HttpStatusCode.NoContent

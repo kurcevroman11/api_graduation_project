@@ -10,53 +10,55 @@ import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
 import com.example.plugins.configureRouting
-import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
-import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
-import java.net.Socket
+import io.ktor.server.plugins.cors.routing.*
 
 private val logger = KotlinLogging.logger {}
 
-val dotenv: Dotenv = Dotenv.configure().load()
-
-
-val host: String? = dotenv["HOST"]
-val port: String? = dotenv["PORT"]
-val postgresUser: String? = dotenv["POSTGRES_NAME_USER"]
-val postgresPassword: String? = dotenv["POSTGRES_PASSWORD_USER"]
-val dbName: String? = dotenv["DB"]
+//val dotenv: Dotenv = Dotenv.configure().load()
+//
+//
+//val host: String? = dotenv["HOST"]
+//val port: String? = dotenv["PORT"]
+//val postgresUser: String? = dotenv["POSTGRES_NAME_USER"]
+//val postgresPassword: String? = dotenv["POSTGRES_PASSWORD_USER"]
+//val dbName: String? = dotenv["DB"]
 
 fun main() {
-
-    waitForDatabase()
-
-// настраиваем Flyway
-    val flyway = Flyway.configure()
-        .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
-        .baselineOnMigrate(true)
-        .locations("db/migration") // указываем папку с миграциями
-        .load()
-// запускаем миграции
-    flyway.migrate()
+//
+//    waitForDatabase()
+//
+//// настраиваем Flyway
+//    val flyway = Flyway.configure()
+//        .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
+//        .baselineOnMigrate(true)
+//        .locations("db/migration") // указываем папку с миграциями
+//        .load()
+//// запускаем миграции
+//    flyway.migrate()
 
     // Запускаем БД
     Database.connect(
-        url = "jdbc:postgresql://$host:$port/$dbName",
+        url = "jdbc:postgresql://localhost:5432/sebbia",
         driver = "org.postgresql.Driver",
-        user = "$postgresUser",
-        password = "$postgresPassword"
-
+        user = "postgres",
+        password = "qwerty"
     )
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
-        .start(wait = true)
+    .start(wait = true)
 }
 
 fun Application.module() {
+    install(CORS) {
+       anyHost()
+    }
+
+
     configureLoginRouting()
     configureRegisterRouting()
     configureSerialization()
@@ -72,21 +74,23 @@ fun Application.module() {
     header()
     cookie()
     configureRouting()
+
+    main_3()
 }
 
-fun waitForDatabase() {
-    val host: String? = dotenv["HOST"]
-    val port = 5432
-
-    while (true) {
-        try {
-            Socket(host, port).use { socket ->
-                logger.info { "Порт базы данных доступен. Запуск приложения." }
-                return
-            }
-        } catch (e: Exception) {
-            logger.info { "Порт базы данных недоступен. Ожидание и повторная попытка через 1 секунду." }
-            Thread.sleep(1000)
-        }
-    }
-}
+//fun waitForDatabase() {
+//    val host: String? = dotenv["HOST"]
+//    val port = 5432
+//
+//    while (true) {
+//        try {
+//            Socket(host, port).use { socket ->
+//                logger.info { "Порт базы данных доступен. Запуск приложения." }
+//                return
+//            }
+//        } catch (e: Exception) {
+//            logger.info { "Порт базы данных недоступен. Ожидание и повторная попытка через 1 секунду." }
+//            Thread.sleep(1000)
+//        }
+//    }
+//}

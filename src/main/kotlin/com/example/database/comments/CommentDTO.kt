@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 class CommentDTO(
     val id:Int?,
     val user: Int?,
-    val comments: String) {
+    val comments: String,
+    val taskid: Int?)
+{
 }

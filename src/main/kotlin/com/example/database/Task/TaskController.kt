@@ -20,6 +20,7 @@ import com.example.plugins.createMedia
 import com.example.plugins.decodeJwtToken
 import com.google.gson.Gson
 import io.ktor.http.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.serialization.encodeToString
@@ -29,23 +30,33 @@ import java.util.*
 fun Application.TaskContriller() {
     routing {
         route("/task") {
+            // Обработка запросов с любым источником (CORS)
+            intercept(ApplicationCallPipeline.Call) {
+                if (call.request.httpMethod == HttpMethod.Options) {
+                    // Обработка предварительных запросов OPTIONS
+                    call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
+                    call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
+                    call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
+                    call.respond(HttpStatusCode.OK)
+                    finish()
+                }
+            }
+
             get {
                 val taskDTO = getTaskAll()
                 val gson = Gson()
                 val task = gson.toJson(taskDTO)
-
-
 
                 call.respond(task)
             }
 
             get("/project"){
                 val taskDTO = getProjectAll()
-                val gson = Gson()
 
-                val task = gson.toJson(taskDTO)
-
-                call.respond(task)
+                call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
+                call.response.header(HttpHeaders.AccessControlAllowMethods, "GET, POST, OPTIONS")
+                call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
+                call.respond(taskDTO)
             }
 
             get("/{id}") {
@@ -58,15 +69,14 @@ fun Application.TaskContriller() {
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
             }
+
             post("/{id}") {
                 val task = call.receive<String>()
                 val gson = Gson()
                 val taskId = call.parameters["id"]?.toInt()
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
-
 
                 name.parent = taskId
                 name.description = createMedia(name.name).toInt()
@@ -77,7 +87,6 @@ fun Application.TaskContriller() {
                 call.respond(HttpStatusCode.Created)
             }
 
-
             post {
                 val task = call.receive<String>()
                 val gson = Gson()
@@ -85,13 +94,11 @@ fun Application.TaskContriller() {
 
                 val name = gson.fromJson(task, TaskDTO::class.java)
 
-
                 name.description = createMedia(name.name).toInt()
                 name.status = 2
 
                 insert(name)
                 call.respond(HttpStatusCode.Created)
-
             }
 
             options{
@@ -126,9 +133,7 @@ fun Application.TaskContriller() {
                     call.respond(status.code,updateTask(taskId!!, taskDTO))
                 }
 
-                call.respond(status.code,status.description)
-
-
+                call.respond(status.code, status.description)
             }
 
             delete("/{id}") {
