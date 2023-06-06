@@ -99,9 +99,28 @@ fun Application.TaskContriller() {
                 call.respond(HttpStatusCode.Created)
             }
 
+            options{
+                val task = call.receive<String>()
+                val gson = Gson()
+
+
+                val name = gson.fromJson(task, TaskDTO::class.java)
+
+
+                name.description = createMedia(name.name).toInt()
+                name.status = 2
+
+                insert(name)
+                call.respond(HttpStatusCode.Created)
+
+            }
+
             put("/{id}") {
+
                 val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
                 val taskId = call.parameters["id"]?.toIntOrNull()
+
+
 
                 val status = authorization_user(apiToken, taskId, 3)
                 if(status.code == HttpStatusCode.OK) {
