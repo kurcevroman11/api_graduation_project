@@ -17,8 +17,6 @@ fun Application.UserContriller() {
             //Вывод всех пользователей
             get {
                 val usersDTO = fetchAllUser()
-                val gson = Gson()
-
                 call.response.header(HttpHeaders.AccessControlAllowOrigin, "http://localhost:3000")
 
                 call.respond(usersDTO)

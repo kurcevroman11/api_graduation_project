@@ -23,15 +23,6 @@ data class CartSession(val userID: String, val productIDs: MutableList<Int>)
 @Serializable
 data class UserData(val username: String, val email: String)
 fun Application.cookie() {
-
-    install(Sessions) {
-        val secretSignKey = hex("6819b57a326945c1968f45236589")
-        cookie<CartSession>("cart_session", SessionStorageMemory()) {
-            cookie.path = "/"
-            transform(transformer = SessionTransportTransformerMessageAuthentication(secretSignKey))
-        }
-    }
-
     routing {
         route("/cookie") {
             post() {
