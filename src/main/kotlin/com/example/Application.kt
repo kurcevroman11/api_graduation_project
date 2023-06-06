@@ -76,6 +76,7 @@ fun Application.module() {
     header()
     cookie()
     main_3()
+    test()
 }
 
 fun waitForDatabase() {

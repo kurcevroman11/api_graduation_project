@@ -44,7 +44,12 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:9.10")
     implementation("io.github.microutils:kotlin-logging:1.11.0")
     implementation("io.github.cdimascio:java-dotenv:5.2.2")
+
+    implementation("com.auth0:java-jwt:3.18.1")
     implementation("io.ktor:ktor-gson:1.6.4")
+
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
