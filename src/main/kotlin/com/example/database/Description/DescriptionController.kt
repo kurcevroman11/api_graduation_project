@@ -4,25 +4,21 @@ import com.example.db.Description.DescriptionModel.deletDescription
 import com.example.db.Description.DescriptionModel.getDescription
 import com.example.db.Description.DescriptionModel.getDescriptionAll
 import com.example.db.Description.DescriptionModel.insertDescription
-import com.example.db.Description.DescriptionModel.readFileByte
 import com.example.db.Description.DescriptionModel.readImegeByte
 import com.example.db.Description.DescriptionModel.readImegeString
 import com.example.db.Description.DescriptionModel.writeImegeByte
 import com.google.gson.Gson
 import io.ktor.http.*
-import com.example.db.Description.DescriptionModel.writeFileByte
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.util.cio.*
-import io.ktor.utils.io.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.io.File
 
-const val MAX_FILE_SIZE: Int = 1048576 * 20 // 20МБ
+const val MAX_FILE_SIZE = 1048576 * 20 // 20МБ
 
 @Serializable
 data class DescriptionDTOAPI(   val id:Int?,
@@ -33,12 +29,9 @@ data class DescriptionDTOAPI(   val id:Int?,
 @Serializable
 data class photoClass(val filename: String?, val filetype: String?, val photo: ByteArray)
 @Serializable
-data class fileClass(val filename:String?, val filetype:String?, val file: ByteArray)
+data class fileClass(val filename:String?, val filetype:String?, val photo : ByteArray)
 @Serializable
-data class videoClass(val filename:String, val filetype:String, val video: ByteArray)
-
-@Serializable
-data class Customer(val id: Int, val firstName: String, val lastName: String)
+data class videoClass(val filename:String, val filetype:String, val photo : ByteArray)
 
 private val logger = KotlinLogging.logger {}
 fun Application.DescriptionContriller() {
@@ -53,17 +46,7 @@ fun Application.DescriptionContriller() {
                 {
                     val photoResources = description.photo_resources
                     val photoBytes = if (photoResources != null) readImegeByte(photoResources) else null
-
-                    val fileResources = description.file_resources
-                    val fileBytes = if(fileResources != null) readFileByte(fileResources) else null
-
-                    descriptionDTOAPI.add(DescriptionDTOAPI(
-                        description.id,
-                        description.content,
-                        fileBytes,
-                        photoBytes,
-                        null)
-                    )
+                    descriptionDTOAPI.add(DescriptionDTOAPI(description.id,description.content, null, photoBytes,null))
                 }
 
                 val description = gson.toJson(descriptionDTOAPI)
@@ -98,14 +81,7 @@ fun Application.DescriptionContriller() {
 
                 if (descriptionId != null) {
                     val description = getDescription(descriptionId)
-                    val descriptionDTOAPI = DescriptionDTOAPI(
-                        description.id,
-                        description.content,
-                        readFileByte(description.file_resources!!),
-                        readImegeByte(description.photo_resources!!),
-                        null
-                    )
-
+                    val  descriptionDTOAPI = DescriptionDTOAPI(description.id,description.content, null , readImegeByte(description.photo_resources!!),null)
                     val gson = Gson()
                     val description_photo = gson.toJson(descriptionDTOAPI)
                     logger.info { "Фото обработаны в Json" }
@@ -304,7 +280,7 @@ fun Application.DescriptionContriller() {
 
                         val descriptionDTOAPI = gson.fromJson(description, DescriptionDTOAPI::class.java)
 
-                        writeFileByte(descriptionDTOAPI.file_resources!!, descriptionDTO.file_resources!!)
+                        writeImegeByte(descriptionDTOAPI.photo_resources!!,descriptionDTO.photo_resources!!)
 
                         call.respond(HttpStatusCode.OK)
                     }

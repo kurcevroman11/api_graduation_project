@@ -14,6 +14,8 @@ object PersonModule: Table("person") {
     private val surname = PersonModule.varchar("surname", 64)
     private val name = PersonModule.varchar("name", 64)
     private val patronymic = PersonModule.varchar("patronymic", 64).nullable()
+    private val type_of_activity = PersonModule.integer("type_of_activity").nullable()
+
 
     fun  insertPerson(personDTO: PersonDTO){
         transaction {
@@ -23,6 +25,7 @@ object PersonModule: Table("person") {
                 it[surname] = personDTO.surname
                 it[name] = personDTO.name
                 it[patronymic] = personDTO.patronymic
+                it[type_of_activity] = personDTO.type_of_activity
             }
         }
     }
@@ -36,6 +39,7 @@ object PersonModule: Table("person") {
                     surname = person[surname],
                     name = person[name],
                     patronymic = person[patronymic],
+                    type_of_activity = person[type_of_activity]
                 )
             }
         } catch (e: Exception) {
@@ -52,6 +56,7 @@ object PersonModule: Table("person") {
                         it[surname],
                         it[name],
                         it[patronymic],
+                        it[type_of_activity],
                     )
                 }
             }
@@ -68,6 +73,7 @@ object PersonModule: Table("person") {
                 it[surname] = personDTO.surname
                 it[name] = personDTO.name
                 it[patronymic] = personDTO.patronymic
+                it[type_of_activity] = personDTO.type_of_activity
             }
             if (person > 0) {
                 return@transaction HttpStatusCode.NoContent
