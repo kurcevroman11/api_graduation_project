@@ -1,8 +1,7 @@
-import com.example.db.Task.TaskDTO
 import com.example.db.comments.CommentDTO
 import com.example.db.comments.CommentModel.deletComment
-import com.example.db.comments.CommentModel.getComment
 import com.example.db.comments.CommentModel.getCommentAll
+import com.example.db.comments.CommentModel.getComments
 import com.example.db.comments.CommentModel.insertComment
 import com.example.db.comments.CommentModel.updateComment
 import com.google.gson.Gson
@@ -24,10 +23,11 @@ fun Application.CommentContriller() {
                 call.respond(comment)
             }
 
+
             get("/{id}") {
-                val commentId = call.parameters["id"]?.toIntOrNull()
-                if (commentId != null) {
-                    val commentDTO = getComment(commentId)
+                val taskId = call.parameters["id"]?.toIntOrNull()
+                if (taskId != null) {
+                    val commentDTO = getComments(taskId)
                     call.respond(commentDTO!!)
                 }else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
@@ -55,7 +55,6 @@ fun Application.CommentContriller() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
             }
 
             delete("/{id}") {
@@ -65,10 +64,7 @@ fun Application.CommentContriller() {
                 } else {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
-
-
             }
-
         }
     }
 }
