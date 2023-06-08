@@ -37,7 +37,7 @@ fun Application.UserRoleProjectController() {
                     }
                 }
 
-                // Выводит все проекты, в которых участвует пользователь
+                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
                 get("/task") {
                     val principle = call.principal<JWTPrincipal>()
                     val userId = principle!!.payload.getClaim("userId").asInt()

@@ -7,6 +7,5 @@ class CommentDTO(
     val id:Int?,
     val user: Int?,
     val comments: String,
-    val taskid: Int?)
-{
+    val taskid:Int?) {
 }

@@ -94,6 +94,58 @@ ALTER SEQUENCE public.description_id_seq OWNED BY public.description.id;
 
 
 --
+-- Name: usersroleproject; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.usersroleproject (
+    id integer NOT NULL,
+    userid integer,
+    roleid integer,
+    projectid integer,
+    type_of_activityid integer,
+    score integer
+);
+
+
+ALTER TABLE public.usersroleproject OWNER TO postgres;
+
+--
+-- Name: usersroleproject_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usersroleproject_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.usersroleproject_id_seq OWNER TO postgres;
+
+--
+-- Name: usersroleproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usersroleproject_id_seq OWNED BY public.usersroleproject.id;
+
+
+--
+-- Name: file; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.file (
+    id integer DEFAULT nextval('public.usersroleproject_id_seq'::regclass) NOT NULL,
+    orig_filename text,
+    type text,
+    "taskId" integer
+);
+
+
+ALTER TABLE public.file OWNER TO postgres;
+
+--
 -- Name: person; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -271,44 +323,6 @@ ALTER SEQUENCE public.type_of_activity_id_seq OWNED BY public.type_of_activity.i
 
 
 --
--- Name: usersroleproject; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.usersroleproject (
-    id integer NOT NULL,
-    userid integer,
-    roleid integer,
-    projectid integer,
-    type_of_activityid integer,
-    score integer
-);
-
-
-ALTER TABLE public.usersroleproject OWNER TO postgres;
-
---
--- Name: usersroleproject_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.usersroleproject_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.usersroleproject_id_seq OWNER TO postgres;
-
---
--- Name: usersroleproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.usersroleproject_id_seq OWNED BY public.usersroleproject.id;
-
-
---
 -- Name: usser; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -316,7 +330,7 @@ CREATE TABLE public.usser (
     id integer NOT NULL,
     login character varying NOT NULL,
     password character varying NOT NULL,
-    token_long text NOT NULL,
+    token_long text,
     personid integer
 );
 
@@ -421,11 +435,14 @@ COPY public.comments (id, usser, comments, taskid) FROM stdin;
 --
 
 COPY public.description (id, content, file_resources, photo_resources, video_resources) FROM stdin;
-4				
-5				
-6				
-16				
-17				
+\.
+
+
+--
+-- Data for Name: file; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.file (id, orig_filename, type, "taskId") FROM stdin;
 \.
 
 
@@ -445,6 +462,7 @@ COPY public.role (id, name) FROM stdin;
 1	Коментатор
 2	Исполнитель
 3	Админ
+4	Проект менеджер
 \.
 
 
@@ -491,6 +509,7 @@ COPY public.usersroleproject (id, userid, roleid, projectid, type_of_activityid,
 --
 
 COPY public.usser (id, login, password, token_long, personid) FROM stdin;
+2	admin	admin123	\N	\N
 \.
 
 
@@ -554,7 +573,7 @@ SELECT pg_catalog.setval('public.usersroleproject_id_seq', 1, false);
 -- Name: usser_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usser_id_seq', 1, false);
+SELECT pg_catalog.setval('public.usser_id_seq', 2, true);
 
 
 --
@@ -571,6 +590,14 @@ ALTER TABLE ONLY public.comments
 
 ALTER TABLE ONLY public.description
     ADD CONSTRAINT descriptions_pk PRIMARY KEY (id);
+
+
+--
+-- Name: file file_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.file
+    ADD CONSTRAINT file_pkey PRIMARY KEY (id);
 
 
 --
