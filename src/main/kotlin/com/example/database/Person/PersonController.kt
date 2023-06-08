@@ -12,10 +12,7 @@ fun Application.PersonContriller() {
         route("/person") {
             get {
                 val personDTO = PersonModule.fetchAllPerson()
-                val gson = Gson()
-
-                val description = gson.toJson(personDTO)
-                call.respond(description)
+                call.respond(personDTO)
             }
 
             get("/{id}") {
