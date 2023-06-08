@@ -16,7 +16,6 @@ fun Application.UserContriller() {
         route("/User") {
             get {
                 val usersDTO = fetchAllUser()
-                call.response.header(HttpHeaders.AccessControlAllowOrigin, "http://localhost:3000")
 
                 call.respond(usersDTO)
             }

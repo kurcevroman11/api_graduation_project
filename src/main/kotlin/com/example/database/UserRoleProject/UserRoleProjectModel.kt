@@ -1,7 +1,9 @@
 package com.example.db.UserRoleProject
 
 import com.example.database.UserRoleProject.UserRoleProjectDTO
+import com.example.db.Task.TaskDTO
 import com.example.db.Task.TaskModel
+import com.google.gson.GsonBuilder
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -61,9 +63,43 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 }
                 return@exec list
             }
-
         }
     }
+
+    // Метод выводит только те проекты, в которых участвует пользователь
+    fun getUserProject(userID: Int): String? {
+        return transaction {
+            exec(
+                "SELECT task.id, task.name, " +
+                        "task.status, task.start_data, " +
+                        "task.descriptionid, task.parent, " +
+                        "task.score, " +
+                        "(SELECT COUNT(userid) FROM usersroleproject WHERE projectid=task.id) as user_count " +
+                    "FROM usersroleproject " +
+                    "INNER JOIN task ON task.id = projectid " +
+                    "WHERE userid = $userID AND projectid IS NOT NULL AND task.parent IS NULL;") { rs ->
+                val list = mutableListOf<TaskDTO>()
+                while (rs.next()) {
+                    val userCount = rs.getInt("user_count")
+
+                    list.add(TaskDTO(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getInt("status"),
+                        rs.getString("start_data"),
+                        rs.getInt("score"),
+                        rs.getInt("descriptionid"),
+                        rs.getInt("parent"),
+                        userCount
+                    ))
+                }
+                val gson = GsonBuilder().create()
+                return@exec gson.toJson(list)
+            }
+        }
+    }
+
+
 
     fun getUserProjectRole(idProjekt: Int, idUser: Int ) : Int?
     {
