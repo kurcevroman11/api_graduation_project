@@ -76,7 +76,7 @@ fun authorization_user(apiToken: String?, taskId : Int?, role : Int) : HttpStatu
                 val isTokenExpired = claimsSet.expirationTime?.before(currentDate) ?: false
                 if (!isTokenExpired)
                 {
-                    val user = UserModule.getUserToLogin(claimsSet.subject)
+                    val user = UserModule.fetchUserID(claimsSet.getClaim("userId").toString().toInt())
                     val user_role = UserRoleProjectModel.getUserProjectRole(taskId, user?.id!!)
                     if(user_role == role){
                         return (HttpStatus(HttpStatusCode.OK, "Доступ есть"))

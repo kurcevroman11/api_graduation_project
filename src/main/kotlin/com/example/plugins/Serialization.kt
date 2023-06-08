@@ -2,6 +2,7 @@ package com.example.plugins
 
 
 
+import com.example.utils.TokenManager
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -15,19 +16,22 @@ fun Application.configureSerialization() {
     json()
   }
 
+  val tokenManager = TokenManager()
+
   install(Authentication) {
-    jwt {
-      realm = "Access to 'hello'"
-      verifier(JWTConfig.verifier)
-      validate { credentials ->
-        if (credentials.payload.audience.contains("http://0.0.0.0:8080/hello")) {
-          JWTPrincipal(credentials.payload)
+    jwt("auth-jwt") {
+      verifier(tokenManager.verifyJWTToken())
+      realm = "Hi!"
+      validate { jwtCredential ->
+        if(jwtCredential.payload.getClaim("username").asString().isNotEmpty()) {
+          JWTPrincipal(jwtCredential.payload)
         } else {
           null
         }
       }
     }
   }
+
 }
 
 

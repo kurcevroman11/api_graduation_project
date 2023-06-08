@@ -2,6 +2,7 @@ package com.example.plugins
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.example.utils.TokenManager
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,8 +14,10 @@ import io.ktor.server.routing.*
 
 fun Application.test() {
 
+
+
     routing {
-        authenticate("jwt") {
+        authenticate("auth-jwt") {
             get("/hello") {
                 call.respondText("Доступ разрешен", status = HttpStatusCode.OK)
             }

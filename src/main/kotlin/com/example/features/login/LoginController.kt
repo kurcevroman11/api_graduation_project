@@ -6,6 +6,7 @@ import com.example.features.register.RegisterResponseRemote
 import com.example.plugins.CartSession
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
+import com.example.utils.TokenManager
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -26,7 +27,9 @@ class LoginController(private val call: ApplicationCall) {
             call.respond(HttpStatusCode.BadRequest, "User not found")
         } else {
             if(userDTO.password == receive.password){
-                val tokenLong = generateTokenLong(receive.login)
+                val tokenManager = TokenManager()
+
+                val tokenLong = tokenManager.generateTokenLong2(receive.login, userDTO.id)
                 transaction {
                     addLogger(StdOutSqlLogger)
 
@@ -34,6 +37,8 @@ class LoginController(private val call: ApplicationCall) {
                         it[token_long] = tokenLong
                     }
                 }
+
+
 
                 val cookie = Cookie(
                     name = "token",

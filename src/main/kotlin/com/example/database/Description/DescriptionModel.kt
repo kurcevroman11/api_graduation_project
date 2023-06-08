@@ -38,7 +38,7 @@ object DescriptionModel: Table("description") {
     }
 
 
-    fun readImegeString(phat : String): MutableList<File> {
+    fun readImegeString(phat : String): MutableList<String> {
 
         val imegeList = mutableListOf<String>()
 
@@ -48,14 +48,9 @@ object DescriptionModel: Table("description") {
                 imegeList.add(it.toString())
             }
 
-        val imegeString = mutableListOf<File>()
 
-        for (imege in  imegeList)
-        {
-            imegeString.add(File(imege))
-        }
 
-        return imegeString
+        return imegeList
     }
 
     fun readImegeByte(phat : String): MutableList<photoClass> {
@@ -111,29 +106,20 @@ object DescriptionModel: Table("description") {
         }
     }
 
-//    fun readFileByte(phat : String): MutableList<fileClass> {
-//        val fileList = mutableListOf<String>()
-//
-//        Files.walk(Paths.get(phat))
-//            .filter { Files.isRegularFile(it) }
-//            .forEach {
-//                fileList.add(it.toString())
-//            }
-//
-//        val fileByte = mutableListOf<fileClass>()
-//
-//        for (file in  fileList)
-//        {
-//            val fileName = file.substringAfterLast("\\")
-//            val name = fileName.substringBeforeLast(".")
-//            val extension = fileName.substringAfterLast(".")
-//            logger.info { "Файл: $file, Name:$name, Type: $extension" }
-//
-//            fileByte.add(fileClass(name, extension,imageToByteArray(file)))
-//        }
-//        logger.info { "Список файлов отправлен в обработчик" }
-//        return fileByte
-//    }
+    fun readFileByte(phat : String): MutableList<File> {
+        val fileList = mutableListOf<File>()
+
+        Files.walk(Paths.get(phat))
+            .filter { Files.isRegularFile(it) }
+            .forEach {
+                fileList.add(File(it.toString()))
+            }
+
+
+
+        logger.info { "Список файлов отправлен в обработчик" }
+        return fileList
+    }
 //
 //    fun writeFileByte(imegeByte :  MutableList<fileClass>, phat : String)
 //    {
@@ -152,9 +138,11 @@ object DescriptionModel: Table("description") {
 //            }
 //        }
 //
-//        for (file in fileByteFile)
+//        for ((index, file) in fileByteFile.withIndex())
 //        {
-//            val imagePath = phat + "${file.filename}.${file.filetype}"
+//            val imagePath = phat + "${index + 1}_"+"${file.filename}.${file.filetype}"
+//
+//            //C:\Users\sergk\OneDrive\Рабочий стол\estimate-backend-dev_SergeyKalinin/1_file.txt
 //
 //            byteArrayToImage(file.file, imagePath, file.filetype!!)
 //        }

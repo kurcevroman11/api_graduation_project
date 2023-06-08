@@ -26,7 +26,7 @@ import javax.xml.crypto.Data
 fun Application.tokenUser() {
 
     routing {
-        authenticate("jwt"){
+
         get("/token") {
 
             val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
@@ -48,7 +48,6 @@ fun Application.tokenUser() {
                 call.respond(HttpStatusCode.BadRequest, "Такая задача не существует")
             }
         }
-    }
     }
 }
 
