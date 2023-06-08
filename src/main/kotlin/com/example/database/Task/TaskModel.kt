@@ -24,6 +24,7 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
+    private val userCount: Int = 0
 
     fun insert(taskDTO: TaskDTO) {
         transaction {
@@ -59,9 +60,6 @@ object TaskModel : Table("task") {
             ArrayList<TaskDTO>()
         }
     }
-
-
-
 
     fun getTaskAll(): List<TaskDTO> {
         return try {
