@@ -10,8 +10,11 @@ import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
 import com.example.plugins.configureRouting
+import com.example.utils.TokenManager
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
@@ -32,24 +35,23 @@ val dbName: String? = dotenv["DB"]
 
 fun main() {
 
-    waitForDatabase()
+//    waitForDatabase()
 
-// настраиваем Flyway
-    val flyway = Flyway.configure()
-        .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
-        .baselineOnMigrate(true)
-        .locations("db/migration") // указываем папку с миграциями
-        .load()
-// запускаем миграции
-    flyway.migrate()
+//// настраиваем Flyway
+//    val flyway = Flyway.configure()
+//        .dataSource("jdbc:postgresql://$host:$port/$dbName", "$postgresUser", "$postgresPassword")
+//        .baselineOnMigrate(true)
+//        .locations("db/migration") // указываем папку с миграциями
+//        .load()
+//// запускаем миграции
+//    flyway.migrate()
 
-    // Запускаем БД
+
     Database.connect(
-        url = "jdbc:postgresql://$host:$port/$dbName",
+        url = "jdbc:postgresql://localhost:5432/sebbia",
         driver = "org.postgresql.Driver",
-        user = "$postgresUser",
-        password = "$postgresPassword"
-
+        user = "postgres",
+        password = "qwerty"
     )
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -57,9 +59,11 @@ fun main() {
 }
 
 fun Application.module() {
+
+
+    configureSerialization()
     configureLoginRouting()
     configureRegisterRouting()
-    configureSerialization()
     TaskContriller()
     UserContriller()
     RoleContriller()
@@ -72,21 +76,22 @@ fun Application.module() {
     header()
     cookie()
     configureRouting()
+    main_03()
 }
 
-fun waitForDatabase() {
-    val host: String? = dotenv["HOST"]
-    val port = 5432
-
-    while (true) {
-        try {
-            Socket(host, port).use { socket ->
-                logger.info { "Порт базы данных доступен. Запуск приложения." }
-                return
-            }
-        } catch (e: Exception) {
-            logger.info { "Порт базы данных недоступен. Ожидание и повторная попытка через 1 секунду." }
-            Thread.sleep(1000)
-        }
-    }
-}
+//fun waitForDatabase() {
+//    val host: String? = dotenv["HOST"]
+//    val port = 5432
+//
+//    while (true) {
+//        try {
+//            Socket(host, port).use { socket ->
+//                logger.info { "Порт базы данных доступен. Запуск приложения." }
+//                return
+//            }
+//        } catch (e: Exception) {
+//            logger.info { "Порт базы данных недоступен. Ожидание и повторная попытка через 1 секунду." }
+//            Thread.sleep(1000)
+//        }
+//    }
+//}
