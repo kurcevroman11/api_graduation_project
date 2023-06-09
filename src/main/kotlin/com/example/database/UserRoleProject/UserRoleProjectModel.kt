@@ -13,7 +13,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
     private  val id = UserRoleProjectModel.integer("id").autoIncrement()
     private  val users = UserRoleProjectModel.integer("userid").nullable()
     private  val role = UserRoleProjectModel.integer("roleid").nullable()
-    private  val task = UserRoleProjectModel.integer("projectid")
+    private  val task = UserRoleProjectModel.integer("projectid").nullable()
     private val type_of_activity = UserRoleProjectModel.integer("type_of_activityid").nullable()
     private val score = UserRoleProjectModel.integer("score").nullable()
 

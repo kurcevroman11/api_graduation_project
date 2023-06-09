@@ -6,7 +6,7 @@ class UserRoleProjectDTO(
     val id:Int?,
     val users: Int?,
     val role: Int?,
-    val task:Int,
+    val task:Int?,
     val type_of_activity: Int?,
     val score: Int?
 ){
