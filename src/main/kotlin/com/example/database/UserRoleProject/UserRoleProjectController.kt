@@ -48,6 +48,10 @@ fun Application.UserRoleProjectController() {
                     call.respondText(serializedList!!, ContentType.Application.Json)
                 }
 
+                get("/task_executors"){
+
+                }
+
                 get("/task/{id}") {
                     val id = call.parameters["id"]?.toIntOrNull()
                     val principle = call.principal<JWTPrincipal>()
