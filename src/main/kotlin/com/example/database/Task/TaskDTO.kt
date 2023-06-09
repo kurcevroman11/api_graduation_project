@@ -12,9 +12,10 @@ class TaskDTO(
     val name: String,
     var status: Int?,
     val start_date: String?,
-    val scope: Int?,
+    var scope: Int?,
     var description: Int?,
     var parent: Int?,
+    val userCount: Int? = null
 )
 {
     constructor() : this(
@@ -25,5 +26,6 @@ class TaskDTO(
         scope = null,
         description = null,
         parent = null,
+        userCount = null
     )
 }

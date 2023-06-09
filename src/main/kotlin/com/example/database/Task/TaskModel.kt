@@ -1,9 +1,17 @@
 package com.example.db.Task
 
 import com.example.database.Description.DescriptionForTask
+import com.example.database.file.FileDTO
+import com.example.database.file.FileForTask.autoIncrement
+import com.example.database.file.FileForTask.entityId
+import com.example.database.file.FileForTask.nullable
 import com.example.db.Description.DescriptionDTO
+import com.example.db.Task.TaskModel.autoIncrement
+import com.example.db.Task.TaskModel.nullable
 import io.ktor.http.*
 import mu.KotlinLogging
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
@@ -24,6 +32,7 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
+    private val userCount: Int = 0
 
     fun insert(taskDTO: TaskDTO) {
         transaction {
@@ -59,9 +68,6 @@ object TaskModel : Table("task") {
             ArrayList<TaskDTO>()
         }
     }
-
-
-
 
     fun getTaskAll(): List<TaskDTO> {
         return try {
@@ -150,6 +156,35 @@ fun stringToDateTime(dateString: String): DateTime {
     val formatter =  DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val dateTime = formatter.parseDateTime(dateString)
     return dateTime
+}
+
+
+object TaskForId: IdTable<Long>("task") {
+    override val id: Column<EntityID<Long>> = TaskForId.long("id").autoIncrement().entityId()
+    private val name = TaskForId.varchar("name", 64)
+    private val status = TaskForId.integer("status").nullable()
+    private val start_date = TaskForId.datetime("start_data").autoIncrement()
+    private val scope = TaskForId.integer("score").nullable()
+    private val description = TaskForId.integer("descriptionid").nullable()
+    private val parent = TaskForId.integer("parent").nullable()
+
+    override val primaryKey: PrimaryKey = PrimaryKey(id)
+
+    fun insertandGetIdTask(taskDTO: TaskDTO): Long {
+        var newTaskId: Long = 0
+        transaction {
+            addLogger(StdOutSqlLogger)
+
+            newTaskId = TaskForId.insertAndGetId {
+                it[name] = taskDTO.name
+                it[status] = taskDTO.status
+                it[scope] = taskDTO.scope
+                it[description] = taskDTO.description
+                it[parent] = taskDTO.parent
+            }.value
+        }
+        return newTaskId
+    }
 }
 
 

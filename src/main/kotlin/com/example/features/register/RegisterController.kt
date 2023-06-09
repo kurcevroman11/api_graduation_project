@@ -21,14 +21,11 @@ class RegisterController(val call: ApplicationCall) {
     suspend fun registerNewUser(){
         val registerReciveRemote = call.receive<RegisterReciveRemote>()
 
-        var tokenLong : String = ""
-
         val userDTO = UserModule.fetchUser(registerReciveRemote.login)
         if(userDTO != null){
             call.respond(HttpStatusCode.Conflict, "User already exists")
         }
         else {
-            tokenLong = generateTokenLong(registerReciveRemote.login)
             transaction {
                 addLogger(StdOutSqlLogger)
 
@@ -45,13 +42,14 @@ class RegisterController(val call: ApplicationCall) {
                         id = null,
                         login = registerReciveRemote.login,
                         password = registerReciveRemote.password,
-                        token_long = tokenLong,
+                        token_long = "",
                         personId = personId
 
                     )
                 )
             }
         }
-        call.respond(RegisterResponseRemote( tokenLong = tokenLong ))
+        call.respondText("Пользователь создан")
+        call.respond(HttpStatusCode.OK)
     }
 }

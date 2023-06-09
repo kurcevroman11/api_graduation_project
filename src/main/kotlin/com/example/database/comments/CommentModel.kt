@@ -1,5 +1,6 @@
 package com.example.db.comments
 
+import com.example.database.UserRoleProject.UserRoleProjectDTO
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -23,20 +24,25 @@ object CommentModel : Table("comments"){
         }
     }
 
-    fun getComment(id:Int):CommentDTO{
-
-        lateinit var commentDTO: CommentDTO
-
-        transaction {
-            val commentModel = CommentModel.select { CommentModel.id.eq(id)}.single()
-            commentDTO = CommentDTO(
-                id = commentModel[CommentModel.id],
-                user = commentModel[CommentModel.user],
-                comments = commentModel[CommentModel.comments],
-                taskid = commentModel[CommentModel.taskid]
-            )
+    // Метод возвращет list тех комментариев, которые были написанны
+    // для определённого проекта
+    fun getComments(id:Int): MutableList<CommentDTO>? {
+        return transaction {
+            exec(" SELECT * FROM comments WHERE taskid = $id;") { rs ->
+                val list = mutableListOf<CommentDTO>()
+                while (rs.next()) {
+                    list.add(
+                        CommentDTO(
+                            rs.getInt("id"),
+                            rs.getInt("usser"),
+                            rs.getString("comments"),
+                            rs.getInt("taskid")
+                        )
+                    )
+                }
+                return@exec list
+            }
         }
-        return commentDTO
     }
 
     fun getCommentAll(): List<CommentDTO> {

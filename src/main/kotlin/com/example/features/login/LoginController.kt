@@ -6,8 +6,11 @@ import com.example.features.register.RegisterResponseRemote
 import com.example.plugins.CartSession
 import com.example.plugins.generateTokenLong
 import com.example.plugins.generateTokenShort
+import com.example.utils.TokenManager
+import com.typesafe.config.ConfigFactory
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.config.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
@@ -26,7 +29,9 @@ class LoginController(private val call: ApplicationCall) {
             call.respond(HttpStatusCode.BadRequest, "User not found")
         } else {
             if(userDTO.password == receive.password){
-                val tokenLong = generateTokenLong(receive.login)
+                val tokenManager = TokenManager()
+
+                val tokenLong = tokenManager.generateTokenLong2(receive.login, userDTO.id)
                 transaction {
                     addLogger(StdOutSqlLogger)
 
@@ -49,6 +54,7 @@ class LoginController(private val call: ApplicationCall) {
                     //call.respondText("Mobile client detected")
                 } else {
                     // запрос пришел от браузера
+
                     call.response.cookies.append(cookie)
                     call.respond(HttpStatusCode.OK)
                     //call.respondText("Browser detected")

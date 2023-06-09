@@ -8,5 +8,4 @@ class PersonDTO (
     val surname: String,
     val name:String,
     val patronymic: String?,
-    val type_of_activity: Int? = null
     )

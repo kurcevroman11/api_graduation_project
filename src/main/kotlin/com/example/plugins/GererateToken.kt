@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.auth0.jwt.JWT
+import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.example.database.user.UserModule
 import com.example.db.Task.TaskDTO
@@ -17,7 +18,6 @@ import io.ktor.server.response.*
 import java.util.*
 
 val dotenv: Dotenv = Dotenv.configure().load()
-
 
 val sekret: String? = dotenv["SEKRET"]
 
@@ -39,7 +39,6 @@ fun generateTokenShort(username: String): String {
 }
 
 fun generateTokenLong(username: String): String {
-
     val issuer = "BeerJesus"
     val audience = "Developers"
     val secret = sekret
@@ -76,7 +75,7 @@ fun authorization_user(apiToken: String?, taskId : Int?, role : Int) : HttpStatu
                 val isTokenExpired = claimsSet.expirationTime?.before(currentDate) ?: false
                 if (!isTokenExpired)
                 {
-                    val user = UserModule.getUserToLogin(claimsSet.subject)
+                    val user = UserModule.fetchUserID(claimsSet.getClaim("userId").toString().toInt())
                     val user_role = UserRoleProjectModel.getUserProjectRole(taskId, user?.id!!)
                     if(user_role == role){
                         return (HttpStatus(HttpStatusCode.OK, "Доступ есть"))
@@ -101,3 +100,5 @@ fun authorization_user(apiToken: String?, taskId : Int?, role : Int) : HttpStatu
     return (HttpStatus(HttpStatusCode.BadRequest, "Такая задача не существует"))
     }
 }
+
+

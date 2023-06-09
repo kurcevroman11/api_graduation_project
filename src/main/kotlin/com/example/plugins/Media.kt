@@ -9,21 +9,9 @@ import java.io.File
 private val logger = KotlinLogging.logger {}
 fun createMedia(name:String): Long {
 
-    var photoPath = "src\\main\\resources\\media\\${name}\\photo\\"
 
 
-    val photo = File(photoPath)
-    if (!photo.exists()) {
-        if (!photo.mkdirs()) {
-            logger.info { "Фаил photo уже существует создан" }
-        }
-        else
-        {
-            logger.info { "Фаил photo создан" }
-        }
-    }
-
-    var filePath = "src\\main\\resources\\media\\${name}\\file\\"
+    var filePath = "src\\main\\resources\\media\\${name}\\"
 
 
     val file = File(filePath)
@@ -37,21 +25,8 @@ fun createMedia(name:String): Long {
         }
     }
 
-    var videoPath = "src\\main\\resources\\media\\${name}\\video\\"
 
-
-    val video = File(videoPath)
-    if (!video.exists()) {
-        if (!video.mkdirs()) {
-            logger.info { "Фаил video уже существует создан" }
-        }
-        else
-        {
-            logger.info { "Фаил video создан" }
-        }
-    }
-
-    val discritionID = DescriptionForTask.insertandGetId(DescriptionDTO(null, null, filePath, photoPath ,videoPath ))
+    val discritionID = DescriptionForTask.insertandGetId(DescriptionDTO(null, null, filePath,null ,null))
 
     return discritionID
 

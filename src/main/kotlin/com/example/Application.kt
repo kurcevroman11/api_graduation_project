@@ -1,3 +1,5 @@
+package com.example
+
 import com.example.database.Person.PersonContriller
 import com.example.database.Role.RoleContriller
 import com.example.database.Status.StatusContriller
@@ -9,9 +11,12 @@ import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
-import com.example.plugins.configureRouting
+import com.example.utils.TokenManager
+
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
@@ -40,6 +45,8 @@ fun main() {
         .baselineOnMigrate(true)
         .locations("db/migration") // указываем папку с миграциями
         .load()
+    //Обновление истории схем
+    flyway.repair()
 // запускаем миграции
     flyway.migrate()
 
@@ -71,7 +78,8 @@ fun Application.module() {
     tokenUser()
     header()
     cookie()
-    configureRouting()
+    main_3()
+    test()
 }
 
 fun waitForDatabase() {

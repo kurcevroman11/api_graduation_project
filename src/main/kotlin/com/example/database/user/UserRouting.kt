@@ -14,13 +14,13 @@ import io.ktor.server.response.*
 fun Application.UserContriller() {
     routing {
         route("/User") {
+            //Вывод всех пользователей
             get {
                 val usersDTO = fetchAllUser()
-                call.response.header(HttpHeaders.AccessControlAllowOrigin, "http://localhost:3000")
 
                 call.respond(usersDTO)
             }
-
+            //Вывод определенного пользователя
             get("/{id}") {
                 val userId = call.parameters["id"]?.toIntOrNull()
                 if (userId != null) {
@@ -30,7 +30,7 @@ fun Application.UserContriller() {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
             }
-
+            //Обновление определенного пользователя
             put("/{id}") {
 
                 val userId = call.parameters["id"]?.toIntOrNull()
@@ -44,7 +44,7 @@ fun Application.UserContriller() {
                     call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                 }
             }
-
+            //Удаление определенного пользователя
             delete("/{id}") {
                 val userId = call.parameters["id"]?.toIntOrNull()
                 if (userId != null) {
