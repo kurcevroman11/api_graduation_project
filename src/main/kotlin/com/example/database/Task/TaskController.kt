@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import com.example.db.Task.TaskModel
 import com.example.db.Task.TaskModel.deletTask
+import com.example.db.Task.TaskModel.getDownTask
 import com.example.db.Task.TaskModel.getProjectAll
 import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
@@ -29,8 +30,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import mu.KotlinLogging
 import java.util.*
 
+private val logger = KotlinLogging.logger {}
 fun Application.TaskContriller() {
 
     install(CORS) {
@@ -109,6 +112,19 @@ fun Application.TaskContriller() {
 
             }
 
+            get("/downtask/{id}") {
+                val taskId = call.parameters["id"]?.toIntOrNull()
+                if (taskId != null) {
+                    val tastDTO = getDownTask(taskId)
+                    val gson = Gson()
+                    val task = gson.toJson(tastDTO)
+                    call.respond(task)
+                }else {
+                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                }
+
+            }
+
             //Создание подзадачи
             post("/{id}") {
                 val task = call.receive<String>()
@@ -117,16 +133,40 @@ fun Application.TaskContriller() {
 
                 var name = gson.fromJson(task, TaskDTO::class.java)
 
-                var taskPerent = getTask(taskId!!)
 
-                taskPerent!!.scope = if(name!!.scope!! >  taskPerent!!.scope!!){
-                    name!!.scope!!
+
+                var taskPerent = getTask(taskId!!)
+                val id = insertandGetIdTask(name)
+
+                if(name.generation != null){
+                    name.generation = taskPerent!!.generation!! + 1
+                }
+                var sum = 0
+
+
+
+
+                if (name.generation!! == 2) {
+                    taskPerent!!.scope = if (name!!.scope!! > taskPerent!!.scope!!) {
+                        name!!.scope!!
+                    } else {
+                        taskPerent!!.scope!!
+                    }
+                    logger.info { "Сумма задач 2 поколения = ${taskPerent!!.scope}" }
                 }
                 else{
-                    taskPerent!!.scope!!
+                    val listDownTask = getDownTask(taskId)
+
+                    sum += name.scope!!
+                    for(task in listDownTask)
+                    {
+                        sum += task.scope!!
+                    }
+                    taskPerent!!.scope = sum
+                    logger.info { "Сумма задач 3 поколения = ${taskPerent!!.scope}" }
                 }
 
-                val id = insertandGetIdTask(name)
+
 
                 name.parent = taskId
                 name.description = createMedia(id.toString()).toInt()
@@ -135,7 +175,7 @@ fun Application.TaskContriller() {
                 updateTask(id.toInt(), name)
 
 
-                updateTask(taskPerent.id!!,taskPerent)
+                updateTask(taskPerent!!.id!!,taskPerent!!)
 
                 while (taskPerent?.parent != null)
                 {
@@ -174,6 +214,9 @@ fun Application.TaskContriller() {
 
                 name.description = createMedia(id.toString()).toInt()
                 name.status = 2
+                name.generation = 1
+                name.scope = 0
+
 
                 updateTask(id.toInt(), name)
 

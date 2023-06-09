@@ -15,7 +15,9 @@ class TaskDTO(
     var scope: Int?,
     var description: Int?,
     var parent: Int?,
-    val userCount: Int? = null
+    val userCount: Int? = null,
+    var generation : Int? = 1,
+    val typeofactivityid: Int?
 )
 {
     constructor() : this(
@@ -26,6 +28,8 @@ class TaskDTO(
         scope = null,
         description = null,
         parent = null,
-        userCount = null
+        userCount = null,
+        generation =1,
+        typeofactivityid = null
     )
 }

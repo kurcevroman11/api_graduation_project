@@ -90,7 +90,9 @@ object UserRoleProjectModel: Table("usersroleproject"){
                         rs.getInt("score"),
                         rs.getInt("descriptionid"),
                         rs.getInt("parent"),
-                        userCount
+                        userCount,
+                        rs.getInt("generation"),
+                        rs.getInt("typeofactivityid"),
                     ))
                 }
                 val gson = GsonBuilder().create()

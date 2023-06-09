@@ -32,6 +32,10 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
+    private val generation =    TaskModel.integer("generation").nullable()
+    private val typeofactivityid = TaskModel.integer("typeofactivityid").nullable()
+
+
     private val userCount: Int = 0
 
     fun insert(taskDTO: TaskDTO) {
@@ -45,6 +49,9 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[parent] = taskDTO.parent
                 it[description] = taskDTO.description
+                it[generation]      = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
+
             }
         }
     }
@@ -61,6 +68,32 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
+                        null,
+                        it[generation],
+                        it[typeofactivityid]
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            ArrayList<TaskDTO>()
+        }
+    }
+
+    fun getDownTask(id:Int): List<TaskDTO> {
+        return try {
+            transaction {
+                TaskModel.select { TaskModel.parent.eq(id) }.map {
+                    TaskDTO(
+                        it[TaskModel.id],
+                        it[name],
+                        it[status],
+                        dateTimeToString(it[start_date]?.toDateTime()!!),
+                        it[scope],
+                        it[description],
+                        it[parent],
+                        null,
+                        it[generation],
+                        it[typeofactivityid]
                     )
                 }
             }
@@ -81,6 +114,9 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
+                        null,
+                        it[generation],
+                        it[typeofactivityid]
 
                     )
                 }
@@ -102,6 +138,9 @@ object TaskModel : Table("task") {
                     scope = taskModle[scope],
                     description = taskModle[description],
                     parent = taskModle[parent],
+                    userCount = null,
+                    generation = taskModle[generation],
+                    typeofactivityid = taskModle[typeofactivityid]
                 )
             }
         } catch (e: Exception) {
@@ -119,6 +158,9 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
+                it[generation]      = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
+
             }
             if (task > 0) {
                 return@transaction HttpStatusCode.NoContent
@@ -167,6 +209,8 @@ object TaskForId: IdTable<Long>("task") {
     private val scope = TaskForId.integer("score").nullable()
     private val description = TaskForId.integer("descriptionid").nullable()
     private val parent = TaskForId.integer("parent").nullable()
+    private val generation =    TaskForId.integer("generation").nullable()
+    private val typeofactivityid = TaskForId.integer("typeofactivityid").nullable()
 
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 
@@ -179,8 +223,10 @@ object TaskForId: IdTable<Long>("task") {
                 it[name] = taskDTO.name
                 it[status] = taskDTO.status
                 it[scope] = taskDTO.scope
-                it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
+                it[description] = taskDTO.description
+                it[generation]      = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
             }.value
         }
         return newTaskId

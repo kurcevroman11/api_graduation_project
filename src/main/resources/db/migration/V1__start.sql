@@ -260,7 +260,9 @@ CREATE TABLE public.task (
     start_data timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     descriptionid integer,
     parent integer,
-    score integer
+    score integer,
+    generation integer,
+    typeofactivityid integer
 );
 
 
@@ -480,7 +482,7 @@ COPY public.status (id, name) FROM stdin;
 -- Data for Name: task; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.task (id, name, status, start_data, descriptionid, parent, score) FROM stdin;
+COPY public.task (id, name, status, start_data, descriptionid, parent, score, generation, typeofactivityid) FROM stdin;
 \.
 
 
@@ -686,6 +688,14 @@ ALTER TABLE ONLY public.task
 
 ALTER TABLE ONLY public.task
     ADD CONSTRAINT task_fk1 FOREIGN KEY (descriptionid) REFERENCES public.description(id);
+
+
+--
+-- Name: task task_typeofactivityid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.task
+    ADD CONSTRAINT task_typeofactivityid_fkey FOREIGN KEY (typeofactivityid) REFERENCES public.type_of_activity(id);
 
 
 --
