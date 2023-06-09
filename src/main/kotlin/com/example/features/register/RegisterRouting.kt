@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 fun Application.configureRegisterRouting() {
     routing {
         authenticate("auth-jwt"){
+
             post("/register") {
                 val principle = call.principal<JWTPrincipal>()
                 val username = principle!!.payload.getClaim("username").asString()

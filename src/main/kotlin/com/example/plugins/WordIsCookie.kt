@@ -80,11 +80,13 @@ fun Application.cookie() {
 
 
                 val token = fetchUserID(2)
-                call.response.cookies.append(
-                    name = "token",
-                    value = token!!.token_long,
-                    maxAge = 5 * 60L, // Время жизни в секундах
-                    httpOnly = true)
+                if (token != null) {
+                    call.response.cookies.append(
+                        name = "token",
+                        value = token.token_long!!,
+                        maxAge = 5 * 60L, // Время жизни в секундах
+                        httpOnly = true)
+                }
 
                 call.response.cookies.append(
                     name = "login",

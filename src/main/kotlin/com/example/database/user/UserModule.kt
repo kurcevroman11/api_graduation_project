@@ -9,7 +9,7 @@ object UserModule: Table("usser") {
     val id = UserModule.integer("id").autoIncrement()
     val login =  UserModule.varchar("login", 50)
     val password =  UserModule.varchar("password", 50)
-    val token_long =  UserModule.text("token_long")
+    val token_long =  UserModule.text("token_long").nullable()
     val personId = UserModule.integer("personid").nullable()
 
     fun  insert (usersDTO: UsersDTO){
