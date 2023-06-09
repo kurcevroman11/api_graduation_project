@@ -65,8 +65,8 @@ fun main() {
 
 fun Application.module() {
     configureLoginRouting()
-    configureRegisterRouting()
     configureSerialization()
+    configureRegisterRouting()
     TaskContriller()
     UserContriller()
     RoleContriller()
