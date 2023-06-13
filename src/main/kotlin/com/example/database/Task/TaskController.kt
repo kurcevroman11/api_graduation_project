@@ -66,6 +66,19 @@ fun Application.TaskContriller() {
                         val gson = Gson()
                         val task = gson.toJson(tastDTO)
                         call.respond(task)
+                    }else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
+
+                }
+
+                get("/downtask/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        val tastDTO = getDownTask(taskId)
+                        val gson = Gson()
+                        val task = gson.toJson(tastDTO)
+                        call.respond(task)
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
@@ -83,7 +96,7 @@ fun Application.TaskContriller() {
                     var taskPerent = getTask(taskId!!)
                     val id = insertandGetIdTask(name)
 
-                    if (name.generation != null) {
+                    if(name.generation != null){
                         name.generation = taskPerent!!.generation!! + 1
                     }
                     var sum = 0
@@ -95,11 +108,13 @@ fun Application.TaskContriller() {
                             taskPerent!!.scope!!
                         }
                         logger.info { "Сумма задач 2 поколения = ${taskPerent!!.scope}" }
-                    } else {
+                    }
+                    else{
                         val listDownTask = getDownTask(taskId)
 
                         sum += name.scope!!
-                        for (task in listDownTask) {
+                        for(task in listDownTask)
+                        {
                             sum += task.scope!!
                         }
                         taskPerent!!.scope = sum
@@ -111,10 +126,10 @@ fun Application.TaskContriller() {
                     name.status = 2
 
                     updateTask(id.toInt(), name)
+                    updateTask(taskPerent!!.id!!,taskPerent!!)
 
-                    updateTask(taskPerent!!.id!!, taskPerent!!)
-
-                    while (taskPerent?.parent != null) {
+                    while (taskPerent?.parent != null)
+                    {
                         name = taskPerent
 
                         taskPerent = getTask(taskPerent?.parent!!)
@@ -134,7 +149,6 @@ fun Application.TaskContriller() {
                 post {
                     val task = call.receive<String>()
                     val gson = Gson()
-
 
                     val name = gson.fromJson(task, TaskDTO::class.java)
 

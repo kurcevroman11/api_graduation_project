@@ -58,7 +58,6 @@ fun Application.cookie() {
                 call.respondRedirect("/cookie/cart")
             }
 
-
             get("/cart") {
                 val cartSession = call.sessions.get<CartSession>()
                 if (cartSession != null) {
@@ -68,35 +67,29 @@ fun Application.cookie() {
                 }
             }
 
-
             get("/logout") {
                 call.sessions.clear<CartSession>()
                 call.respondRedirect("/cookie/cart")
             }
 
+            get(){
+                val token = fetchUserID(2)
+                if (token != null) {
+                    call.response.cookies.append(
+                        name = "token",
+                        value = token.token_long!!,
+                        maxAge = 5 * 60L, // Время жизни в секундах
+                        httpOnly = true)
+                }
 
-//            get(){
-//
-//
-//
-//                val token = fetchUserID(2)
-//                call.response.cookies.append(
-//                    name = "token",
-//                    value = token!!.token_long,
-//                    maxAge = 5 * 60L, // Время жизни в секундах
-//                    httpOnly = true)
-//
-//                call.response.cookies.append(
-//                    name = "login",
-//                    value = token!!.login,
-//                    maxAge = 60L, // Время жизни в секундах
-//                    httpOnly = true)
-//                call.respond(HttpStatusCode.OK, "Держи токен")
-//            }
-
+                call.response.cookies.append(
+                    name = "login",
+                    value = token!!.login,
+                    maxAge = 60L, // Время жизни в секундах
+                    httpOnly = true)
+                call.respond(HttpStatusCode.OK, "Держи токен")
+            }
         }
-
-
     }
 }
 
