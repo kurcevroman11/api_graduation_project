@@ -42,7 +42,6 @@ fun Application.UserRoleProjectController() {
                     val principle = call.principal<JWTPrincipal>()
                     val userId = principle!!.payload.getClaim("userId").asInt()
 
-
                     val serializedList = getUserProject(userId)
 
                     call.respondText(serializedList!!, ContentType.Application.Json)

@@ -2,8 +2,11 @@ package com.example.db.Task
 
 import com.example.database.Description.DescriptionForTask
 import com.example.db.Description.DescriptionDTO
+import com.example.db.Task.TaskModel.nullable
 import io.ktor.http.*
 import mu.KotlinLogging
+import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.dao.id.IdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
@@ -24,6 +27,13 @@ object TaskModel : Table("task") {
     private val scope = TaskModel.integer("score").nullable()
     private val description = TaskModel.integer("descriptionid").nullable()
     private val parent = TaskModel.integer("parent").nullable()
+    private val generation = TaskModel.integer("generation").nullable()
+    private val typeofactivityid = TaskModel.integer("typeofactivityid").nullable()
+    private val position = TaskModel.integer("position").nullable()
+    private val gruop = TaskModel.integer("gruop").nullable()
+    private val dependence = TaskModel.integer("dependence").nullable()
+
+
     private val userCount: Int = 0
 
     fun insert(taskDTO: TaskDTO) {
@@ -37,6 +47,11 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[parent] = taskDTO.parent
                 it[description] = taskDTO.description
+                it[generation] = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
+                it[position] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
             }
         }
     }
@@ -53,6 +68,12 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
+                        null,
+                        it[generation],
+                        it[typeofactivityid],
+                        it[position],
+                        it[gruop],
+                        it[dependence]
                     )
                 }
             }
@@ -61,10 +82,10 @@ object TaskModel : Table("task") {
         }
     }
 
-    fun getTaskAll(): List<TaskDTO> {
+    fun getDownTask(id: Int): List<TaskDTO> {
         return try {
             transaction {
-                TaskModel.selectAll().map {
+                TaskModel.select { TaskModel.parent.eq(id) }.map {
                     TaskDTO(
                         it[TaskModel.id],
                         it[name],
@@ -73,13 +94,42 @@ object TaskModel : Table("task") {
                         it[scope],
                         it[description],
                         it[parent],
-
+                        null,
+                        it[generation],
+                        it[typeofactivityid],
+                        it[position],
+                        it[gruop],
+                        it[dependence]
                     )
                 }
             }
         } catch (e: Exception) {
             ArrayList<TaskDTO>()
         }
+    }
+
+    fun getTaskAll(): List<TaskDTO> = try {
+        transaction {
+            TaskModel.selectAll().map {
+                TaskDTO(
+                    it[TaskModel.id],
+                    it[name],
+                    it[status],
+                    dateTimeToString(it[start_date]?.toDateTime()!!),
+                    it[scope],
+                    it[description],
+                    it[parent],
+                    null,
+                    it[generation],
+                    it[typeofactivityid],
+                    it[position],
+                    it[gruop],
+                    it[dependence]
+                )
+            }
+        }
+    } catch (e: Exception) {
+        emptyList()
     }
 
     fun getTask(id: Int): TaskDTO? {
@@ -94,6 +144,12 @@ object TaskModel : Table("task") {
                     scope = taskModle[scope],
                     description = taskModle[description],
                     parent = taskModle[parent],
+                    userCount = null,
+                    generation = taskModle[generation],
+                    typeofactivityid = taskModle[typeofactivityid],
+                    position = taskModle[position],
+                    gruop = taskModle[gruop],
+                    dependence = taskModle[dependence]
                 )
             }
         } catch (e: Exception) {
@@ -111,6 +167,11 @@ object TaskModel : Table("task") {
                 it[scope] = taskDTO.scope
                 it[description] = taskDTO.description
                 it[parent] = taskDTO.parent
+                it[generation] = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
+                it[position] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
             }
             if (task > 0) {
                 return@transaction HttpStatusCode.NoContent
@@ -145,9 +206,47 @@ fun dateTimeToString(dateTime: DateTime): String {
 }
 
 fun stringToDateTime(dateString: String): DateTime {
-    val formatter =  DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    val formatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
     val dateTime = formatter.parseDateTime(dateString)
     return dateTime
 }
 
+
+object TaskForId : IdTable<Long>("task") {
+    override val id: Column<EntityID<Long>> = TaskForId.long("id").autoIncrement().entityId()
+    private val name = TaskForId.varchar("name", 64)
+    private val status = TaskForId.integer("status").nullable()
+    private val start_date = TaskForId.datetime("start_data").autoIncrement()
+    private val scope = TaskForId.integer("score").nullable()
+    private val description = TaskForId.integer("descriptionid").nullable()
+    private val parent = TaskForId.integer("parent").nullable()
+    private val generation = TaskForId.integer("generation").nullable()
+    private val typeofactivityid = TaskForId.integer("typeofactivityid").nullable()
+    private val postion = TaskForId.integer("position").nullable()
+    private val gruop = TaskForId.integer("gruop").nullable()
+    private val dependence = TaskForId.integer("dependence").nullable()
+
+    override val primaryKey: PrimaryKey = PrimaryKey(id)
+
+    fun insertandGetIdTask(taskDTO: TaskDTO): Long {
+        var newTaskId: Long = 0
+        transaction {
+            addLogger(StdOutSqlLogger)
+
+            newTaskId = TaskForId.insertAndGetId {
+                it[name] = taskDTO.name
+                it[status] = taskDTO.status
+                it[scope] = taskDTO.scope
+                it[parent] = taskDTO.parent
+                it[description] = taskDTO.description
+                it[generation] = taskDTO.generation
+                it[typeofactivityid] = taskDTO.typeofactivityid
+                it[postion] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
+            }.value
+        }
+        return newTaskId
+    }
+}
 

@@ -60,7 +60,6 @@ fun main() {
 
 fun Application.module() {
 
-
     configureSerialization()
     configureLoginRouting()
     configureRegisterRouting()

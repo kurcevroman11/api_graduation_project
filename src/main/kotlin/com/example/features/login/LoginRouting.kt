@@ -12,14 +12,6 @@ import io.ktor.util.*
 
 data class User(val token: String)
 fun Application.configureLoginRouting() {
-    install(Sessions) {
-        val secretSignKey = hex("6819b57a326945c1968f45236589")
-        cookie<RegisterResponseRemote>("user_session", SessionStorageMemory()) {
-            cookie.path = "/"
-            transform(SessionTransportTransformerMessageAuthentication(secretSignKey))
-        }
-    }
-
     routing {
         post("/login") {
             val userAgent = call.request.header(HttpHeaders.UserAgent)

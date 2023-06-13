@@ -20,7 +20,7 @@ class TokenManager() {
             .withIssuer(issuer)
             .withClaim("username", username)
             .withClaim("userId", userId)
-            .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+            .withExpiresAt(Date(System.currentTimeMillis() + 60000 * 60))
             .sign(Algorithm.HMAC256(secret))
         return token
     }
