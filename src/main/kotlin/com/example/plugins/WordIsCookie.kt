@@ -75,24 +75,24 @@ fun Application.cookie() {
             }
 
 
-            get(){
-
-
-
-                val token = fetchUserID(2)
-                call.response.cookies.append(
-                    name = "token",
-                    value = token!!.token_long,
-                    maxAge = 5 * 60L, // Время жизни в секундах
-                    httpOnly = true)
-
-                call.response.cookies.append(
-                    name = "login",
-                    value = token!!.login,
-                    maxAge = 60L, // Время жизни в секундах
-                    httpOnly = true)
-                call.respond(HttpStatusCode.OK, "Держи токен")
-            }
+//            get(){
+//
+//
+//
+//                val token = fetchUserID(2)
+//                call.response.cookies.append(
+//                    name = "token",
+//                    value = token!!.token_long,
+//                    maxAge = 5 * 60L, // Время жизни в секундах
+//                    httpOnly = true)
+//
+//                call.response.cookies.append(
+//                    name = "login",
+//                    value = token!!.login,
+//                    maxAge = 60L, // Время жизни в секундах
+//                    httpOnly = true)
+//                call.respond(HttpStatusCode.OK, "Держи токен")
+//            }
 
         }
 
