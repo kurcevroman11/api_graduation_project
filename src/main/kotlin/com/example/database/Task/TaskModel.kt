@@ -6,8 +6,10 @@ import com.example.database.file.FileForTask.autoIncrement
 import com.example.database.file.FileForTask.entityId
 import com.example.database.file.FileForTask.nullable
 import com.example.db.Description.DescriptionDTO
+import com.example.db.Description.DescriptionModel
 import com.example.db.Task.TaskModel.autoIncrement
 import com.example.db.Task.TaskModel.nullable
+import com.example.db.UserRoleProject.UserRoleProjectModel
 import io.ktor.http.*
 import mu.KotlinLogging
 import org.jetbrains.exposed.dao.id.EntityID
@@ -129,10 +131,27 @@ object TaskModel : Table("task") {
         return HttpStatusCode.OK
     }
 
+    fun deleteTaskInternal(id: Int): Int {
+        var m_task = getTask(id)
+        val deletedRowCount = TaskModel.deleteWhere { TaskModel.id eq id }
+        DescriptionModel.deletDescription(m_task?.description)
+        UserRoleProjectModel.deleteURPByTask(id)
+
+        val tasks = getTaskAll()
+        for (task in tasks) {
+            var parent_id = task.parent
+            if (parent_id != null && parent_id == id) {
+                deleteTaskInternal(task.id!!)
+            }
+        }
+        return deletedRowCount
+    }
+
     fun deletTask(id: Int): HttpStatusCode {
         if (id != null) {
             transaction {
-                val deletedRowCount = TaskModel.deleteWhere { TaskModel.id eq id }
+                val deletedRowCount = deleteTaskInternal(id)
+
                 if (deletedRowCount > 0) {
                     return@transaction HttpStatusCode.NoContent
                 } else {

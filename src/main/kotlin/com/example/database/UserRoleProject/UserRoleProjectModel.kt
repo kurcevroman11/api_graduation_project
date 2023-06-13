@@ -169,4 +169,20 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
         return HttpStatusCode.OK
     }
+
+    fun deleteURPByTask(task_id: Int): HttpStatusCode {
+        if (id != null) {
+            transaction {
+                val deletedRowCount = UserRoleProjectModel.deleteWhere { UserRoleProjectModel.task eq task_id }
+                if (deletedRowCount > 0) {
+                    return@transaction HttpStatusCode.NoContent
+                } else {
+                    return@transaction HttpStatusCode.NoContent
+                }
+            }
+        } else {
+            return HttpStatusCode.BadRequest
+        }
+        return HttpStatusCode.OK
+    }
 }

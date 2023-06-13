@@ -260,7 +260,12 @@ CREATE TABLE public.task (
     start_data timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     descriptionid integer,
     parent integer,
-    score integer
+    score integer,
+    generation integer,
+    typeofactivityid integer,
+    "position" integer,
+    gruop integer,
+    dependence integer
 );
 
 
@@ -435,6 +440,8 @@ COPY public.comments (id, usser, comments, taskid) FROM stdin;
 --
 
 COPY public.description (id, content, file_resources, photo_resources, video_resources) FROM stdin;
+18	\N	src\\main\\resources\\media\\18\\file\\	src\\main\\resources\\media\\18\\photo\\	src\\main\\resources\\media\\18\\video\\
+19	\N	src\\main\\resources\\media\\19\\file\\	src\\main\\resources\\media\\19\\photo\\	src\\main\\resources\\media\\19\\video\\
 \.
 
 
@@ -451,6 +458,9 @@ COPY public.file (id, orig_filename, type, "taskId") FROM stdin;
 --
 
 COPY public.person (id, surname, name, patronymic) FROM stdin;
+1			
+2			
+3			
 \.
 
 
@@ -480,7 +490,9 @@ COPY public.status (id, name) FROM stdin;
 -- Data for Name: task; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.task (id, name, status, start_data, descriptionid, parent, score) FROM stdin;
+COPY public.task (id, name, status, start_data, descriptionid, parent, score, generation, typeofactivityid, "position", gruop, dependence) FROM stdin;
+19	Разработать дизайн	2	2023-06-12 19:08:27.234395+03	19	18	8	2	3	\N	\N	\N
+18	Приложение список дел	2	2023-06-12 19:02:07.416664+03	18	\N	8	1	\N	\N	\N	\N
 \.
 
 
@@ -509,7 +521,10 @@ COPY public.usersroleproject (id, userid, roleid, projectid, type_of_activityid,
 --
 
 COPY public.usser (id, login, password, token_long, personid) FROM stdin;
-2	admin	admin123	\N	\N
+3	user1	22		1
+4	user2	33		2
+5	user3	44		3
+2	admin	admin123	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJEZXZlbG9wZXJzIiwiaXNzIjoiQmVlckplc3VzIiwidXNlcm5hbWUiOiJhZG1pbiIsInVzZXJJZCI6MiwiZXhwIjoxNjg2NTkyNTMzfQ.8yy4CEgb5BqHllsvrqnNgQsC6-P9BEY_i0YdptE1avc	\N
 \.
 
 
@@ -524,14 +539,14 @@ SELECT pg_catalog.setval('public.comments_id_seq', 1, false);
 -- Name: description_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.description_id_seq', 17, true);
+SELECT pg_catalog.setval('public.description_id_seq', 19, true);
 
 
 --
 -- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.person_id_seq', 1, false);
+SELECT pg_catalog.setval('public.person_id_seq', 3, true);
 
 
 --
@@ -552,7 +567,7 @@ SELECT pg_catalog.setval('public.status_id_seq', 1, false);
 -- Name: task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.task_id_seq', 17, true);
+SELECT pg_catalog.setval('public.task_id_seq', 19, true);
 
 
 --
@@ -566,14 +581,14 @@ SELECT pg_catalog.setval('public.type_of_activity_id_seq', 1, false);
 -- Name: usersroleproject_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usersroleproject_id_seq', 1, false);
+SELECT pg_catalog.setval('public.usersroleproject_id_seq', 11, true);
 
 
 --
 -- Name: usser_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usser_id_seq', 2, true);
+SELECT pg_catalog.setval('public.usser_id_seq', 5, true);
 
 
 --
@@ -686,6 +701,14 @@ ALTER TABLE ONLY public.task
 
 ALTER TABLE ONLY public.task
     ADD CONSTRAINT task_fk1 FOREIGN KEY (descriptionid) REFERENCES public.description(id);
+
+
+--
+-- Name: task task_typeofactivityid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.task
+    ADD CONSTRAINT task_typeofactivityid_fkey FOREIGN KEY (typeofactivityid) REFERENCES public.type_of_activity(id);
 
 
 --
