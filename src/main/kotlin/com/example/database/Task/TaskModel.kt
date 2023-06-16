@@ -132,6 +132,50 @@ object TaskModel : Table("task") {
         emptyList()
     }
 
+    fun getTaskWithChildsInternal(parent_id: Int?, list: MutableList<TaskDTO>) {
+        try {
+            if (parent_id != null) {
+                val all_list: MutableList<TaskDTO> = mutableListOf()
+                transaction {
+                    TaskModel.select { TaskModel.parent eq parent_id!! }.map {
+                        val taskDTO = TaskDTO(
+                            it[TaskModel.id],
+                            it[name],
+                            it[status],
+                            dateTimeToString(it[start_date]?.toDateTime()!!),
+                            it[scope],
+                            it[description],
+                            it[parent],
+                            null,
+                            it[generation],
+                            it[typeofactivityid],
+                            it[position],
+                            it[gruop],
+                            it[dependence]
+                        )
+                        all_list.add(taskDTO)
+                    }
+                }
+
+                list.addAll(all_list)
+                for (task in all_list) {
+                    getTaskWithChildsInternal(task.id, list)
+                }
+            }
+        } catch (e: Exception) {
+        }
+    }
+
+    fun getTaskWithChilds(parent_id: Int): List<TaskDTO> {
+        val all_list: MutableList<TaskDTO> = mutableListOf()
+        var task = getTask(parent_id)
+        if (task != null)
+            all_list.add(task)
+        getTaskWithChildsInternal(parent_id, all_list)
+        all_list.sortByDescending { it.generation }
+        return all_list
+    }
+
     fun getTask(id: Int): TaskDTO? {
         return try {
             transaction {

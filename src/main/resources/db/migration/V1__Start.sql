@@ -27,7 +27,8 @@ SET default_table_access_method = heap;
 CREATE TABLE public.comments (
     id integer NOT NULL,
     usser integer,
-    comments text
+    comments text,
+    taskid integer
 );
 
 
@@ -93,24 +94,56 @@ ALTER SEQUENCE public.description_id_seq OWNED BY public.description.id;
 
 
 --
--- Name: flyway_schema_history; Type: TABLE; Schema: public; Owner: postgres
+-- Name: usersroleproject; Type: TABLE; Schema: public; Owner: postgres
 --
 
-CREATE TABLE public.flyway_schema_history (
-    installed_rank integer NOT NULL,
-    version character varying(50),
-    description character varying(200) NOT NULL,
-    type character varying(20) NOT NULL,
-    script character varying(1000) NOT NULL,
-    checksum integer,
-    installed_by character varying(100) NOT NULL,
-    installed_on timestamp without time zone DEFAULT now() NOT NULL,
-    execution_time integer NOT NULL,
-    success boolean NOT NULL
+CREATE TABLE public.usersroleproject (
+    id integer NOT NULL,
+    userid integer,
+    roleid integer,
+    projectid integer,
+    type_of_activityid integer,
+    score integer
 );
 
 
-ALTER TABLE public.flyway_schema_history OWNER TO postgres;
+ALTER TABLE public.usersroleproject OWNER TO postgres;
+
+--
+-- Name: usersroleproject_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.usersroleproject_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.usersroleproject_id_seq OWNER TO postgres;
+
+--
+-- Name: usersroleproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.usersroleproject_id_seq OWNED BY public.usersroleproject.id;
+
+
+--
+-- Name: file; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.file (
+    id integer DEFAULT nextval('public.usersroleproject_id_seq'::regclass) NOT NULL,
+    orig_filename text,
+    type text,
+    "taskId" integer
+);
+
+
+ALTER TABLE public.file OWNER TO postgres;
 
 --
 -- Name: person; Type: TABLE; Schema: public; Owner: postgres
@@ -120,8 +153,7 @@ CREATE TABLE public.person (
     id integer NOT NULL,
     surname character varying NOT NULL,
     name character varying NOT NULL,
-    patronymic character varying,
-    type_of_activity integer
+    patronymic character varying
 );
 
 
@@ -225,12 +257,15 @@ CREATE TABLE public.task (
     id integer NOT NULL,
     name character varying,
     status integer,
-    start_data date,
-    score time without time zone,
+    start_data timestamp with time zone DEFAULT CURRENT_TIMESTAMP,
     descriptionid integer,
     parent integer,
+    score integer,
     generation integer,
-    commentsid integer
+    typeofactivityid integer,
+    "position" integer,
+    gruop integer,
+    dependence integer
 );
 
 
@@ -256,43 +291,6 @@ ALTER TABLE public.task_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.task_id_seq OWNED BY public.task.id;
-
-
---
--- Name: team; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.team (
-    id integer NOT NULL,
-    ussers integer,
-    task integer,
-    evaluation time without time zone,
-    times time without time zone
-);
-
-
-ALTER TABLE public.team OWNER TO postgres;
-
---
--- Name: team_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.team_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.team_id_seq OWNER TO postgres;
-
---
--- Name: team_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.team_id_seq OWNED BY public.team.id;
 
 
 --
@@ -330,42 +328,6 @@ ALTER SEQUENCE public.type_of_activity_id_seq OWNED BY public.type_of_activity.i
 
 
 --
--- Name: usersroleproject; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.usersroleproject (
-    id integer NOT NULL,
-    userid integer,
-    roleid integer,
-    projectid integer
-);
-
-
-ALTER TABLE public.usersroleproject OWNER TO postgres;
-
---
--- Name: usersroleproject_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.usersroleproject_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.usersroleproject_id_seq OWNER TO postgres;
-
---
--- Name: usersroleproject_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.usersroleproject_id_seq OWNED BY public.usersroleproject.id;
-
-
---
 -- Name: usser; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -373,7 +335,6 @@ CREATE TABLE public.usser (
     id integer NOT NULL,
     login character varying NOT NULL,
     password character varying NOT NULL,
-    token_short text,
     token_long text,
     personid integer
 );
@@ -446,13 +407,6 @@ ALTER TABLE ONLY public.task ALTER COLUMN id SET DEFAULT nextval('public.task_id
 
 
 --
--- Name: team id; Type: DEFAULT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.team ALTER COLUMN id SET DEFAULT nextval('public.team_id_seq'::regclass);
-
-
---
 -- Name: type_of_activity id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -477,7 +431,7 @@ ALTER TABLE ONLY public.usser ALTER COLUMN id SET DEFAULT nextval('public.usser_
 -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.comments (id, usser, comments) FROM stdin;
+COPY public.comments (id, usser, comments, taskid) FROM stdin;
 \.
 
 
@@ -486,26 +440,16 @@ COPY public.comments (id, usser, comments) FROM stdin;
 --
 
 COPY public.description (id, content, file_resources, photo_resources, video_resources) FROM stdin;
-2	\N	src\\main\\resources\\media\\123авп\\file\\	src\\main\\resources\\media\\123авп\\photo\\	src\\main\\resources\\media\\123авп\\video\\
-4	\N	src\\main\\resources\\media\\123авп\\file\\	src\\main\\resources\\media\\123авп\\photo\\	src\\main\\resources\\media\\123авп\\video\\
-5		\N	\N	\N
-6	\N	src\\main\\resources\\media\\123вп\\file\\	src\\main\\resources\\media\\123вп\\photo\\	src\\main\\resources\\media\\123вп\\video\\
-7		\N	\N	\N
-8	\N	src\\main\\resources\\media\\null\\file\\	src\\main\\resources\\media\\null\\photo\\	src\\main\\resources\\media\\null\\video\\
-9		\N	\N	\N
-10	\N	src\\main\\resources\\media\\123вп\\file\\	src\\main\\resources\\media\\123вп\\photo\\	src\\main\\resources\\media\\123вп\\video\\
-11		\N	\N	\N
-12	\N	src\\main\\resources\\media\\121\\file\\	src\\main\\resources\\media\\121\\photo\\	src\\main\\resources\\media\\121\\video\\
-13		\N	\N	\N
+18	\N	src\\main\\resources\\media\\18\\file\\	src\\main\\resources\\media\\18\\photo\\	src\\main\\resources\\media\\18\\video\\
+19	\N	src\\main\\resources\\media\\19\\file\\	src\\main\\resources\\media\\19\\photo\\	src\\main\\resources\\media\\19\\video\\
 \.
 
 
 --
--- Data for Name: flyway_schema_history; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: file; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.flyway_schema_history (installed_rank, version, description, type, script, checksum, installed_by, installed_on, execution_time, success) FROM stdin;
-1	1	baseline	SQL	V1__baseline.sql	126043461	postgres	2023-05-25 17:59:36.324272	63	t
+COPY public.file (id, orig_filename, type, "taskId") FROM stdin;
 \.
 
 
@@ -513,7 +457,10 @@ COPY public.flyway_schema_history (installed_rank, version, description, type, s
 -- Data for Name: person; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.person (id, surname, name, patronymic, type_of_activity) FROM stdin;
+COPY public.person (id, surname, name, patronymic) FROM stdin;
+1			
+2			
+3			
 \.
 
 
@@ -525,6 +472,7 @@ COPY public.role (id, name) FROM stdin;
 1	Коментатор
 2	Исполнитель
 3	Админ
+4	Проект менеджер
 \.
 
 
@@ -533,6 +481,8 @@ COPY public.role (id, name) FROM stdin;
 --
 
 COPY public.status (id, name) FROM stdin;
+1	Готово
+2	В работе
 \.
 
 
@@ -540,25 +490,10 @@ COPY public.status (id, name) FROM stdin;
 -- Data for Name: task; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.task (id, name, status, start_data, score, descriptionid, parent, generation, commentsid) FROM stdin;
-1	Sebbia	\N	\N	\N	\N	\N	\N	\N
-2	123авп	\N	\N	\N	\N	1	\N	\N
-3	Sebbia	\N	\N	\N	\N	\N	\N	\N
-4	Sebbia2	\N	\N	\N	\N	\N	\N	\N
-5	123авп	\N	\N	\N	\N	3	\N	\N
-6	123авп	\N	\N	\N	\N	5	\N	\N
-7	123вп	\N	\N	\N	\N	7	\N	\N
-8	123вп	\N	\N	\N	\N	9	\N	\N
-9	123вп	\N	\N	\N	\N	11	\N	\N
-10	121	\N	\N	\N	\N	13	\N	\N
-\.
-
-
---
--- Data for Name: team; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.team (id, ussers, task, evaluation, times) FROM stdin;
+COPY public.task (id, name, status, start_data, descriptionid, parent, score, generation, typeofactivityid, "position", gruop, dependence) FROM stdin;
+1	dsfsd	2	\N	\N	\N	\N	\N	\N	\N	\N	\N
+19	Разработать дизайн	2	2023-06-12 19:08:27.234395+03	19	18	8	2	3	\N	\N	\N
+18	Приложение список дел	2	2023-06-12 19:02:07.416664+03	18	\N	8	1	\N	\N	\N	\N
 \.
 
 
@@ -567,6 +502,10 @@ COPY public.team (id, ussers, task, evaluation, times) FROM stdin;
 --
 
 COPY public.type_of_activity (id, name) FROM stdin;
+1	Backend
+2	Frontend
+3	UI/UX дизайнер
+4	Тестировщик
 \.
 
 
@@ -574,11 +513,7 @@ COPY public.type_of_activity (id, name) FROM stdin;
 -- Data for Name: usersroleproject; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.usersroleproject (id, userid, roleid, projectid) FROM stdin;
-5	2	2	1
-7	2	3	2
-8	3	2	1
-9	3	3	1
+COPY public.usersroleproject (id, userid, roleid, projectid, type_of_activityid, score) FROM stdin;
 \.
 
 
@@ -586,10 +521,11 @@ COPY public.usersroleproject (id, userid, roleid, projectid) FROM stdin;
 -- Data for Name: usser; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.usser (id, login, password, token_short, token_long, personid) FROM stdin;
-2	Kalin	Serg	\N	\N	\N
-3	sdgsdg	gsdgfsg	\N	\N	\N
-4	sfdgfg	dfghh	\N	\N	\N
+COPY public.usser (id, login, password, token_long, personid) FROM stdin;
+3	user1	22		1
+4	user2	33		2
+5	user3	44		3
+2	admin	admin123	eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJEZXZlbG9wZXJzIiwiaXNzIjoiQmVlckplc3VzIiwidXNlcm5hbWUiOiJhZG1pbiIsInVzZXJJZCI6MiwiZXhwIjoxNjg2NTkyNTMzfQ.8yy4CEgb5BqHllsvrqnNgQsC6-P9BEY_i0YdptE1avc	\N
 \.
 
 
@@ -604,21 +540,21 @@ SELECT pg_catalog.setval('public.comments_id_seq', 1, false);
 -- Name: description_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.description_id_seq', 13, true);
+SELECT pg_catalog.setval('public.description_id_seq', 19, true);
 
 
 --
 -- Name: person_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.person_id_seq', 1, false);
+SELECT pg_catalog.setval('public.person_id_seq', 3, true);
 
 
 --
 -- Name: role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.role_id_seq', 3, true);
+SELECT pg_catalog.setval('public.role_id_seq', 1, false);
 
 
 --
@@ -632,14 +568,7 @@ SELECT pg_catalog.setval('public.status_id_seq', 1, false);
 -- Name: task_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.task_id_seq', 10, true);
-
-
---
--- Name: team_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
---
-
-SELECT pg_catalog.setval('public.team_id_seq', 1, false);
+SELECT pg_catalog.setval('public.task_id_seq', 19, true);
 
 
 --
@@ -653,14 +582,14 @@ SELECT pg_catalog.setval('public.type_of_activity_id_seq', 1, false);
 -- Name: usersroleproject_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usersroleproject_id_seq', 9, true);
+SELECT pg_catalog.setval('public.usersroleproject_id_seq', 11, true);
 
 
 --
 -- Name: usser_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.usser_id_seq', 4, true);
+SELECT pg_catalog.setval('public.usser_id_seq', 5, true);
 
 
 --
@@ -680,11 +609,11 @@ ALTER TABLE ONLY public.description
 
 
 --
--- Name: flyway_schema_history flyway_schema_history_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- Name: file file_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.flyway_schema_history
-    ADD CONSTRAINT flyway_schema_history_pk PRIMARY KEY (installed_rank);
+ALTER TABLE ONLY public.file
+    ADD CONSTRAINT file_pkey PRIMARY KEY (id);
 
 
 --
@@ -720,14 +649,6 @@ ALTER TABLE ONLY public.task
 
 
 --
--- Name: team team_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.team
-    ADD CONSTRAINT team_pk PRIMARY KEY (id);
-
-
---
 -- Name: type_of_activity type_of_activity_pk; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -752,13 +673,6 @@ ALTER TABLE ONLY public.usersroleproject
 
 
 --
--- Name: flyway_schema_history_s_idx; Type: INDEX; Schema: public; Owner: postgres
---
-
-CREATE INDEX flyway_schema_history_s_idx ON public.flyway_schema_history USING btree (success);
-
-
---
 -- Name: comments comments_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -767,11 +681,11 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- Name: person person_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: comments comments_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.person
-    ADD CONSTRAINT person_fk0 FOREIGN KEY (type_of_activity) REFERENCES public.type_of_activity(id);
+ALTER TABLE ONLY public.comments
+    ADD CONSTRAINT comments_fk1 FOREIGN KEY (taskid) REFERENCES public.task(id);
 
 
 --
@@ -791,27 +705,11 @@ ALTER TABLE ONLY public.task
 
 
 --
--- Name: task task_fk2; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- Name: task task_typeofactivityid_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.task
-    ADD CONSTRAINT task_fk2 FOREIGN KEY (commentsid) REFERENCES public.comments(id);
-
-
---
--- Name: team team_fk0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.team
-    ADD CONSTRAINT team_fk0 FOREIGN KEY (ussers) REFERENCES public.usersroleproject(id);
-
-
---
--- Name: team team_fk1; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.team
-    ADD CONSTRAINT team_fk1 FOREIGN KEY (task) REFERENCES public.task(id);
+    ADD CONSTRAINT task_typeofactivityid_fkey FOREIGN KEY (typeofactivityid) REFERENCES public.type_of_activity(id);
 
 
 --
@@ -844,6 +742,14 @@ ALTER TABLE ONLY public.usersroleproject
 
 ALTER TABLE ONLY public.usersroleproject
     ADD CONSTRAINT usersroleproject_fk2 FOREIGN KEY (projectid) REFERENCES public.task(id);
+
+
+--
+-- Name: usersroleproject usersroleproject_fk3; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.usersroleproject
+    ADD CONSTRAINT usersroleproject_fk3 FOREIGN KEY (type_of_activityid) REFERENCES public.type_of_activity(id);
 
 
 --

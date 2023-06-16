@@ -15,11 +15,10 @@ fun Application.configureLoginRouting() {
     routing {
         post("/login") {
             val userAgent = call.request.header(HttpHeaders.UserAgent)
-            val loginController = LoginController(call)
-            loginController.performLogin(userAgent)
-        }
-        options("/login") {
-            val userAgent = call.request.header(HttpHeaders.UserAgent)
+            println()
+            println(userAgent)
+            println()
+
             val loginController = LoginController(call)
             loginController.performLogin(userAgent)
         }

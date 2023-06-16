@@ -3,10 +3,12 @@ package com.example.db.UserRoleProject
 import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.UserRoleProject.UserRoleProjectModel.deleteURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getALLUserProject
+import com.example.db.UserRoleProject.UserRoleProjectModel.getTask_executors
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURPAll
 import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProject
 import com.example.db.UserRoleProject.UserRoleProjectModel.insert
+import com.example.db.UserRoleProject.UserRoleProjectModel.scheduling
 import com.example.db.UserRoleProject.UserRoleProjectModel.updateURP
 import com.google.gson.Gson
 import io.ktor.http.*
@@ -48,7 +50,13 @@ fun Application.UserRoleProjectController() {
                 }
 
                 get("/task_executors"){
+                    getTask_executors()
+                    call.respond(HttpStatusCode.Created)
+                }
 
+                get("/calendar_plan"){
+                    val serializedList = scheduling()
+                    call.respondText(serializedList!!, ContentType.Application.Json)
                 }
 
                 get("/task/{id}") {

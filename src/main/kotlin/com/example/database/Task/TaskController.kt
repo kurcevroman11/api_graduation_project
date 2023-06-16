@@ -14,6 +14,7 @@ import com.example.db.Task.TaskModel.getDownTask
 import com.example.db.Task.TaskModel.getProjectAll
 import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
+import com.example.db.Task.TaskModel.getTaskWithChilds
 import com.example.db.Task.TaskModel.insert
 import com.example.db.Task.TaskModel.updateTask
 import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProjectRole
@@ -59,17 +60,37 @@ fun Application.TaskContriller() {
                     }
                 }
 
-                get("/downtask/{id}") {
+                //Вывод определенного айди
+                get("/task_and_childs/{id}") {
                     val taskId = call.parameters["id"]?.toIntOrNull()
                     if (taskId != null) {
-                        val tastDTO = getDownTask(taskId)
-                        val gson = Gson()
-                        val task = gson.toJson(tastDTO)
-                        call.respond(task)
+                        val tastDTO = getTaskWithChilds(taskId)
+                        call.respond(tastDTO!!)
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
+                }
 
+                get("/downtask/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        val taskAll = getTaskAll()
+                        val tastDTO = getDownTask(taskId)
+                        var chieldProject = mutableListOf<List<TaskDTO>>()
+
+                        //chieldProject.add(tastDTO)
+                        var chieldProject2 = mutableListOf<TaskDTO>()
+
+
+                        for(task in tastDTO){
+                            val sub_taskDTO = getDownTask(task.id!!)
+                        }
+
+
+                        call.respond(tastDTO)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
                 }
 
                 //Создание подзадачи
