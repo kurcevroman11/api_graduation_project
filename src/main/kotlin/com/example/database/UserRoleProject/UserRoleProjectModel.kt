@@ -37,7 +37,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     it[UserRoleProjectModel.id],
                     it[users],
                     it[role],
-                    it[task],
+                    it[task]!!,
                     it[type_of_activity],
                     it[score]
                 )
@@ -93,6 +93,9 @@ object UserRoleProjectModel: Table("usersroleproject"){
                         userCount,
                         rs.getInt("generation"),
                         rs.getInt("typeofactivityid"),
+                        rs.getInt("position"),
+                        rs.getInt("gruop"),
+                        rs.getString("dependence"),
                     ))
                 }
                 val gson = GsonBuilder().create()
@@ -125,7 +128,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     id = UrpModle[UserRoleProjectModel.id],
                     users = UrpModle[users],
                     role = UrpModle[role],
-                    task = UrpModle[task],
+                    task = UrpModle[task]!!,
                     type_of_activity = UrpModle[type_of_activity],
                     score = UrpModle[score]
                 )

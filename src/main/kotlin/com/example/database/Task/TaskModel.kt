@@ -6,6 +6,7 @@ import com.example.database.file.FileForTask.autoIncrement
 import com.example.database.file.FileForTask.entityId
 import com.example.database.file.FileForTask.nullable
 import com.example.db.Description.DescriptionDTO
+import com.example.db.Task.TaskForId.nullable
 import com.example.db.Task.TaskModel.autoIncrement
 import com.example.db.Task.TaskModel.nullable
 import io.ktor.http.*
@@ -34,7 +35,9 @@ object TaskModel : Table("task") {
     private val parent = TaskModel.integer("parent").nullable()
     private val generation =    TaskModel.integer("generation").nullable()
     private val typeofactivityid = TaskModel.integer("typeofactivityid").nullable()
-
+    private val position   = TaskModel.integer("position").nullable()
+    private val gruop      =  TaskModel.integer("gruop").nullable()
+    private val dependence = TaskModel.text("dependence").nullable()
 
     private val userCount: Int = 0
 
@@ -51,6 +54,9 @@ object TaskModel : Table("task") {
                 it[description] = taskDTO.description
                 it[generation]      = taskDTO.generation
                 it[typeofactivityid] = taskDTO.typeofactivityid
+                it[position] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
 
             }
         }
@@ -70,7 +76,10 @@ object TaskModel : Table("task") {
                         it[parent],
                         null,
                         it[generation],
-                        it[typeofactivityid]
+                        it[typeofactivityid],
+                        it[position],
+                        it[gruop],
+                        it[dependence]
                     )
                 }
             }
@@ -93,7 +102,10 @@ object TaskModel : Table("task") {
                         it[parent],
                         null,
                         it[generation],
-                        it[typeofactivityid]
+                        it[typeofactivityid],
+                        it[position],
+                        it[gruop],
+                        it[dependence]
                     )
                 }
             }
@@ -116,8 +128,10 @@ object TaskModel : Table("task") {
                         it[parent],
                         null,
                         it[generation],
-                        it[typeofactivityid]
-
+                        it[typeofactivityid],
+                        it[position],
+                        it[gruop],
+                        it[dependence]
                     )
                 }
             }
@@ -140,13 +154,43 @@ object TaskModel : Table("task") {
                     parent = taskModle[parent],
                     userCount = null,
                     generation = taskModle[generation],
-                    typeofactivityid = taskModle[typeofactivityid]
+                    typeofactivityid = taskModle[typeofactivityid],
+                    position = taskModle[position],
+                    gruop = taskModle[gruop],
+                    dependence = taskModle[dependence],
+
                 )
             }
         } catch (e: Exception) {
             TaskDTO()
         }
     }
+
+    fun selectPosition(){
+        return transaction {
+            exec(" SELECT * FROM task ORDER BY position ASC; ") { rs ->
+                val taskList = mutableListOf<TaskDTO>()
+                while (rs.next()) {
+                    taskList.add(TaskDTO(
+                        id = rs.getInt("id") ,
+                        name = rs.getString("name"),
+                        status = rs.getInt("id"),
+                        start_date = rs.getDate("id").toString(),
+                        scope = rs.getInt("id"),
+                        description = rs.getInt("id"),
+                        parent = rs.getInt("id"),
+                        userCount = null,
+                        generation = rs.getInt("id"),
+                        typeofactivityid = rs.getInt("id"),
+                        position = rs.getInt("id"),
+                        gruop = rs.getInt("id"),
+                        dependence = rs.getString("id"),
+                    ))
+                }
+                return@exec TaskDTO!!
+            }
+
+        }    }
 
     fun updateTask(id: Int, taskDTO: TaskDTO): HttpStatusCode {
 
@@ -160,6 +204,9 @@ object TaskModel : Table("task") {
                 it[parent] = taskDTO.parent
                 it[generation]      = taskDTO.generation
                 it[typeofactivityid] = taskDTO.typeofactivityid
+                it[position] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
 
             }
             if (task > 0) {
@@ -170,6 +217,8 @@ object TaskModel : Table("task") {
         }
         return HttpStatusCode.OK
     }
+
+
 
     fun deletTask(id: Int): HttpStatusCode {
         if (id != null) {
@@ -211,6 +260,9 @@ object TaskForId: IdTable<Long>("task") {
     private val parent = TaskForId.integer("parent").nullable()
     private val generation =    TaskForId.integer("generation").nullable()
     private val typeofactivityid = TaskForId.integer("typeofactivityid").nullable()
+    private val position   = TaskForId.integer("position").nullable()
+    private val gruop      =  TaskForId.integer("gruop").nullable()
+    private val dependence = TaskForId.text("dependence").nullable()
 
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 
@@ -227,6 +279,9 @@ object TaskForId: IdTable<Long>("task") {
                 it[description] = taskDTO.description
                 it[generation]      = taskDTO.generation
                 it[typeofactivityid] = taskDTO.typeofactivityid
+                it[position] = taskDTO.position
+                it[gruop] = taskDTO.gruop
+                it[dependence] = taskDTO.dependence
             }.value
         }
         return newTaskId
