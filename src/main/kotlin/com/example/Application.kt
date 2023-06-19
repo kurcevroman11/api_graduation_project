@@ -12,11 +12,13 @@ import com.example.plugins.*
 import com.example.plugins.configureRouting
 import com.example.utils.TokenManager
 import io.github.cdimascio.dotenv.Dotenv
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.cors.routing.*
 import mu.KotlinLogging
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database
@@ -59,7 +61,7 @@ fun main() {
 }
 
 fun Application.module() {
-
+    configureCORS()
     configureSerialization()
     configureLoginRouting()
     configureRegisterRouting()

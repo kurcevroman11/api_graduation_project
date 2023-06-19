@@ -15,6 +15,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -23,6 +24,16 @@ fun Application.UserRoleProjectController() {
     routing {
         authenticate("auth-jwt"){
             route("/user_role_project") {
+
+                post("/task") {
+                    val principle = call.principal<JWTPrincipal>()
+                    val userId = principle!!.payload.getClaim("userId").asInt()
+
+                    val serializedList = getUserProject(userId)
+
+                    call.respondText(serializedList!!, ContentType.Application.Json)
+                }
+
                 get {
                     val URPDTO = getURPAll()
                     val gson = Gson()

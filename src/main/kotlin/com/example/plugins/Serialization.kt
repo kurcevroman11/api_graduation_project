@@ -1,7 +1,5 @@
 package com.example.plugins
 
-
-
 import com.example.utils.TokenManager
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
@@ -12,23 +10,9 @@ import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 
-
 fun Application.configureSerialization() {
   install(ContentNegotiation){
     json()
-  }
-
-  install(CORS) {
-    allowHeader(HttpHeaders.CacheControl)
-    exposeHeader(HttpHeaders.CacheControl)
-    allowHeader(HttpHeaders.ContentType)
-    allowHeader(HttpHeaders.AccessControlAllowOrigin)
-    allowHeader(HttpHeaders.AccessControlAllowHeaders)
-    allowHeader(HttpHeaders.AccessControlAllowMethods)
-    allowHeader(HttpHeaders.AccessControlAllowCredentials)
-    allowCredentials = true
-    allowSameOrigin = true
-    anyHost()
   }
 
   val tokenManager = TokenManager()
@@ -46,8 +30,6 @@ fun Application.configureSerialization() {
       }
     }
   }
-
-
 }
 
 

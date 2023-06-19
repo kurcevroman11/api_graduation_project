@@ -151,7 +151,6 @@ object UserRoleProjectModel : Table("usersroleproject") {
 
     @Serializable
     data class Calendar_plan(
-        val user: String,
         val userScore: Int,
         val taskName: String,
         val taskScore: Int,
@@ -162,7 +161,7 @@ object UserRoleProjectModel : Table("usersroleproject") {
         val list = mutableListOf<Calendar_plan>()
         transaction {
             exec(
-                "SELECT CONCAT(person.surname, ' ', person.name, ' ', person.patronymic), " +
+                "SELECT " +
                 "usersroleproject.score, " +
                 "task.name, " +
                 "task.score FROM person " +
@@ -171,24 +170,37 @@ object UserRoleProjectModel : Table("usersroleproject") {
                 "INNER JOIN task ON usersroleproject.current_task_id = task.id;") { rs ->
                 while (rs.next()) {
                     list.add(Calendar_plan(
-                        rs.getString(1),
-                        rs.getInt(2),
-                        rs.getString(3),
-                        rs.getInt(4)
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3)
                     )
                     )
                 }
-//                val gson = GsonBuilder().create()
-//                return@exec gson.toJson(list)
             }
         }
 
-//        for(item in list){
-//            if(item.taskScore % item.userScore == 0)
-//        }
 
 
-        return ""
+
+         //sheduling_task - в качестве ключа название задачи, а значение список с типом Boolean
+        val sheduling_task = mutableMapOf(list[0].taskName to mutableListOf<Boolean>())
+
+         //list_sheduling_task - содержит в себе список словарей
+        //val list_sheduling_task = mutableListOf<sheduling_task>()
+
+        for(item in list){
+            // task_doing - список, который отображет сколько дней исполнитель будет выполнять задание
+            val task_doing = mutableListOf<Boolean>()
+            while(item.taskScore - item.userScore > 0){
+                task_doing.add(true)
+            }
+            sheduling_task.put(item.taskName, task_doing)
+            //list_sheduling_task.add(sheduling_task)
+        }
+
+
+        val gson = GsonBuilder().create()
+        return gson.toJson(sheduling_task)
     }
     fun getURP(id: Int): UserRoleProjectDTO? {
         return try {

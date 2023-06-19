@@ -41,24 +41,26 @@ class LoginController(private val call: ApplicationCall) {
                 }
 
 
+                call.respond(
+                    RegisterResponseRemote( tokenLong = tokenLong )
+                )
+                call.respond(HttpStatusCode.OK)
 
-                if (userAgent?.contains("Ktor client", ignoreCase = true) == true) {
-                    // запрос пришел от мобильного клиента
-                    call.respond(
-                        RegisterResponseRemote( tokenLong = tokenLong )
-                    )
-                } else {
-                    val cookie = Cookie(
-                        "token",
-                        tokenLong,
-                        path = "/",
-                        httpOnly = true,
-                        extensions = mapOf("SameSite" to "None")
-                    )
-
-                    call.response.cookies.append(cookie)
-                    call.respond(HttpStatusCode.OK)
-                }
+//                if (userAgent?.contains("Ktor client", ignoreCase = true) == true) {
+//                    // запрос пришел от мобильного клиента
+//
+//                } else {
+//                    val cookie = Cookie(
+//                        "token",
+//                        tokenLong,
+//                        path = "/",
+//                        httpOnly = true,
+//                        extensions = mapOf("SameSite" to "None")
+//                    )
+//
+//                    call.response.cookies.append(cookie)
+//                    call.respond(HttpStatusCode.OK)
+//                }
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid password")
             }
