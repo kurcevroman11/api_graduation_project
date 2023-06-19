@@ -40,24 +40,27 @@ class LoginController(private val call: ApplicationCall) {
                     }
                 }
 
-                val cookie = Cookie(
-                    name = "token",
-                    value = tokenLong,
-                    httpOnly = true
-                )
 
-                if (userAgent?.contains("mobile", ignoreCase = true) == true) {
-                    // запрос пришел от мобильного клиента
-                    call.respond(
-                        RegisterResponseRemote( tokenLong = tokenLong )
-                    )
-                    //call.respondText("Mobile client detected")
-                } else {
-                    // запрос пришел от браузера
-                    call.response.cookies.append(cookie)
-                    call.respond(HttpStatusCode.OK)
-                    //call.respondText("Browser detected")
-                }
+                call.respond(
+                    RegisterResponseRemote( tokenLong = tokenLong )
+                )
+                call.respond(HttpStatusCode.OK)
+
+//                if (userAgent?.contains("Ktor client", ignoreCase = true) == true) {
+//                    // запрос пришел от мобильного клиента
+//
+//                } else {
+//                    val cookie = Cookie(
+//                        "token",
+//                        tokenLong,
+//                        path = "/",
+//                        httpOnly = true,
+//                        extensions = mapOf("SameSite" to "None")
+//                    )
+//
+//                    call.response.cookies.append(cookie)
+//                    call.respond(HttpStatusCode.OK)
+//                }
             } else {
                 call.respond(HttpStatusCode.BadRequest, "Invalid password")
             }

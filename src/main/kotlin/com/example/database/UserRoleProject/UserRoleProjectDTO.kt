@@ -8,7 +8,8 @@ class UserRoleProjectDTO(
     val roleid: Int?,
     val projectid:Int?,
     val type_of_activityid: Int?,
-    val score: Int?
+    val score: Int?,
+    val current_task_id:Int?
 )
 
 
