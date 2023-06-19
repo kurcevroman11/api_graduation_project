@@ -64,8 +64,8 @@ fun main() {
 }
 
 fun Application.module() {
-    configureLoginRouting()
     configureSerialization()
+    configureLoginRouting()
     configureRegisterRouting()
     TaskContriller()
     UserContriller()
@@ -78,8 +78,6 @@ fun Application.module() {
     tokenUser()
     header()
     cookie()
-    main_3()
-    test()
 }
 
 fun waitForDatabase() {

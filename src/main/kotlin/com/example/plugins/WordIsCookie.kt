@@ -58,7 +58,6 @@ fun Application.cookie() {
                 call.respondRedirect("/cookie/cart")
             }
 
-
             get("/cart") {
                 val cartSession = call.sessions.get<CartSession>()
                 if (cartSession != null) {
@@ -68,17 +67,12 @@ fun Application.cookie() {
                 }
             }
 
-
             get("/logout") {
                 call.sessions.clear<CartSession>()
                 call.respondRedirect("/cookie/cart")
             }
 
-
             get(){
-
-
-
                 val token = fetchUserID(2)
                 if (token != null) {
                     call.response.cookies.append(
@@ -95,10 +89,7 @@ fun Application.cookie() {
                     httpOnly = true)
                 call.respond(HttpStatusCode.OK, "Держи токен")
             }
-
         }
-
-
     }
 }
 

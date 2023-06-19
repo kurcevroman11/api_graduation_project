@@ -21,10 +21,10 @@ object UserRoleProjectModel: Table("usersroleproject"){
         transaction {
             addLogger(StdOutSqlLogger)
             UserRoleProjectModel.insert{
-                it[users] = userRoleProjectDTO.users
-                it[role] = userRoleProjectDTO.role
-                it[task] = userRoleProjectDTO.task
-                it[type_of_activity] = userRoleProjectDTO.type_of_activity
+                it[users] = userRoleProjectDTO.userid
+                it[role] = userRoleProjectDTO.roleid
+                it[task] = userRoleProjectDTO.projectid
+                it[type_of_activity] = userRoleProjectDTO.type_of_activityid
                 it[score] = userRoleProjectDTO.score
             }
         }
@@ -37,7 +37,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     it[UserRoleProjectModel.id],
                     it[users],
                     it[role],
-                    it[task]!!,
+                    it[task],
                     it[type_of_activity],
                     it[score]
                 )
@@ -73,11 +73,12 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 "SELECT task.id, task.name, " +
                         "task.status, task.start_data, " +
                         "task.descriptionid, task.parent, " +
-                        "task.score, " +
+                        "task.score, task.generation, task.typeofactivityid, task.position, " +
+                        "task.gruop, task.dependence " +
                         "(SELECT COUNT(userid) FROM usersroleproject WHERE projectid=task.id) as user_count " +
                     "FROM usersroleproject " +
                     "INNER JOIN task ON task.id = projectid " +
-                    "WHERE userid = $userID AND projectid IS NOT NULL AND task.parent IS NULL;") { rs ->
+                    "WHERE userid = $userID;") { rs ->
                 val list = mutableListOf<TaskDTO>()
                 while (rs.next()) {
                     val userCount = rs.getInt("user_count")
@@ -87,16 +88,17 @@ object UserRoleProjectModel: Table("usersroleproject"){
                         rs.getString("name"),
                         rs.getInt("status"),
                         rs.getString("start_data"),
-                        rs.getInt("score"),
                         rs.getInt("descriptionid"),
                         rs.getInt("parent"),
-                        userCount,
+                        rs.getInt("score"),
                         rs.getInt("generation"),
                         rs.getInt("typeofactivityid"),
                         rs.getInt("position"),
                         rs.getInt("gruop"),
-                        rs.getString("dependence"),
-                    ))
+                        rs.getInt("dependence"),
+                        userCount
+                    )
+                    )
                 }
                 val gson = GsonBuilder().create()
                 return@exec gson.toJson(list)
@@ -104,7 +106,10 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
+    // Метод, который раскладывает всех исполнителей по задачам
+    fun getTask_executors(){
 
+    }
 
     fun getUserProjectRole(idProjekt: Int, idUser: Int ) : Int?
     {
@@ -126,16 +131,16 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 val UrpModle = UserRoleProjectModel.select { UserRoleProjectModel.id.eq(id) }.single()
                 UserRoleProjectDTO(
                     id = UrpModle[UserRoleProjectModel.id],
-                    users = UrpModle[users],
-                    role = UrpModle[role],
-                    task = UrpModle[task]!!,
-                    type_of_activity = UrpModle[type_of_activity],
+                    userid = UrpModle[users],
+                    roleid = UrpModle[role],
+                    projectid = UrpModle[task],
+                    type_of_activityid = UrpModle[type_of_activity],
                     score = UrpModle[score]
                 )
             }
         }
         catch (e: Exception) {
-            UserRoleProjectDTO()
+            null
         }
     }
 
@@ -144,10 +149,10 @@ object UserRoleProjectModel: Table("usersroleproject"){
         transaction {
             val urp = TaskModel.update({ UserRoleProjectModel.id eq (id) })
             {
-                it[users] = userRoleProjectDTO.users
-                it[role] = userRoleProjectDTO.role
-                it[task] = userRoleProjectDTO.task
-                it[type_of_activity] = userRoleProjectDTO.type_of_activity
+                it[users] = userRoleProjectDTO.userid
+                it[role] = userRoleProjectDTO.roleid
+                it[task] = userRoleProjectDTO.projectid
+                it[type_of_activity] = userRoleProjectDTO.type_of_activityid
                 it[score] = userRoleProjectDTO.score
             }
             if (urp > 0) {
@@ -163,6 +168,22 @@ object UserRoleProjectModel: Table("usersroleproject"){
         if (id != null) {
             transaction {
                 val deletedRowCount = UserRoleProjectModel.deleteWhere { UserRoleProjectModel.id eq id }
+                if (deletedRowCount > 0) {
+                    return@transaction HttpStatusCode.NoContent
+                } else {
+                    return@transaction HttpStatusCode.NoContent
+                }
+            }
+        } else {
+            return HttpStatusCode.BadRequest
+        }
+        return HttpStatusCode.OK
+    }
+
+    fun deleteURPByTask(task_id: Int): HttpStatusCode {
+        if (id != null) {
+            transaction {
+                val deletedRowCount = UserRoleProjectModel.deleteWhere { UserRoleProjectModel.task eq task_id }
                 if (deletedRowCount > 0) {
                     return@transaction HttpStatusCode.NoContent
                 } else {

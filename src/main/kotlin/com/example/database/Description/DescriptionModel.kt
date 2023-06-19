@@ -267,9 +267,11 @@ object DescriptionModel: Table("description") {
         return HttpStatusCode.OK
     }
 
-    fun deletDescription(id: Int): HttpStatusCode {
+    fun deletDescription(id: Int?): HttpStatusCode {
         if (id != null) {
             transaction {
+                var descr = getDescription(id)
+                deleteFolder(descr.file_resources)
                 val deletedRowCount = DescriptionModel.deleteWhere { DescriptionModel.id eq id }
                 if (deletedRowCount > 0) {
                     return@transaction HttpStatusCode.NoContent
@@ -281,5 +283,30 @@ object DescriptionModel: Table("description") {
             return HttpStatusCode.BadRequest
         }
         return HttpStatusCode.OK
+    }
+
+    fun removeLastFolderFromPath(path: String): String {
+        val separator = File.separator
+        val folderSeparator = path.lastIndexOf(separator)
+        return path.substring(0, folderSeparator)
+    }
+
+    fun deleteFolder(folderPath: String?) {
+        if (folderPath != null) {
+            val folder = File(removeLastFolderFromPath(folderPath))
+            if (folder.exists()) {
+                val files = folder.listFiles()
+                if (files != null) {
+                    for (file in files) {
+                        if (file.isDirectory) {
+                            deleteFolder(file.absolutePath)
+                        } else {
+                            file.delete()
+                        }
+                    }
+                }
+                folder.delete()
+            }
+        }
     }
 }

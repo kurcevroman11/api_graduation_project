@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 import org.joda.time.DateTime
 import java.time.LocalTime
 
-
 @Serializable
 class TaskDTO(
     var id: Int?,
@@ -19,8 +18,8 @@ class TaskDTO(
     var generation : Int? = 1,
     val typeofactivityid: Int?,
     var position: Int?,
-    val gruop: Int?,
-    var dependence: String?,
+    var gruop: Int?,
+    var dependence: String?
 )
 {
     constructor() : this(
@@ -36,6 +35,6 @@ class TaskDTO(
         typeofactivityid = null,
         position = null,
         gruop = null,
-        dependence = null,
+        dependence = null
     )
 }

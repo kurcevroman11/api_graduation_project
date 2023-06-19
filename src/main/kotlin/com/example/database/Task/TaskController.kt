@@ -1,7 +1,6 @@
 package com.example.db.Task
 
 import com.example.database.Description.DescriptionForTask.insertandGetId
-import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.database.user.UserModule.getUserToLogin
 import com.example.db.Description.DescriptionDTO
 import com.example.db.Task.TaskForId.insertandGetIdTask
@@ -68,70 +67,54 @@ fun Application.TaskContriller() {
 
 
     routing {
-        authenticate("auth-jwt"){
-        route("/task") {
-
-//            intercept(ApplicationCallPipeline.Call) {
-//                if (call.request.httpMethod == HttpMethod.Options) {
-//                    call.response.header(HttpHeaders.AccessControlAllowOrigin, "*")
-//                    call.response.header(HttpHeaders.AccessControlAllowMethods, "*")
-//                    call.response.header(HttpHeaders.AccessControlAllowHeaders, "*")
-//                    call.response.header(HttpHeaders.AccessControlAllowCredentials, "true")
-//                    call.response.header(HttpHeaders.AccessControlMaxAge, "1728000")
-//                    call.respond(HttpStatusCode.OK)
-//                    finish()
-//                }
-//            }
-
-            // Вывод всех задач
-            get {
-                val taskDTO = getTaskAll()
-                val gson = Gson()
-                val cookie = Cookie(
-                    name = "token",
-                    value = "Idii naxuy",
-                    domain = "/",
-                    httpOnly = true
-                )
-                call.response.cookies.append(cookie)
-                call.respond(taskDTO)
-
-            }
-
-            //Вывод всех проектов
-            get("/project"){
-                val taskDTO = getProjectAll()
-                val gson = Gson()
-
-                val task = gson.toJson(taskDTO)
-
-                call.respond(task)
-            }
-
-            //Вывод определенного айди
-            get("/{id}") {
-                val taskId = call.parameters["id"]?.toIntOrNull()
-                if (taskId != null) {
-                    val tastDTO = getTask(taskId)
-                    val gson = Gson()
-                    val task = gson.toJson(tastDTO)
-                    call.respond(task)
-                }else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+        authenticate("auth-jwt") {
+            route("/task") {
+                // Вывод всех задач
+                get {
+                    val taskDTOs = getTaskAll()
+                    call.respond (HttpStatusCode.OK, taskDTOs)
                 }
 
+                //Вывод всех проектов
+                get("/project") {
+                    val taskDTO = getProjectAll()
+                    call.respond(taskDTO)
+                }
+
+                //Вывод определенного айди
+                get("/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        val tastDTO = getTask(taskId)
+                        call.respond(tastDTO!!)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
+                }
+
+                get("/downtask/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        val tastDTO = getDownTask(taskId)
+                        val gson = Gson()
+                        val task = gson.toJson(tastDTO)
+                        call.respond(task)
+                    }else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
+
             }
 
-            get("/downtask/{id}") {
-                val taskId = call.parameters["id"]?.toIntOrNull()
-                if (taskId != null) {
-                    val tastDTO = getDownTask(taskId)
-                    val gson = Gson()
-                    val task = gson.toJson(tastDTO)
-                    call.respond(task)
-                }else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
+                get("/downtask/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        val tastDTO = getDownTask(taskId)
+                        val gson = Gson()
+                        val task = gson.toJson(tastDTO)
+                        call.respond(task)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
 
             }
 
@@ -184,7 +167,7 @@ fun Application.TaskContriller() {
 
                         if(item.dependence != null) {
                             val regex = Regex("\\d+")
-                            val values = regex.findAll(item.dependence!!)
+                            val values = regex.findAll(item.dependence!!.toString())
                                 .map { it.value.toInt() }
                                 .toList()
                             for (i in values){
@@ -247,16 +230,71 @@ fun Application.TaskContriller() {
 
                 var name = gson.fromJson(task, TaskDTO::class.java)
 
-                val perent = getTask(taskId!!)
 
+
+                var taskPerent = getTask(taskId!!)
                 val id = insertandGetIdTask(name)
 
-                name.generation = perent!!.generation!! + 1
+                if(name.generation != null){
+                    name.generation = taskPerent!!.generation!! + 1
+                }
+                var sum = 0
+
+
+
+
+                if (name.generation!! == 2) {
+                    taskPerent!!.scope = if (name!!.scope!! > taskPerent!!.scope!!) {
+                        name!!.scope!!
+                    } else {
+                        taskPerent!!.scope!!
+                    }
+                    logger.info { "Сумма задач 2 поколения = ${taskPerent!!.scope}" }
+                }
+                else{
+                    val listDownTask = getDownTask(taskId)
+
+                    sum += name.scope!!
+                    for(task in listDownTask)
+                    {
+                        sum += task.scope!!
+                    }
+                    taskPerent!!.scope = sum
+                    logger.info { "Сумма задач 3 поколения = ${taskPerent!!.scope}" }
+                }
+
+
+
                 name.parent = taskId
                 name.description = createMedia(id.toString()).toInt()
                 name.status = 2
 
                 updateTask(id.toInt(), name)
+
+
+                updateTask(taskPerent!!.id!!,taskPerent!!)
+
+                while (taskPerent?.parent != null)
+                {
+                    name = taskPerent
+
+                    taskPerent = getTask(taskPerent?.parent!!)
+
+                    taskPerent!!.scope = if(name!!.scope!! >  taskPerent!!.scope!!){
+                        name!!.scope!!
+                    }
+                    else{
+                        taskPerent!!.scope!!
+                    }
+
+                    updateTask(taskPerent.id!!,taskPerent)
+                }
+
+
+
+
+
+
 
                 call.respond(HttpStatusCode.Created)
             }
@@ -278,11 +316,11 @@ fun Application.TaskContriller() {
 
 
                 updateTask(id.toInt(), name)
+
+
                 call.respond(HttpStatusCode.Created)
+
             }
-
-
-
             //Создание задачи для веб
             options{
                 val task = call.receive<String>()
@@ -328,21 +366,7 @@ fun Application.TaskContriller() {
 
             }
 
-            put("status/{id}") {
 
-                val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
-                val taskId = call.parameters["id"]?.toIntOrNull()
-
-                    val task = call.receive<String>()
-                    val gson = Gson()
-
-                    val dependence = gson.fromJson(task, TaskDependence::class.java)
-                    val taskDTO = getTask(taskId!!)
-
-                    taskDTO?.dependence = dependence.dependence.toString()
-
-                    call.respond(updateTask(taskId!!, taskDTO!!))
-            }
 
             //Удаление задачи
             delete("/{id}") {
