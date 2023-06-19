@@ -48,6 +48,9 @@ dependencies {
     implementation("com.auth0:java-jwt:3.18.1")
     implementation("io.ktor:ktor-gson:1.6.4")
 
+    implementation("org.apache.poi:poi:5.0.0")
+    implementation ("org.apache.poi:poi-ooxml:5.0.0")
+
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
     implementation("io.ktor:ktor-server-sessions:$ktor_version")
