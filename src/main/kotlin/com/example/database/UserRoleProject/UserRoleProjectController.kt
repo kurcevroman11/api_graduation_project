@@ -10,6 +10,7 @@ import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProject
 import com.example.db.UserRoleProject.UserRoleProjectModel.insert
 import com.example.db.UserRoleProject.UserRoleProjectModel.scheduling
 import com.example.db.UserRoleProject.UserRoleProjectModel.updateURP
+import com.example.pluginsimport.Exele
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -67,7 +68,13 @@ fun Application.UserRoleProjectController() {
 
                 get("/calendar_plan") {
                     val serializedList = scheduling()
-                    call.respondText(serializedList!!, ContentType.Application.Json)
+                    call.respond(serializedList)
+                }
+
+                get("/excel"){
+                    val ex = Exele()
+                    ex.writeExcel("")
+                    call.respond(HttpStatusCode.OK)
                 }
 
                 get("/task/{id}") {

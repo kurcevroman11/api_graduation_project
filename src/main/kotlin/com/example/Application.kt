@@ -46,8 +46,8 @@ fun main() {
         .locations("db/migration") // указываем папку с миграциями
         .load()
     //Обновление истории схем
-    //flyway.repair()
-// запускаем миграции
+    flyway.repair()
+    // запускаем миграции
     flyway.migrate()
 
     // Запускаем БД

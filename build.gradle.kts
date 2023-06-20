@@ -61,4 +61,7 @@ dependencies {
 
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+
+    implementation("org.apache.poi:poi:5.0.0")
+    implementation("org.apache.poi:poi-ooxml:5.0.0")
 }

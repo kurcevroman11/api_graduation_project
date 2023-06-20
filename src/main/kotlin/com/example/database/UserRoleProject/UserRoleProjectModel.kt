@@ -2,6 +2,7 @@ package com.example.db.UserRoleProject
 
 import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.Task.TaskDTO
+import com.example.db.Task.TaskDependence
 import com.example.db.Task.TaskModel
 import com.google.gson.GsonBuilder
 import io.ktor.http.*
@@ -156,20 +157,33 @@ object UserRoleProjectModel : Table("usersroleproject") {
 
     @Serializable
     data class Calendar_plan(
+        val taskId: Int,
         val userScore: Int,
         val taskName: String,
+        val taskParent: Int,
         val taskScore: Int,
+        val taskDependence: String?
+    )
+
+    @Serializable
+    data class CalendarPlan(
+        val nameTask: String,
+        val execution: Int,
+        var start: Int = 0
     )
 
     // Метод, который планирует календарный план
-    fun scheduling(): String? {
+    fun scheduling():  MutableList<UserRoleProjectModel.CalendarPlan> {
         val list = mutableListOf<Calendar_plan>()
         transaction {
             exec(
                 "SELECT " +
+                        "task.id, " +
                         "usersroleproject.score, " +
                         "task.name, " +
-                        "task.score FROM person " +
+                        "task.parent, " +
+                        "task.score, " +
+                        "task.dependence FROM person " +
                         "INNER JOIN usser ON person.id = usser.personid " +
                         "INNER JOIN usersroleproject ON usser.id = usersroleproject.userid " +
                         "INNER JOIN task ON usersroleproject.current_task_id = task.id;"
@@ -178,30 +192,79 @@ object UserRoleProjectModel : Table("usersroleproject") {
                     list.add(
                         Calendar_plan(
                             rs.getInt(1),
-                            rs.getString(2),
-                            rs.getInt(3)
+                            rs.getInt(2),
+                            rs.getString(3),
+                            rs.getInt(4),
+                            rs.getInt(5),
+                            rs.getString(6)
                         )
                     )
                 }
             }
         }
+
+        val listOfPlan = mutableListOf<CalendarPlan>()
+
+
+
         //sheduling_task - в качестве ключа название задачи, а значение число (кол-во дней)
         val sheduling_task = mutableMapOf(list[0].taskName to 1)
 
         var taskScore = 0
         for (item in list) {
-            // task_doing - список, который отображет сколько дней исполнитель будет выполнять задание
-            var task_doing = 1
+            var task_doing = 1 // кол-во дней на выполение задания
             taskScore = item.taskScore
+            // Цикл подсчитывает количество дней на выполнение задания
             while (taskScore - item.userScore > 0) {
                 task_doing += 1
                 taskScore -= item.userScore
             }
-            sheduling_task.put(item.taskName, task_doing)
-            //list_sheduling_task.add(sheduling_task)
+
+            listOfPlan.add(
+                CalendarPlan(
+                nameTask = item.taskName,
+                execution = task_doing
+                )
+            )
         }
-        val gson = GsonBuilder().create()
-        return gson.toJson(sheduling_task)
+
+
+        val regex = "\\[(\\d+(?:,\\s*\\d+)*)\\]".toRegex()
+        val Id_blocking_tasks = mutableListOf<Int>()
+        for(item in list){
+            if(item.taskDependence != null){
+                regex.findAll(item.taskDependence!!).forEach {
+                    val values = it.groupValues[1].split(",").map { it.trim().toInt() }
+                    Id_blocking_tasks.addAll(values)
+                }
+            }
+        }
+
+        val days_execution = mutableListOf<Int>()
+        for(item in list){
+            if(Id_blocking_tasks.contains(item.taskId) || Id_blocking_tasks.contains(item.taskParent)){
+                for(plan in listOfPlan){
+                    if(plan.nameTask == item.taskName){
+                        days_execution.add(plan.execution)
+                    }
+                }
+            }
+        }
+
+        for(item in list){
+            if(item.taskDependence != null){
+                for(plan in listOfPlan){
+                    if(plan.nameTask == item.taskName){
+                        plan.start = days_execution.max()
+                    }
+                }
+            }
+        }
+
+
+
+
+        return listOfPlan
     }
 
     fun getURP(id: Int): UserRoleProjectDTO? {

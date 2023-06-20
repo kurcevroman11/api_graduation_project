@@ -1,4 +1,6 @@
 package com.example.pluginsimport
+
+import com.example.db.UserRoleProject.UserRoleProjectModel
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.FillPatternType
 import org.apache.poi.ss.usermodel.HorizontalAlignment
@@ -10,13 +12,13 @@ import java.io.FileOutputStream
 import java.nio.file.Paths
 
 
-data class CalendarPlan(val nameTask:String,val execution: Int,val start: Int = 0)
+data class CalendarPlan(val nameTask: String, val execution: Int, val start: Int = 0)
 
 class Exele {
     fun readExcel(paths: String) {
         val file = File(paths)
         val workbook = XSSFWorkbook(file)
-            val sheet = workbook.getSheetAt(0)
+        val sheet = workbook.getSheetAt(0)
 
         for (row in sheet) {
             for (cell in row) {
@@ -51,24 +53,23 @@ class Exele {
             cell.setCellValue(header.toString() + " день")
         }
 
-        // Запись данных
-        // Запись данных
-        val data = mutableListOf<CalendarPlan>( )
-        data.add(CalendarPlan("Дизайн",4))
-        data.add(CalendarPlan("Beck",2,1))
-        data.add(CalendarPlan("Frontend",6, 4))
-        data.add(CalendarPlan("QA",3, 10))
+        // Метод, который выводить словарь, где ключ - название задача, а
+        // значение кол-во дней выполнения задания
+        val calendarPlan = UserRoleProjectModel.scheduling()
+
+        val data = calendarPlan
+
         for ((rowIndex, rowData) in data.withIndex()) {
             val row = sheet.createRow(rowIndex + 1)
 
             val cell = row.createCell(0)
             cell.setCellValue(rowData.nameTask)
-            for (i in 1..rowData.execution){
-                val cellExecution = row.createCell(i  + rowData.start)
+            for (i in 1..rowData.execution) {
+                val cellExecution = row.createCell(i + rowData.start)
                 cellExecution.setCellValue(" ")
                 cellExecution.cellStyle = cellStyle
             }
-            }
+        }
 
 
         val headerStyle = workbook.createCellStyle()
@@ -81,10 +82,6 @@ class Exele {
         cell.setCellValue("Task/Day") // Установка значения ячейки
         sheet.setColumnWidth(0, 12 * 256) // Установка ширины столбцов
         headerRow.getCell(0).cellStyle = headerStyle
-
-
-
-
 
 
         sheet.setColumnWidth(0, 12 * 256) // Установка ширины столбца
