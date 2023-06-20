@@ -63,23 +63,8 @@ fun Application.TaskContriller() {
                     val taskId = call.parameters["id"]?.toIntOrNull()
                     if (taskId != null) {
                         val tastDTO = getDownTask(taskId)
-                        val gson = Gson()
-                        val task = gson.toJson(tastDTO)
-                        call.respond(task)
+                        call.respond(tastDTO)
                     }else {
-                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                    }
-
-                }
-
-                get("/downtask/{id}") {
-                    val taskId = call.parameters["id"]?.toIntOrNull()
-                    if (taskId != null) {
-                        val tastDTO = getDownTask(taskId)
-                        val gson = Gson()
-                        val task = gson.toJson(tastDTO)
-                        call.respond(task)
-                    } else {
                         call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
 

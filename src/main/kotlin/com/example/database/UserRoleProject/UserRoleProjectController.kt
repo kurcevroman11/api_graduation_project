@@ -22,7 +22,7 @@ import io.ktor.server.routing.*
 
 fun Application.UserRoleProjectController() {
     routing {
-        authenticate("auth-jwt"){
+        authenticate("auth-jwt") {
             route("/user_role_project") {
 
                 post("/task") {
@@ -60,12 +60,12 @@ fun Application.UserRoleProjectController() {
                     call.respondText(serializedList!!, ContentType.Application.Json)
                 }
 
-                get("/task_executors"){
+                get("/task_executors") {
                     getTask_executors()
                     call.respond(HttpStatusCode.Created)
                 }
 
-                get("/calendar_plan"){
+                get("/calendar_plan") {
                     val serializedList = scheduling()
                     call.respondText(serializedList!!, ContentType.Application.Json)
                 }

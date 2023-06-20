@@ -46,7 +46,7 @@ fun main() {
         .locations("db/migration") // указываем папку с миграциями
         .load()
     //Обновление истории схем
-    flyway.repair()
+    //flyway.repair()
 // запускаем миграции
     flyway.migrate()
 
@@ -64,6 +64,7 @@ fun main() {
 }
 
 fun Application.module() {
+    configureCORS()
     configureSerialization()
     configureLoginRouting()
     configureRegisterRouting()
