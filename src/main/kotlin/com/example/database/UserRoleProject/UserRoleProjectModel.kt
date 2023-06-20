@@ -5,22 +5,24 @@ import com.example.db.Task.TaskDTO
 import com.example.db.Task.TaskModel
 import com.google.gson.GsonBuilder
 import io.ktor.http.*
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object UserRoleProjectModel: Table("usersroleproject"){
-    private  val id = UserRoleProjectModel.integer("id").autoIncrement()
-    private  val users = UserRoleProjectModel.integer("userid").nullable()
-    private  val role = UserRoleProjectModel.integer("roleid").nullable()
-    private  val task = UserRoleProjectModel.integer("projectid").nullable()
+object UserRoleProjectModel : Table("usersroleproject") {
+    private val id = UserRoleProjectModel.integer("id").autoIncrement()
+    private val users = UserRoleProjectModel.integer("userid").nullable()
+    private val role = UserRoleProjectModel.integer("roleid").nullable()
+    private val task = UserRoleProjectModel.integer("projectid").nullable()
     private val type_of_activity = UserRoleProjectModel.integer("type_of_activityid").nullable()
     private val score = UserRoleProjectModel.integer("score").nullable()
+    private val current_task = UserRoleProjectModel.integer("current_task_id").nullable()
 
-    fun  insert(userRoleProjectDTO: UserRoleProjectDTO){
+    fun insert(userRoleProjectDTO: UserRoleProjectDTO) {
         transaction {
             addLogger(StdOutSqlLogger)
-            UserRoleProjectModel.insert{
+            UserRoleProjectModel.insert {
                 it[users] = userRoleProjectDTO.userid
                 it[role] = userRoleProjectDTO.roleid
                 it[task] = userRoleProjectDTO.projectid
@@ -29,7 +31,6 @@ object UserRoleProjectModel: Table("usersroleproject"){
             }
         }
     }
-
     fun getURPAll(): List<UserRoleProjectDTO> {
         return transaction {
             UserRoleProjectModel.selectAll().map {
@@ -39,26 +40,27 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     it[role],
                     it[task],
                     it[type_of_activity],
-                    it[score]
+                    it[score],
+                    it[current_task]
                 )
             }
         }
     }
-
-    fun getALLUserProject(id: Int) : MutableList<UserRoleProjectDTO>?
-    {
+    fun getALLUserProject(id: Int): MutableList<UserRoleProjectDTO>? {
         return transaction {
             exec(" SELECT * FROM usersroleproject WHERE projectid = $id;") { rs ->
                 val list = mutableListOf<UserRoleProjectDTO>()
                 while (rs.next()) {
-                    list.add(UserRoleProjectDTO(
-                        rs.getInt("id"),
-                        rs.getInt("userid"),
-                        rs.getInt("roleid"),
-                        rs.getInt("projectid"),
-                        rs.getInt("type_of_activityid"),
-                        rs.getInt("score")
-                    )
+                    list.add(
+                        UserRoleProjectDTO(
+                            rs.getInt("id"),
+                            rs.getInt("userid"),
+                            rs.getInt("roleid"),
+                            rs.getInt("projectid"),
+                            rs.getInt("type_of_activityid"),
+                            rs.getInt("score"),
+                            rs.getInt("current_task_id")
+                        )
                     )
                 }
                 return@exec list
@@ -69,13 +71,10 @@ object UserRoleProjectModel: Table("usersroleproject"){
     // Метод выводит только те проекты, в которых участвует пользователь
     fun getUserProject(userID: Int): String? {
         return transaction {
-            exec(
-                "SELECT task.id, task.name, " +
-                        "task.status, task.start_data, " +
-                        "task.descriptionid, task.parent, " +
-                        "task.score, task.generation, task.typeofactivityid, task.position, " +
-                        "task.gruop, task.dependence " +
-                        "(SELECT COUNT(userid) FROM usersroleproject WHERE projectid=task.id) as user_count " +
+            exec("SELECT task.id, task.name, " +
+                    "task.status, to_char(task.start_data, 'YYYY-MM-DD HH24:MI:SS') as start_date, " +
+                    "task.score, " +
+                    "(SELECT COUNT(userid) FROM usersroleproject WHERE projectid=task.id) as user_count " +
                     "FROM usersroleproject " +
                     "INNER JOIN task ON task.id = projectid " +
                     "WHERE userid = $userID;") { rs ->
@@ -87,19 +86,19 @@ object UserRoleProjectModel: Table("usersroleproject"){
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getInt("status"),
-                        rs.getString("start_data"),
-                        rs.getInt("descriptionid"),
-                        rs.getInt("parent"),
+                        rs.getString("start_date"),
                         rs.getInt("score"),
-                        rs.getInt("generation"),
-                        rs.getInt("typeofactivityid"),
-                        rs.getInt("position"),
-                        rs.getInt("gruop"),
-                        rs.getInt("dependence"),
-                        userCount
+                        null,
+                        null,
+                        userCount,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
                     )
-                    )
-                }
+                )
+            }
                 val gson = GsonBuilder().create()
                 return@exec gson.toJson(list)
             }
@@ -107,15 +106,40 @@ object UserRoleProjectModel: Table("usersroleproject"){
     }
 
     // Метод, который раскладывает всех исполнителей по задачам
-    fun getTask_executors(){
+    fun getTask_executors() {
+        var urp_all = getURPAll()
+        for (urp in urp_all) {
+            urp_all = getURPAll()
+            if (urp.current_task_id == null) {
+                var project = urp.projectid
+                if (project != null) {
+                    var task_list = TaskModel.getTaskWithChilds(project)
+                    if (task_list.size > 0) {
+                        var needed_gen = task_list[0].generation
+                        for (task in task_list) {
+                            var need_continue = false
+                            for (urp2 in urp_all) {
+                                if (urp2.current_task_id == task.id) {
+                                    need_continue = true
+                                    break
+                                }
+                            }
+                            if (need_continue || task.generation != needed_gen || task.typeofactivityid != urp.type_of_activityid)
+                                continue
 
+                            updateURP2(urp.id!!, task.id!!)
+                            break
+                        }
+                    }
+                }
+            }
+        }
     }
 
-    fun getUserProjectRole(idProjekt: Int, idUser: Int ) : Int?
-    {
+    fun getUserProjectRole(idProjekt: Int, idUser: Int): Int? {
         return transaction {
             exec(" SELECT roleid FROM usersroleproject WHERE projectid = $idProjekt AND userid = $idUser;") { rs ->
-                var role : Int? = null
+                var role: Int? = null
                 while (rs.next()) {
                     role = rs.getInt("roleid")
                 }
@@ -125,8 +149,61 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
     }
 
-    fun getURP(id:Int): UserRoleProjectDTO? {
-        return try{
+    @Serializable
+    data class Calendar_plan(
+        val userScore: Int,
+        val taskName: String,
+        val taskScore: Int,
+    )
+
+    // Метод, который планирует календарный план
+    fun scheduling(): String?{
+        val list = mutableListOf<Calendar_plan>()
+        transaction {
+            exec(
+                "SELECT " +
+                "usersroleproject.score, " +
+                "task.name, " +
+                "task.score FROM person " +
+                "INNER JOIN usser ON person.id = usser.personid " +
+                "INNER JOIN usersroleproject ON usser.id = usersroleproject.userid " +
+                "INNER JOIN task ON usersroleproject.current_task_id = task.id;") { rs ->
+                while (rs.next()) {
+                    list.add(Calendar_plan(
+                        rs.getInt(1),
+                        rs.getString(2),
+                        rs.getInt(3)
+                    )
+                    )
+                }
+            }
+        }
+
+
+
+
+         //sheduling_task - в качестве ключа название задачи, а значение список с типом Boolean
+        val sheduling_task = mutableMapOf(list[0].taskName to mutableListOf<Boolean>())
+
+         //list_sheduling_task - содержит в себе список словарей
+        //val list_sheduling_task = mutableListOf<sheduling_task>()
+
+        for(item in list){
+            // task_doing - список, который отображет сколько дней исполнитель будет выполнять задание
+            val task_doing = mutableListOf<Boolean>()
+            while(item.taskScore - item.userScore > 0){
+                task_doing.add(true)
+            }
+            sheduling_task.put(item.taskName, task_doing)
+            //list_sheduling_task.add(sheduling_task)
+        }
+
+
+        val gson = GsonBuilder().create()
+        return gson.toJson(sheduling_task)
+    }
+    fun getURP(id: Int): UserRoleProjectDTO? {
+        return try {
             transaction {
                 val UrpModle = UserRoleProjectModel.select { UserRoleProjectModel.id.eq(id) }.single()
                 UserRoleProjectDTO(
@@ -135,17 +212,16 @@ object UserRoleProjectModel: Table("usersroleproject"){
                     roleid = UrpModle[role],
                     projectid = UrpModle[task],
                     type_of_activityid = UrpModle[type_of_activity],
-                    score = UrpModle[score]
+                    score = UrpModle[score],
+                    current_task_id = UrpModle[current_task]
                 )
             }
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             null
         }
     }
 
     fun updateURP(id: Int, userRoleProjectDTO: UserRoleProjectDTO): HttpStatusCode {
-
         transaction {
             val urp = TaskModel.update({ UserRoleProjectModel.id eq (id) })
             {
@@ -154,6 +230,7 @@ object UserRoleProjectModel: Table("usersroleproject"){
                 it[task] = userRoleProjectDTO.projectid
                 it[type_of_activity] = userRoleProjectDTO.type_of_activityid
                 it[score] = userRoleProjectDTO.score
+                it[current_task] = userRoleProjectDTO.current_task_id
             }
             if (urp > 0) {
                 return@transaction HttpStatusCode.NoContent
@@ -163,7 +240,20 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
         return HttpStatusCode.OK
     }
-
+    fun updateURP2(id: Int, task_id: Int): HttpStatusCode {
+        transaction {
+            val urp = UserRoleProjectModel.update({ UserRoleProjectModel.id eq (id) })
+            {
+                it[current_task] = task_id
+            }
+            if (urp > 0) {
+                return@transaction HttpStatusCode.NoContent
+            } else {
+                return@transaction "Task with ID $id not found."
+            }
+        }
+        return HttpStatusCode.OK
+    }
     fun deleteURP(id: Int): HttpStatusCode {
         if (id != null) {
             transaction {
@@ -179,7 +269,6 @@ object UserRoleProjectModel: Table("usersroleproject"){
         }
         return HttpStatusCode.OK
     }
-
     fun deleteURPByTask(task_id: Int): HttpStatusCode {
         if (id != null) {
             transaction {

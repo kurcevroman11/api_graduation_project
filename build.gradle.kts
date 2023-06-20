@@ -20,6 +20,7 @@ application {
 
 repositories {
     mavenCentral()
+    maven { url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap") }
 }
 
 dependencies {
@@ -33,6 +34,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.40.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.40.1")
     implementation("org.jetbrains.exposed:exposed-jodatime:0.40.1")
+
     implementation("com.h2database:h2:2.1.214")
     implementation("com.squareup.okhttp3:okhttp:4.9.3")
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.10")
@@ -44,23 +46,19 @@ dependencies {
     implementation("com.nimbusds:nimbus-jose-jwt:9.10")
     implementation("io.github.microutils:kotlin-logging:1.11.0")
     implementation("io.github.cdimascio:java-dotenv:5.2.2")
-
-    implementation("com.auth0:java-jwt:3.18.1")
     implementation("io.ktor:ktor-gson:1.6.4")
-
-    implementation("org.apache.poi:poi:5.0.0")
-    implementation ("org.apache.poi:poi-ooxml:5.0.0")
-
-    implementation("io.ktor:ktor-server-auth:$ktor_version")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
-    implementation("io.ktor:ktor-server-sessions:$ktor_version")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktor_version")
     implementation("io.ktor:ktor-server-content-negotiation:$ktor_version")
     implementation("io.ktor:ktor-server-core:$ktor_version")
     implementation("io.ktor:ktor-server-netty:$ktor_version")
-
+    implementation("io.ktor:ktor-server-cors:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
     testImplementation("io.ktor:ktor-server-tests:$ktor_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
-    implementation("io.ktor:ktor-server-cors:$ktor_version")
+
+    implementation("io.ktor:ktor-server-sessions:$ktor_version")
+    implementation("io.ktor:ktor-server-caching-headers:$ktor_version")
+
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 }

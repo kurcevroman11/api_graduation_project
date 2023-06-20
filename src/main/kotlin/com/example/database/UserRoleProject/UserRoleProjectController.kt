@@ -3,16 +3,19 @@ package com.example.db.UserRoleProject
 import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.UserRoleProject.UserRoleProjectModel.deleteURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getALLUserProject
+import com.example.db.UserRoleProject.UserRoleProjectModel.getTask_executors
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getURPAll
 import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProject
 import com.example.db.UserRoleProject.UserRoleProjectModel.insert
+import com.example.db.UserRoleProject.UserRoleProjectModel.scheduling
 import com.example.db.UserRoleProject.UserRoleProjectModel.updateURP
 import com.google.gson.Gson
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -21,6 +24,16 @@ fun Application.UserRoleProjectController() {
     routing {
         authenticate("auth-jwt"){
             route("/user_role_project") {
+
+                post("/task") {
+                    val principle = call.principal<JWTPrincipal>()
+                    val userId = principle!!.payload.getClaim("userId").asInt()
+
+                    val serializedList = getUserProject(userId)
+
+                    call.respondText(serializedList!!, ContentType.Application.Json)
+                }
+
                 get {
                     val URPDTO = getURPAll()
                     val gson = Gson()
@@ -48,7 +61,13 @@ fun Application.UserRoleProjectController() {
                 }
 
                 get("/task_executors"){
+                    getTask_executors()
+                    call.respond(HttpStatusCode.Created)
+                }
 
+                get("/calendar_plan"){
+                    val serializedList = scheduling()
+                    call.respondText(serializedList!!, ContentType.Application.Json)
                 }
 
                 get("/task/{id}") {

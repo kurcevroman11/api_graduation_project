@@ -64,6 +64,7 @@ fun main() {
 }
 
 fun Application.module() {
+    configureCORS()
     configureSerialization()
     configureLoginRouting()
     configureRegisterRouting()
