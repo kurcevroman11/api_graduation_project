@@ -4,6 +4,7 @@ import com.example.database.user.UserModule.deleteUser
 import com.example.database.user.UserModule.fetchAllUser
 import com.example.database.user.UserModule.fetchUserID
 import com.example.database.user.UserModule.updateUser
+import com.example.db.Task.TaskModel
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import com.google.gson.Gson
@@ -17,6 +18,14 @@ fun Application.UserContriller() {
             //Вывод всех пользователей
             get {
                 val usersDTO = fetchAllUser()
+
+                val cookie = Cookie(
+                    name = "token",
+                    value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJEZXZlbG9wZXJzIiwiaXNzIjoiQmVlckplc3VzIiwidXNlcm5hbWUiOiJhZG1pbiIsInVzZXJJZCI6MiwiZXhwIjoxNjg2ODM1NDYzfQ.6RpHrFsoeMBfU-9K1EGE9SgJcvVwENsXfd77MsgkRWE",
+                    httpOnly = true
+                )
+
+                call.response.cookies.append(cookie)
 
                 call.respond(usersDTO)
             }

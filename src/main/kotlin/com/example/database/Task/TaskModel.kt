@@ -32,7 +32,7 @@ object TaskModel : Table("task") {
     private val typeofactivityid = TaskModel.integer("typeofactivityid").nullable()
     private val position = TaskModel.integer("position").nullable()
     private val gruop = TaskModel.integer("gruop").nullable()
-    private val dependence = TaskModel.integer("dependence").nullable()
+    private val dependence = TaskModel.text("dependence").nullable()
 
 
     private val userCount: Int = 0
@@ -286,7 +286,7 @@ object TaskForId: IdTable<Long>("task") {
     private val typeofactivityid = TaskForId.integer("typeofactivityid").nullable()
     private val postion = TaskForId.integer("position").nullable()
     private val gruop = TaskForId.integer("gruop").nullable()
-    private val dependence = TaskForId.integer("dependence").nullable()
+    private val dependence = TaskForId.text("dependence").nullable()
 
     override val primaryKey: PrimaryKey = PrimaryKey(id)
 

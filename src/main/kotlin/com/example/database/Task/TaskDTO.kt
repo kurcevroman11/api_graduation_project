@@ -19,7 +19,7 @@ class TaskDTO(
     val typeofactivityid: Int?,
     var position: Int?,
     var gruop: Int?,
-    var dependence: Int?
+    var dependence: String?
 )
 {
     constructor() : this(
