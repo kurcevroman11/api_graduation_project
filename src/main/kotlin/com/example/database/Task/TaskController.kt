@@ -41,38 +41,13 @@ data class TaskDependence(
 
 private val logger = KotlinLogging.logger {}
 fun Application.TaskContriller() {
-
-    install(CORS) {
-        allowMethod(HttpMethod.Options)
-        allowMethod(HttpMethod.Put)
-        allowMethod(HttpMethod.Patch)
-        allowMethod(HttpMethod.Delete)
-        allowMethod(HttpMethod.Get)
-
-        allowHost("client-host")
-        allowHost("client-host:8081")
-        allowHost("client-host", subDomains = listOf("en", "de", "es"))
-        allowHost("client-host", schemes = listOf("http", "https"))
-
-        allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.Authorization)
-        allowHeader(HttpHeaders.AccessControlAllowHeaders)
-        allowHeader(HttpHeaders.AccessControlAllowOrigin)
-        allowCredentials = true
-        allowNonSimpleContentTypes = true
-        allowCredentials = true
-        allowSameOrigin = true
-        anyHost()
-    }
-
-
     routing {
         authenticate("auth-jwt") {
             route("/task") {
                 // Вывод всех задач
                 get {
                     val taskDTOs = getTaskAll()
-                    call.respond (HttpStatusCode.OK, taskDTOs)
+                    call.respond(HttpStatusCode.OK, taskDTOs)
                 }
 
                 //Вывод всех проектов
@@ -96,265 +71,210 @@ fun Application.TaskContriller() {
                     val taskId = call.parameters["id"]?.toIntOrNull()
                     if (taskId != null) {
                         val tastDTO = getDownTask(taskId)
-                        val gson = Gson()
-                        val task = gson.toJson(tastDTO)
-                        call.respond(task)
-                    }else {
-                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                    }
-
-            }
-
-                get("/downtask/{id}") {
-                    val taskId = call.parameters["id"]?.toIntOrNull()
-                    if (taskId != null) {
-                        val tastDTO = getDownTask(taskId)
-                        val gson = Gson()
-                        val task = gson.toJson(tastDTO)
-                        call.respond(task)
+                        call.respond(tastDTO)
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
 
-            }
+                }
 
-            get("/calculation/{id}") {
-                val taskId = call.parameters["id"]?.toIntOrNull()
+                get("/calculation/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
 
-                var score = 0
-                val taskList = mutableListOf<TaskDTO>()
-                val downTaskList = mutableListOf<TaskDTO>()
-                if (taskId != null) {
-                    val taskDTO = getDownTask(taskId)
+                    var score = 0
+                    val taskList = mutableListOf<TaskDTO>()
+                    val downTaskList = mutableListOf<TaskDTO>()
+                    if (taskId != null) {
+                        val taskDTO = getDownTask(taskId)
 
-                    for (item in taskDTO)
-                    {
-                        val task = getDownTask(item.id!!)
+                        for (item in taskDTO) {
+                            val task = getDownTask(item.id!!)
 
-                        for (i in  0 until task.size)
-                        {
+                            for (i in 0 until task.size) {
 
-                            if(task[i].dependence != null) {
-                                score += task[i].scope!!
+                                if (task[i].dependence != null) {
+                                    score += task[i].scope!!
+                                } else if (task[i].scope!! > score) {
+                                    score = task[i].scope!!
+                                }
+
+                                if (task[i].typeofactivityid == 1 || task[i].typeofactivityid == 3)
+                                    downTaskList.add(0, task[i])
+                                else if (task[i].typeofactivityid == 2 || task[i].typeofactivityid == 4)
+                                    downTaskList.add(task[i])
                             }
-                            else if(task[i].scope!! > score)
-                            {
-                                score = task[i].scope!!
-                            }
+                            item.scope = score
+                            downTaskList.add(item)
+                            score = 0
+                            taskList.addAll(downTaskList)
 
-                            if(task[i].typeofactivityid == 1 || task[i].typeofactivityid == 3)
-                              downTaskList.add(0,task[i])
-                            else if (task[i].typeofactivityid == 2 || task[i].typeofactivityid == 4)
-                              downTaskList.add(task[i])
+                            downTaskList.clear()
                         }
-                        item.scope = score
-                        downTaskList.add(item)
-                        score = 0
-                        taskList.addAll(downTaskList)
+                        var k = 0
 
-                        downTaskList.clear()
-                    }
-                    var k = 0
+                        for (item in taskList) {
+                            item.position = k++
+                            updateTask(item.id!!, item)
+                        }
 
-                    for (item in taskList)
-                    {
-                        item.position = k++
-                        updateTask(item.id!!, item)
-                    }
+                        for (item in taskList) {
 
-                    for (item in taskList)
-                    {
-
-                        if(item.dependence != null) {
-                            val regex = Regex("\\d+")
-                            val values = regex.findAll(item.dependence!!.toString())
-                                .map { it.value.toInt() }
-                                .toList()
-                            for (i in values){
-                                val task = getTask(i)
-                                logger.info { "Задача: ${item.id} зависит от ${task!!.id}" }
-                                logger.info { "Задача: ${item.position} зависит от ${task!!.position}" }
-                                if(item.position!! < task!!.position!!) {
-                                    item.position = task!!.position!! + 1
-                                    updateTask(item.id!!, item)
+                            if (item.dependence != null) {
+                                val regex = Regex("\\d+")
+                                val values = regex.findAll(item.dependence!!.toString())
+                                    .map { it.value.toInt() }
+                                    .toList()
+                                for (i in values) {
+                                    val task = getTask(i)
+                                    logger.info { "Задача: ${item.id} зависит от ${task!!.id}" }
+                                    logger.info { "Задача: ${item.position} зависит от ${task!!.position}" }
+                                    if (item.position!! < task!!.position!!) {
+                                        item.position = task!!.position!! + 1
+                                        updateTask(item.id!!, item)
+                                    }
                                 }
                             }
                         }
-                    }
-
-
-
-
-                    call.respond(taskList)
-                }else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
-
-            }
-
-            get("/position/{id}"){
-                val taskId = call.parameters["id"]?.toIntOrNull()
-                val taskList = mutableListOf<TaskDTO>()
-                val downtaskList = mutableListOf<TaskDTO>()
-                if (taskId != null) {
-                    val taskDTO = getDownTask(taskId)
-
-                    for (item in taskDTO)
-                    {
-                        val task = getDownTask(item.id!!)
-
-                        for (i in  0 until task.size)
-                        {
-                            downtaskList.add(0,task[i])
-                        }
-                        downtaskList.add(item)
-                        taskList.addAll(downtaskList)
-                        downtaskList.clear()
-                    }
-
-                    var k = 0
-
-                    taskList.sortBy { it.position }
-
-                    call.respond(taskList)
-                }else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
-                }
-            }
-
-            //Создание подзадачи
-            post("/{id}") {
-                val task = call.receive<String>()
-                val gson = Gson()
-                val taskId = call.parameters["id"]?.toInt()
-
-                var name = gson.fromJson(task, TaskDTO::class.java)
-
-
-
-                var taskPerent = getTask(taskId!!)
-                val id = insertandGetIdTask(name)
-
-                if(name.generation != null){
-                    name.generation = taskPerent!!.generation!! + 1
-                }
-                var sum = 0
-
-
-
-
-                if (name.generation!! == 2) {
-                    taskPerent!!.scope = if (name!!.scope!! > taskPerent!!.scope!!) {
-                        name!!.scope!!
+                        call.respond(taskList)
                     } else {
-                        taskPerent!!.scope!!
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
-                    logger.info { "Сумма задач 2 поколения = ${taskPerent!!.scope}" }
-                }
-                else{
-                    val listDownTask = getDownTask(taskId)
 
-                    sum += name.scope!!
-                    for(task in listDownTask)
-                    {
-                        sum += task.scope!!
-                    }
-                    taskPerent!!.scope = sum
-                    logger.info { "Сумма задач 3 поколения = ${taskPerent!!.scope}" }
                 }
 
+                get("/position/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    val taskList = mutableListOf<TaskDTO>()
+                    val downtaskList = mutableListOf<TaskDTO>()
+                    if (taskId != null) {
+                        val taskDTO = getDownTask(taskId)
 
+                        for (item in taskDTO) {
+                            val task = getDownTask(item.id!!)
 
-                name.parent = taskId
-                name.description = createMedia(id.toString()).toInt()
-                name.status = 2
+                            for (i in 0 until task.size) {
+                                downtaskList.add(0, task[i])
+                            }
+                            downtaskList.add(item)
+                            taskList.addAll(downtaskList)
+                            downtaskList.clear()
+                        }
 
-                updateTask(id.toInt(), name)
+                        var k = 0
 
+                        taskList.sortBy { it.position }
 
-                updateTask(taskPerent!!.id!!,taskPerent!!)
-
-                while (taskPerent?.parent != null)
-                {
-                    name = taskPerent
-
-                    taskPerent = getTask(taskPerent?.parent!!)
-
-                    taskPerent!!.scope = if(name!!.scope!! >  taskPerent!!.scope!!){
-                        name!!.scope!!
+                        call.respond(taskList)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
-                    else{
-                        taskPerent!!.scope!!
-                    }
-
-                    updateTask(taskPerent.id!!,taskPerent)
                 }
 
+                //Создание подзадачи
+                post("/{id}") {
+                    val task = call.receive<String>()
+                    val gson = Gson()
+                    val taskId = call.parameters["id"]?.toInt()
+
+                    var name = gson.fromJson(task, TaskDTO::class.java)
 
 
+                    var taskPerent = getTask(taskId!!)
+                    val id = insertandGetIdTask(name)
 
+                    if (name.generation != null) {
+                        name.generation = taskPerent!!.generation!! + 1
+                    }
+                    var sum = 0
 
+                    if (name.generation!! == 2) {
+                        taskPerent!!.scope = if (name!!.scope!! > taskPerent!!.scope!!) {
+                            name!!.scope!!
+                        } else {
+                            taskPerent!!.scope!!
+                        }
+                        logger.info { "Сумма задач 2 поколения = ${taskPerent!!.scope}" }
+                    } else {
+                        val listDownTask = getDownTask(taskId)
 
+                        sum += name.scope!!
+                        for (task in listDownTask) {
+                            sum += task.scope!!
+                        }
+                        taskPerent!!.scope = sum
+                        logger.info { "Сумма задач 3 поколения = ${taskPerent!!.scope}" }
+                    }
 
-                call.respond(HttpStatusCode.Created)
-            }
+                    name.parent = taskId
+                    name.description = createMedia(id.toString()).toInt()
+                    name.status = 2
 
-            //Создание задачи
-            post {
-                val task = call.receive<String>()
-                val gson = Gson()
+                    updateTask(id.toInt(), name)
 
+                    updateTask(taskPerent!!.id!!, taskPerent!!)
 
-                val name = gson.fromJson(task, TaskDTO::class.java)
+                    while (taskPerent?.parent != null) {
+                        name = taskPerent
 
-                val id = insertandGetIdTask(name)
+                        taskPerent = getTask(taskPerent?.parent!!)
 
-                name.description = createMedia(id.toString()).toInt()
-                name.status = 2
-                name.generation = 1
-                name.scope = 0
+                        taskPerent!!.scope = if (name!!.scope!! > taskPerent!!.scope!!) {
+                            name!!.scope!!
+                        } else {
+                            taskPerent!!.scope!!
+                        }
 
+                        updateTask(taskPerent.id!!, taskPerent)
+                    }
 
-                updateTask(id.toInt(), name)
+                    call.respond(HttpStatusCode.Created)
+                }
 
+                //Создание задачи
+                post {
+                    val task = call.receive<String>()
+                    val gson = Gson()
 
-                call.respond(HttpStatusCode.Created)
+                    val name = gson.fromJson(task, TaskDTO::class.java)
 
-            }
-            //Создание задачи для веб
-            options{
-                val task = call.receive<String>()
-                val gson = Gson()
-                val name = gson.fromJson(task, TaskDTO::class.java)
-                name.description = createMedia(name.name).toInt()
-                name.status = 2
+                    val id = insertandGetIdTask(name)
 
-                insert(name)
-                call.respond(HttpStatusCode.Created)
+                    name.description = createMedia(id.toString()).toInt()
+                    name.status = 2
+                    name.generation = 1
+                    name.scope = 0
 
-            }
+                    updateTask(id.toInt(), name)
 
-            //Обновеление задачи
-            put("/{id}") {
+                    call.respond(HttpStatusCode.Created)
 
-                val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
-                val taskId = call.parameters["id"]?.toIntOrNull()
+                }
 
-                val status = authorization_user(apiToken, taskId, 3)//Проверка доступа
-                if(status.code == HttpStatusCode.OK) {
+                //Обновеление задачи
+                put("update/{id}") {
+
+                    val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+
                     val task = call.receive<String>()
                     val gson = Gson()
                     val taskDTO = gson.fromJson(task, TaskDTO::class.java)
-                    call.respond(status.code,updateTask(taskId!!, taskDTO))
+                    call.respond(updateTask(taskId!!, taskDTO))
+
+//                    val status = authorization_user(apiToken, taskId, 3)//Проверка доступа
+//                    if (status.code == HttpStatusCode.OK) {
+//                        val task = call.receive<String>()
+//                        val gson = Gson()
+//
+//                    }
+//                    call.respond(status.code, status.description)
+
                 }
-                call.respond(status.code,status.description)
-            }
 
+                put("dependence/{id}") {
 
-            put("dependence/{id}") {
-
-                val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
-                val taskId = call.parameters["id"]?.toIntOrNull()
+                    val apiToken = call.request.header(HttpHeaders.Authorization)?.removePrefix("Bearer ")
+                    val taskId = call.parameters["id"]?.toIntOrNull()
 
                     val task = call.receive<String>()
                     val gson = Gson()
@@ -364,21 +284,19 @@ fun Application.TaskContriller() {
                     taskDTO?.dependence = dependence.dependence.toString()
                     call.respond(updateTask(taskId!!, taskDTO!!))
 
-            }
+                }
 
-
-
-            //Удаление задачи
-            delete("/{id}") {
-                val taskId = call.parameters["id"]?.toIntOrNull()
-                if (taskId != null) {
-                    call.respond(deletTask(taskId), "Delete")
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                //Удаление задачи
+                delete("/{id}") {
+                    val taskId = call.parameters["id"]?.toIntOrNull()
+                    if (taskId != null) {
+                        call.respond(deletTask(taskId), "Delete")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
+                    }
                 }
             }
         }
-    }
     }
 }
 

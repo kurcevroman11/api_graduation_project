@@ -198,7 +198,7 @@ object TaskModel : Table("task") {
                 )
             }
         } catch (e: Exception) {
-            TaskDTO()
+            null
         }
     }
 
