@@ -1,5 +1,6 @@
 package com.example.db.UserRoleProject
 
+import com.example.database.Person.PersonModule.deletePerson
 import com.example.database.UserRoleProject.UserRoleProjectDTO
 import com.example.db.UserRoleProject.UserRoleProjectModel.deleteURP
 import com.example.db.UserRoleProject.UserRoleProjectModel.getALLUserProject
@@ -32,7 +33,7 @@ fun Application.UserRoleProjectController() {
 
                     val serializedList = getUserProject(userId)
 
-                    call.respondText(serializedList!!, ContentType.Application.Json)
+                    call.respond(serializedList!!)
                 }
 
                 get {
@@ -49,6 +50,8 @@ fun Application.UserRoleProjectController() {
                     } else {
                         call.respond(HttpStatusCode.BadRequest, "Invalid ID format.")
                     }
+
+                    deletePerson(2)
                 }
 
                 // ������� ��� �������, � ������� ��������� ������������
@@ -56,9 +59,20 @@ fun Application.UserRoleProjectController() {
                     val principle = call.principal<JWTPrincipal>()
                     val userId = principle!!.payload.getClaim("userId").asInt()
 
+                    val authorization = call.request.header(HttpHeaders.Authorization)
+                    println()
+                    println(authorization)
+                    println()
+
+                    val host = call.request.header(HttpHeaders.Host)
+                    println()
+                    println(host)
+                    println()
+
                     val serializedList = getUserProject(userId)
 
-                    call.respondText(serializedList!!, ContentType.Application.Json)
+                    call.respond(serializedList!!)
+
                 }
 
                 get("/task_executors") {
@@ -73,7 +87,7 @@ fun Application.UserRoleProjectController() {
 
                 get("/excel"){
                     val ex = Exele()
-                    ex.writeExcel("")
+                    ex.writeExcel("C:\\Users\\386\\OneDrive\\Документы\\Сайт\\plan.xlsx")
                     call.respond(HttpStatusCode.OK)
                 }
 

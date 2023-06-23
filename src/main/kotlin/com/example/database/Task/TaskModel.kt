@@ -229,10 +229,10 @@ object TaskModel : Table("task") {
 
     fun deleteTaskInternal(id: Int): Int {
         var m_task = getTask(id)
-        val deletedRowCount = TaskModel.deleteWhere { TaskModel.id eq id }
-        DescriptionModel.deletDescription(m_task?.description)
-        UserRoleProjectModel.deleteURPByTask(id)
 
+        UserRoleProjectModel.deleteURPByTask(id)
+        val deletedRowCount = TaskModel.deleteWhere { TaskModel.id eq id }
+        DescriptionModel.deletDescription(m_task?.description!!)
         val tasks = getTaskAll()
         for (task in tasks) {
             var parent_id = task.parent

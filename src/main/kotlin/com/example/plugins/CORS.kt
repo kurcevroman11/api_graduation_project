@@ -9,11 +9,18 @@ fun Application.configureCORS(){
         allowHeader(HttpHeaders.CacheControl)
         exposeHeader(HttpHeaders.CacheControl)
         allowHeader(HttpHeaders.ContentType)
-        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+        allowHeader("Access-Control-Allow-Origin")
         allowHeader(HttpHeaders.AccessControlAllowHeaders)
         allowHeader(HttpHeaders.AccessControlAllowMethods)
         allowHeader(HttpHeaders.AccessControlAllowCredentials)
         allowHeader(HttpHeaders.Authorization)
+
+        allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Put)
+        allowMethod(HttpMethod.Patch)
+        allowMethod(HttpMethod.Delete)
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
         allowCredentials = true
         allowSameOrigin = true
 

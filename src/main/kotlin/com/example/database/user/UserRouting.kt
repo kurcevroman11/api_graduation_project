@@ -15,20 +15,6 @@ import io.ktor.server.response.*
 fun Application.UserContriller() {
     routing {
         route("/User") {
-            //Вывод всех пользователей
-            get {
-                val usersDTO = fetchAllUser()
-
-                val cookie = Cookie(
-                    name = "token",
-                    value = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJEZXZlbG9wZXJzIiwiaXNzIjoiQmVlckplc3VzIiwidXNlcm5hbWUiOiJhZG1pbiIsInVzZXJJZCI6MiwiZXhwIjoxNjg2ODM1NDYzfQ.6RpHrFsoeMBfU-9K1EGE9SgJcvVwENsXfd77MsgkRWE",
-                    httpOnly = true
-                )
-
-                call.response.cookies.append(cookie)
-
-                call.respond(usersDTO)
-            }
             //Вывод определенного пользователя
             get("/{id}") {
                 val userId = call.parameters["id"]?.toIntOrNull()

@@ -72,16 +72,23 @@ object UserRoleProjectModel : Table("usersroleproject") {
     }
 
     // Метод выводит только те проекты, в которых участвует пользователь
-    fun getUserProject(userID: Int): String? {
+    fun getUserProject(userID: Int): MutableList<TaskDTO>? {
         return transaction {
             exec(
-                "SELECT task.id, task.name, " +
-                        "task.status, to_char(task.start_data, 'YYYY-MM-DD HH24:MI:SS') as start_date, " +
-                        "task.score, " +
-                        "(SELECT COUNT(userid) FROM usersroleproject WHERE projectid=task.id) as user_count " +
-                        "FROM usersroleproject " +
-                        "INNER JOIN task ON task.id = projectid " +
-                        "WHERE userid = $userID;"
+                "SELECT task.id, " +
+                        "task.name, " +
+                        "task.status, " +
+                        "to_char(task.start_data, 'YYYY-MM-DD HH24:MI:SS') as start_date, " +
+                        "task.score, task.descriptionid, " +
+                        "task.parent, " +
+                        "task.generation, " +
+                        "task.typeofactivityid, " +
+                        "task.position, " +
+                        "task.gruop, " +
+                        "task.dependence, " +
+                        "(SELECT COUNT(userid) FROM usersroleproject " +
+                        "WHERE projectid=task.id) as user_count FROM usersroleproject " +
+                        "INNER JOIN task ON task.id = projectid WHERE userid = $userID;"
             ) { rs ->
                 val list = mutableListOf<TaskDTO>()
                 while (rs.next()) {
@@ -94,19 +101,18 @@ object UserRoleProjectModel : Table("usersroleproject") {
                             rs.getInt("status"),
                             rs.getString("start_date"),
                             rs.getInt("score"),
-                            null,
-                            null,
+                            rs.getInt("descriptionid"),
+                            rs.getInt("parent"),
                             userCount,
-                            null,
-                            null,
-                            null,
-                            null,
-                            null
+                            rs.getInt("generation"),
+                            rs.getInt("typeofactivityid"),
+                            rs.getInt("position"),
+                            rs.getInt("gruop"),
+                            rs.getString("dependence")
                         )
                     )
                 }
-                val gson = GsonBuilder().create()
-                return@exec gson.toJson(list)
+                return@exec list
             }
         }
     }
@@ -173,7 +179,7 @@ object UserRoleProjectModel : Table("usersroleproject") {
     )
 
     // Метод, который планирует календарный план
-    fun scheduling():  MutableList<UserRoleProjectModel.CalendarPlan> {
+    fun scheduling(): MutableList<UserRoleProjectModel.CalendarPlan> {
         val list = mutableListOf<Calendar_plan>()
         transaction {
             exec(
@@ -206,7 +212,6 @@ object UserRoleProjectModel : Table("usersroleproject") {
         val listOfPlan = mutableListOf<CalendarPlan>()
 
 
-
         //sheduling_task - в качестве ключа название задачи, а значение число (кол-во дней)
         val sheduling_task = mutableMapOf(list[0].taskName to 1)
 
@@ -222,47 +227,41 @@ object UserRoleProjectModel : Table("usersroleproject") {
 
             listOfPlan.add(
                 CalendarPlan(
-                nameTask = item.taskName,
-                execution = task_doing
+                    nameTask = item.taskName,
+                    execution = task_doing
                 )
             )
         }
 
-
         val regex = "\\[(\\d+(?:,\\s*\\d+)*)\\]".toRegex()
-        val Id_blocking_tasks = mutableListOf<Int>()
-        for(item in list){
-            if(item.taskDependence != null){
-                regex.findAll(item.taskDependence!!).forEach {
-                    val values = it.groupValues[1].split(",").map { it.trim().toInt() }
-                    Id_blocking_tasks.addAll(values)
-                }
-            }
-        }
 
-        val days_execution = mutableListOf<Int>()
-        for(item in list){
-            if(Id_blocking_tasks.contains(item.taskId) || Id_blocking_tasks.contains(item.taskParent)){
-                for(plan in listOfPlan){
-                    if(plan.nameTask == item.taskName){
-                        days_execution.add(plan.execution)
+        var count = 0
+        while(count != 2){
+            for (item in list) {
+                var dependences = mutableListOf<Int>()
+                if (item.taskDependence != null) {
+                    regex.findAll(item.taskDependence!!).forEach {
+                        val values = it.groupValues[1].split(",").map { it.trim().toInt() }
+                        dependences.addAll(values)
+                    }
+
+                    for (blocking_item in list) {
+                        if (dependences.contains(blocking_item.taskId) || dependences.contains(blocking_item.taskParent)) {
+                            for (plan in listOfPlan) {
+                                if (plan.nameTask == blocking_item.taskName) {
+                                    for (plan_dependnce in listOfPlan) {
+                                        if (plan_dependnce.nameTask == item.taskName) {
+                                            plan_dependnce.start = plan.execution + plan.start
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
+            count += 1
         }
-
-        for(item in list){
-            if(item.taskDependence != null){
-                for(plan in listOfPlan){
-                    if(plan.nameTask == item.taskName){
-                        plan.start = days_execution.max()
-                    }
-                }
-            }
-        }
-
-
-
 
         return listOfPlan
     }

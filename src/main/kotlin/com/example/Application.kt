@@ -1,5 +1,6 @@
 package com.example
 
+import CommentContriller
 import com.example.database.Person.PersonContriller
 import com.example.database.Role.RoleContriller
 import com.example.database.Status.StatusContriller
@@ -76,9 +77,11 @@ fun Application.module() {
     Type_of_activityContriller()
     StatusContriller()
     DescriptionContriller()
+    CommentContriller()
     tokenUser()
     header()
     cookie()
+    heades()
 }
 
 fun waitForDatabase() {
