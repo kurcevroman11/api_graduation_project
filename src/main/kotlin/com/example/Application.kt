@@ -12,12 +12,8 @@ import com.example.db.UserRoleProject.UserRoleProjectController
 import com.example.features.login.configureLoginRouting
 import com.example.features.register.configureRegisterRouting
 import com.example.plugins.*
-import com.example.utils.TokenManager
-
 import io.github.cdimascio.dotenv.Dotenv
 import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import mu.KotlinLogging
@@ -57,7 +53,6 @@ fun main() {
         driver = "org.postgresql.Driver",
         user = "$postgresUser",
         password = "$postgresPassword"
-
     )
 
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module)
@@ -85,12 +80,9 @@ fun Application.module() {
 }
 
 fun waitForDatabase() {
-    val host: String? = dotenv["HOST"]
-    val port = 5432
-
     while (true) {
         try {
-            Socket(host, port).use { socket ->
+            Socket(host, port!!.toInt()).use { socket ->
                 logger.info { "Порт базы данных доступен. Запуск приложения." }
                 return
             }

@@ -17,7 +17,6 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -85,7 +84,7 @@ fun Application.UserRoleProjectController() {
                     call.respond(serializedList)
                 }
 
-                get("/excel"){
+                get("/excel") {
                     val ex = Exele()
                     ex.writeExcel("C:\\Users\\386\\OneDrive\\Документы\\Сайт\\plan.xlsx")
                     call.respond(HttpStatusCode.OK)

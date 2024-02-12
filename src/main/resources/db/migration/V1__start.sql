@@ -18,8 +18,6 @@ SET row_security = off;
 
 SET default_tablespace = '';
 
-SET default_table_access_method = heap;
-
 --
 -- Name: comments; Type: TABLE; Schema: public; Owner: postgres
 --
@@ -127,40 +125,6 @@ ALTER TABLE public.excel_file_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.excel_file_id_seq OWNED BY public.excel_file.id;
---
--- Name: excel_file; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.excel_file (
-    id integer NOT NULL,
-    name_plan character varying,
-    path character varying,
-    projectid integer
-);
-
-
-ALTER TABLE public.excel_file OWNER TO postgres;
-
---
--- Name: excel_file_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
---
-
-CREATE SEQUENCE public.excel_file_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE public.excel_file_id_seq OWNER TO postgres;
-
---
--- Name: excel_file_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
---
-
-ALTER SEQUENCE public.excel_file_id_seq OWNED BY public.excel_file.id;
 
 
 --
@@ -200,21 +164,6 @@ ALTER TABLE public.usersroleproject_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.usersroleproject_id_seq OWNED BY public.usersroleproject.id;
-
-
---
--- Name: file; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.file (
-    id integer DEFAULT nextval('public.usersroleproject_id_seq'::regclass) NOT NULL,
-    orig_filename text,
-    type text,
-    "taskId" integer
-);
-
-
-ALTER TABLE public.file OWNER TO postgres;
 
 --
 -- Name: person; Type: TABLE; Schema: public; Owner: postgres
@@ -547,14 +496,6 @@ COPY public.excel_file (id, name_plan, path, projectid) FROM stdin;
 
 
 --
--- Data for Name: file; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-COPY public.file (id, orig_filename, type, "taskId") FROM stdin;
-\.
-
-
---
 -- Data for Name: person; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -596,7 +537,6 @@ COPY public.status (id, name) FROM stdin;
 --
 
 COPY public.task (id, name, status, start_data, descriptionid, parent, score, generation, typeofactivityid, "position", gruop, dependence) FROM stdin;
-<<<<<<< HEAD:src/main/resources/db/migration/V1__Start.sql
 29	Разработать API	2	2023-06-16 12:04:29.661011+03	26	28	12	2	1	\N	\N	\N
 32	Разработать put запрос	2	2023-06-16 12:08:36.978714+03	29	29	3	3	1	\N	\N	\N
 31	Разработать post запрос	2	2023-06-16 12:08:24.750142+03	28	29	3	3	1	\N	\N	\N
@@ -607,10 +547,6 @@ COPY public.task (id, name, status, start_data, descriptionid, parent, score, ge
 33	Разработать дизайн	2	2023-06-16 12:34:05.15122+03	30	28	18	2	2	\N	\N	\N
 28	Приложение список дел	2	2023-06-16 11:57:11.168978+03	25	\N	18	1	\N	\N	\N	\N
 37	Разработка KMM по отрисовки задач	2	2023-06-16 23:52:52.584454+03	34	\N	0	1	2	\N	\N	\N
-=======
-19	Разработать дизайн	2	2023-06-12 19:08:27.234395+03	19	18	8	2	3	\N	\N	\N
-18	Приложение список дел	2	2023-06-12 19:02:07.416664+03	18	\N	8	1	\N	\N	\N	\N
->>>>>>> master:src/main/resources/db/migration/V1__start.sql
 \.
 
 
@@ -746,14 +682,6 @@ ALTER TABLE ONLY public.description
 
 ALTER TABLE ONLY public.excel_file
     ADD CONSTRAINT excel_file_pkey PRIMARY KEY (id);
-
-
---
--- Name: file file_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.file
-    ADD CONSTRAINT file_pkey PRIMARY KEY (id);
 
 
 --

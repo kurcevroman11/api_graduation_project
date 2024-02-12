@@ -3,16 +3,16 @@ package com.example.db
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.sql.Connection
+
 class dbHelper {
 
     fun creatyTable(name_user : String) {
         // Создаем соединение с базой данных PostgreSQL
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/sebbia1",
+            url = "jdbc:postgresql://localhost:5433/sebbia",
             driver = "org.postgresql.Driver",
             user = "postgres",
-            password = "123321"
+            password = "qwerty"
         )
 
         // Создаем таблицу users
@@ -34,10 +34,10 @@ class dbHelper {
     }
     fun addUser() {
         Database.connect(
-            url = "jdbc:postgresql://localhost:5432/Sebbia",
+            url = "jdbc:postgresql://localhost:5433/sebbia",
             driver = "org.postgresql.Driver",
             user = "postgres",
-            password = "123321"
+            password = "qwerty"
         )
 
         // Создаем таблицу users

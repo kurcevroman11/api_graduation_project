@@ -7,12 +7,14 @@ services:
     depends_on:
       - db
   db:
-    image: postgres
-    volumes:
-      - ./data:/var/lib/postgresql/data
+    image: postgres:10.5-alpine
     environment:
       - POSTGRES_DB=sebbia
       - POSTGRES_HOST_AUTH_METHOD=trust
-      - POSTGRES_PASSWORD=123321
+      - POSTGRES_PASSWORD=qwerty
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+volumes:
+  pg-data:

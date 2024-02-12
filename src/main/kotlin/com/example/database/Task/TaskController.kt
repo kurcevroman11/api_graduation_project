@@ -1,38 +1,21 @@
 package com.example.db.Task
 
-import com.example.database.Description.DescriptionForTask.insertandGetId
-import com.example.database.user.UserModule.getUserToLogin
-import com.example.db.Description.DescriptionDTO
 import com.example.db.Task.TaskForId.insertandGetIdTask
-import io.ktor.server.application.*
-import io.ktor.server.routing.*
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
-import com.example.db.Task.TaskModel
 import com.example.db.Task.TaskModel.deletTask
 import com.example.db.Task.TaskModel.getDownTask
 import com.example.db.Task.TaskModel.getProjectAll
 import com.example.db.Task.TaskModel.getTask
 import com.example.db.Task.TaskModel.getTaskAll
-import com.example.db.Task.TaskModel.insert
 import com.example.db.Task.TaskModel.updateTask
-import com.example.db.UserRoleProject.UserRoleProjectModel.getUserProjectRole
-import com.example.plugins.authorization_user
 import com.example.plugins.createMedia
-import com.example.plugins.decodeJwtToken
-import com.example.utils.TokenManager
 import com.google.gson.Gson
 import io.ktor.http.*
+import io.ktor.server.application.*
 import io.ktor.server.auth.*
-import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import io.ktor.server.routing.*
 import mu.KotlinLogging
-import java.util.*
-
 
 data class TaskDependence(
     val name: String,

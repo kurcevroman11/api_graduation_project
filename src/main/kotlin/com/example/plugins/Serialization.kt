@@ -1,15 +1,11 @@
 package com.example.plugins
 
-
-
 import com.example.utils.TokenManager
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.plugins.*
 import io.ktor.server.plugins.contentnegotiation.*
-
 
 fun Application.configureSerialization() {
   install(ContentNegotiation){
@@ -31,7 +27,6 @@ fun Application.configureSerialization() {
       }
     }
   }
-
 }
 
 

@@ -3,15 +3,10 @@ package com.example.utils
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.example.plugins.User
-import com.example.plugins.sekret
 import io.github.cdimascio.dotenv.Dotenv
-import io.ktor.server.config.*
 import java.util.*
 
 val dotenv: Dotenv = Dotenv.configure().load()
-
-
 
 class TokenManager() {
     val issuer = "BeerJesus"
